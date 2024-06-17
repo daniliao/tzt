@@ -11,7 +11,7 @@ export const patients = sqliteTable('patients', {
 
 export const config = sqliteTable('config', {
     ***REMOVED***: text('***REMOVED***', { mode: 'text' }).primaryKey(),
-    value: text('firstName'),
+    value: text('value'),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
