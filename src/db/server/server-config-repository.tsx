@@ -1,4 +1,4 @@
-import { BaseRepository } from "../base-repository"
+import { BaseRepository, create } from "../base-repository"
 import { Config } from "../models";
 import { db, getCurrentTS } from '@/db/server/db-provider'
 import { config } from "./schema";
@@ -9,22 +9,19 @@ export default class ServerConfigRepository extends BaseRepository<Config> {
 
     // create a new config
     async create(item: Config): Promise<Config> {
-        const returnedConfig = db.insert(config).values(item).returning().get()
-        return Promise.resolve(returnedConfig as Config)   
+        return create(item, config, db); // generic implementation
     }
 
     // update config
-    async update(query:Record<string, any>, item: Config): Promise<Config> {        
-
-        if(!query.***REMOVED***) throw new Error('Please set the query.***REMOVED*** to update the proper config variable');
-
+    async upsert(query:Record<string, any>, item: Config): Promise<Config> {        
         let existingConfig = db.select({ ***REMOVED***: config.***REMOVED***, value: config.value, updatedAt: config.updatedAt}).from(config).where(eq(config.***REMOVED***, query.***REMOVED***)).get() as Config
         if (!existingConfig) {
             existingConfig = await this.create(existingConfig)
+        } else {
+            existingConfig.value = item.value
+            existingConfig.updatedAt = getCurrentTS()
+            db.update(config).set(existingConfig).where(eq(config.***REMOVED***, query.***REMOVED***)).run();
         }
-        existingConfig.value = item.value
-        existingConfig.updatedAt = getCurrentTS()
-        db.update(config).set(existingConfig).where(eq(config.***REMOVED***, query.***REMOVED***)).run();
         return Promise.resolve(existingConfig as Config)   
     }
 
