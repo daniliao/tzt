@@ -68,7 +68,7 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
     dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'encryptionKey', value: (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || "" });
     dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'saveToLocalStorage', value: (typeof localStorage !== 'undefined') && localStorage.getItem("saveToLocalStorage") === "true" });
 
-    fetch('/***REMOVED***/config')
+    fetch('/***REMOVED***/config') // TODO: Create API Client for config endpoint supporting encryption and decryption
       .then((response) => response.json())
       .then((data) => {
         dispatch({ type: 'LOAD_SERVER_CONFIG', config: data });
