@@ -38,6 +38,12 @@ export function SettingsPopup() {
     config?.setLocalConfig('encryptionKey', encryptionKey);
   }
 
+/*  function ***REMOVED***Manager(e) {
+    if (window.PasswordCredential) {
+      var c = new PasswordCredential({ id: "patient-pad", ***REMOVED***: encryptionKey });
+      return navigator.credentials.store(c);
+    } else return true;            
+  }*/
   function generateEncryptionKey() {
     const ***REMOVED*** = crypto.getRandomValues(new Uint8Array(32))
     return btoa(String.fromCharCode(...***REMOVED***))
@@ -69,7 +75,7 @@ export function SettingsPopup() {
             </div>
             <div className="grid gap-1">
               <Label htmlFor="encryptionKey">Encryption Key</Label>
-              <PasswordInput  autoComplete="true" id="encryptionKey" value={encryptionKey} 
+              <PasswordInput  autoComplete="new-***REMOVED***" id="***REMOVED***" value={encryptionKey} 
               onChange={(e) => config?.setLocalConfig("encryptionKey", e.target.value)} />
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Please save or print this master ***REMOVED*** as after losing it your medical records won't be possible to recover.
