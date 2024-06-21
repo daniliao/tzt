@@ -17,7 +17,7 @@ export class EncryptionUtils {
       ['encrypt', 'decrypt']
     );
   }
-  
+
   private async deriveKey(***REMOVED***Key: string): Promise<ArrayBuffer> {
     const encoder = new TextEncoder();
     const salt = encoder.encode('someSalt'); // Replace 'someSalt' with a suitable salt value
@@ -79,29 +79,29 @@ export class DTOEncryptionFilter<T> {
       this.utils = new EncryptionUtils(***REMOVED***Key);
     }
   
-    encrypt(dto: T): T {
-      return this.process(dto, (value) => {
+    async encrypt(dto: T): Promise<T> {
+      return this.process(dto, async (value) => {
         if (typeof value === 'object') {
-          return 'json-' + this.utils.encrypt(JSON.stringify(value));
+          return 'json-' + await this.utils.encrypt(JSON.stringify(value));
         }
-        return this.utils.encrypt(value);
+        return await this.utils.encrypt(value);
       });
     }
-  
-    decrypt(dto: T): T {
-      return this.process(dto, (value) => {
+    
+    async decrypt(dto: T): Promise<T> {
+      return this.process(dto, async (value) => {
         if (value.startsWith('json-')) {
-          return JSON.parse(this.utils.decrypt(value.slice(5)));
+          return JSON.parse(await this.utils.decrypt(value.slice(5)));
         }
-        return this.utils.decrypt(value);
+        return await this.utils.decrypt(value);
       });
     }
   
-    private process(dto: T, processFn: (value: string) => string): T {
+    private async process(dto: T, processFn: (value: string) => Promise<string>): T {
       const result = {} as T;
       for (const ***REMOVED*** in dto) {
         if (typeof dto[***REMOVED***] === 'string' || typeof dto[***REMOVED***] === 'object') {
-          result[***REMOVED***] = processFn(dto[***REMOVED***] as unknown as string);
+          result[***REMOVED***] = await processFn(dto[***REMOVED***] as unknown as string);
         } else {
           result[***REMOVED***] = dto[***REMOVED***];
         }
