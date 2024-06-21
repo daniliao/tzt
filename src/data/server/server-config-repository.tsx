@@ -27,6 +27,10 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
         return Promise.resolve(existingConfig as ConfigDTO)   
     }
 
+    async delete(query: Record<string, string>): Promise<boolean> {
+        return db.delete(config).where(eq(config.***REMOVED***, query.***REMOVED***)).run()
+    }
+
     async findAll(): Promise<ConfigDTO[]> {
         return Promise.resolve(db.select({
             ***REMOVED***: config.***REMOVED***,
