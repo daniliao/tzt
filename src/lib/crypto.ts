@@ -106,7 +106,7 @@ export class DTOEncryptionFilter<T> {
       const result = {} as T;
       for (const ***REMOVED*** in dto) {
         if (typeof dto[***REMOVED***] === 'string' || typeof dto[***REMOVED***] === 'object') {
-          result[***REMOVED***] = await processFn(dto[***REMOVED***] as unknown as string);
+          result[***REMOVED***] = await processFn(dto[***REMOVED***] as string);
         } else {
           result[***REMOVED***] = dto[***REMOVED***];
         }
