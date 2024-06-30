@@ -1,8 +1,6 @@
 import { ConfigDTO } from "../dto";
 import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
 
-export type GetConfigResponse = ConfigDTO[];
-
 export type PutConfigRequest = ConfigDTO;
 
 export type PutConfigResponseSuccess = {
@@ -29,6 +27,6 @@ export class ConfigApiClient extends ApiClient {
     }
   
     async put(config: PutConfigRequest): Promise<PutConfigResponse> {
-      return this.request<PutConfigResponse>('/***REMOVED***/config', 'PUT', config);
+      return this.request<PutConfigResponse>('/***REMOVED***/config', 'PUT', config) as Promise<PutConfigResponse>;
     }
   }
