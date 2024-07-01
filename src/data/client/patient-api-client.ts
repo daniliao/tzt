@@ -1,4 +1,4 @@
-import { PatientDTO } from "../dto";
+import { PatientDTO, PatientDTOEncSettings } from "../dto";
 import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
 
 export type GetPatientsResponse = PatientDTO[];
@@ -25,10 +25,10 @@ export class PatientApiClient extends ApiClient {
     }
   
     async get(): Promise<GetPatientsResponse> {
-      return this.request<GetPatientsResponse>('/***REMOVED***/patient', 'GET') as Promise<GetPatientsResponse>;
+      return this.request<GetPatientsResponse>('/***REMOVED***/patient', 'GET', PatientDTOEncSettings) as Promise<GetPatientsResponse>;
     }
   
     async put(patient: PutPatientRequest): Promise<PutPatientResponse> {
-      return this.request<PutPatientResponse>('/***REMOVED***/patient', 'PUT', patient);
+      return this.request<PutPatientResponse>('/***REMOVED***/patient', 'PUT', PatientDTOEncSettings, patient);
     }
   }
