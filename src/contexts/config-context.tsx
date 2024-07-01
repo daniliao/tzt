@@ -1,8 +1,10 @@
+'use client'
 import { ApiEncryptionConfig } from '@/data/client/base-***REMOVED***-client';
 import { ConfigApiClient } from '@/data/client/config-***REMOVED***-client';
 import { generateEncryptionKey } from '@/lib/crypto';
 import { getCurrentTS } from '@/lib/utils';
-import React, { PropsWithChildren, useEffect, useReducer } from 'react';
+import { useEffectOnce } from 'react-use';
+import React, { PropsWithChildren, useReducer } from 'react';
 type ConfigSupportedValueType = string | number | boolean | null | undefined;
 
 export type ConfigContextType = {
@@ -48,6 +50,15 @@ function configReducer(state: ConfigContextType, action: Action): ConfigContextT
             localStorage.setItem(action.***REMOVED***, action.value as string);          
           }
       }
+
+      if (action.***REMOVED*** === 'encryptionKey') { // if encryption ***REMOVED*** is changed, we need to re-encrypt whole server configuration
+        if (action.value !== state.localConfig.encryptionKey) {
+          const client = getConfigApiClient(action.value as string);
+          for (const ***REMOVED*** in state.serverConfig) {
+            client.put({ ***REMOVED***, value: state.serverConfig[***REMOVED***] as string, updatedAt: getCurrentTS() }); // update server config value
+          }
+        }
+      }
        
       return {
         ...state,
@@ -74,25 +85,22 @@ function configReducer(state: ConfigContextType, action: Action): ConfigContextT
 
 export const ConfigContext = React.createContext<ConfigContextType | null>(null);
 export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  // load config from local storage
   initialState.localConfig.encryptionKey = (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || ""; // it's important to load it here as it's used by settings popup
+  initialState.localConfig.chatGptApiKey = (typeof localStorage !== 'undefined') && localStorage.getItem("chatGptApiKey") || "" ;
+  initialState.localConfig.saveToLocalStorage = (typeof localStorage !== 'undefined') && localStorage.getItem("saveToLocalStorage") === "true";
   const [state, dispatch] = useReducer(configReducer, initialState);
 
-  useEffect(() => {
-
-    // load local config from localstorage
-    dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'chatGptApiKey', value: (typeof localStorage !== 'undefined') && localStorage.getItem("chatGptApiKey") || "" });
-    dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'encryptionKey', value: (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || "" });
-    dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'saveToLocalStorage', value: (typeof localStorage !== 'undefined') && localStorage.getItem("saveToLocalStorage") === "true" });
-
+  useEffectOnce(() => {
     const client = getConfigApiClient((typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || "");
     client.get().then((configs) => { 
-      let data: Record<string, ConfigSupportedValueType> = {};
+      let serverConfigData: Record<string, ConfigSupportedValueType> = {};
       for (const config of configs) {
-        data[config.***REMOVED***] = config.value; // convert out from ConfigDTO to ***REMOVED***=>value
+        serverConfigData[config.***REMOVED***] = config.value; // convert out from ConfigDTO to ***REMOVED***=>value
       }
-      dispatch({ type: 'LOAD_SERVER_CONFIG', config: data });
+      dispatch({ type: 'LOAD_SERVER_CONFIG', config: serverConfigData });
 
-      if(!state.getServerConfig('dataEncryptionMasterKey')) { // no master ***REMOVED*** set - generate one
+      if(!serverConfigData['dataEncryptionMasterKey']) { // no master ***REMOVED*** set - generate one
         const ***REMOVED*** = generateEncryptionKey()
         dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***: 'dataEncryptionMasterKey', value: ***REMOVED*** });
       }
