@@ -14,9 +14,10 @@ export type ConfigContextType = {
     setLocalConfig(***REMOVED***: string, value: ConfigSupportedValueType): void;
     getLocalConfig(***REMOVED***: string): ConfigSupportedValueType;
 
-    setServerConfig(***REMOVED***: string, value: ConfigSupportedValueType): void;
-    getServerConfig(***REMOVED***: string): ConfigSupportedValueType;
+    setServerConfig(***REMOVED***: string, value: ConfigSupportedValueType): Promise<boolean>;
+    getServerConfig(***REMOVED***: string): Promise<ConfigSupportedValueType>;
     setSaveToLocalStorage(value: boolean): void;
+    loadServerConfigOnce(): Promise<Record<string, ConfigSupportedValueType>>;
 }
 
 type Action =
@@ -29,9 +30,10 @@ const initialState: ConfigContextType = {
   serverConfig: {},
   setLocalConfig: () => {},
   getLocalConfig: () => null,
-  setServerConfig: () => {},
-  getServerConfig: () => null,
+  setServerConfig: async  () => Promise.resolve(true),
+  getServerConfig: async () => Promise.resolve(null),
   setSaveToLocalStorage: () => {},
+  loadServerConfigOnce: async () => Promise.resolve({})
 };
 
 function getConfigApiClient(encryptionKey: string): ConfigApiClient {
@@ -90,21 +92,34 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
   initialState.localConfig.chatGptApiKey = (typeof localStorage !== 'undefined') && localStorage.getItem("chatGptApiKey") || "" ;
   initialState.localConfig.saveToLocalStorage = (typeof localStorage !== 'undefined') && localStorage.getItem("saveToLocalStorage") === "true";
   const [state, dispatch] = useReducer(configReducer, initialState);
+  const [serverConfigLoaded, setServerConfigLoaded] = React.useState(false);
 
-  useEffectOnce(() => {
-    const client = getConfigApiClient((typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || "");
-    client.get().then((configs) => { 
+
+  const loadServerConfigOnce = async (): Promise<Record<string, ConfigSupportedValueType>>  => { 
+    if(!serverConfigLoaded) {
+      const client = getConfigApiClient((typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || "");
       let serverConfigData: Record<string, ConfigSupportedValueType> = {};
+
+      const configs = await client.get();
       for (const config of configs) {
         serverConfigData[config.***REMOVED***] = config.value; // convert out from ConfigDTO to ***REMOVED***=>value
       }
       dispatch({ type: 'LOAD_SERVER_CONFIG', config: serverConfigData });
+      setServerConfigLoaded(true);
 
       if(!serverConfigData['dataEncryptionMasterKey']) { // no master ***REMOVED*** set - generate one
         const ***REMOVED*** = generateEncryptionKey()
         dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***: 'dataEncryptionMasterKey', value: ***REMOVED*** });
+        serverConfigData['dataEncryptionMasterKey'] = ***REMOVED***;
       }
-    });
+    
+      return serverConfigData
+    } else {
+      return state.serverConfig;       // already loaded
+    }
+  }
+
+  useEffectOnce(() => {
   }, []);
   
     const value = {
@@ -114,7 +129,10 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
       getLocalConfig: (***REMOVED***: string) => state.localConfig[***REMOVED***],
       setServerConfig: (***REMOVED***: string, value: ConfigSupportedValueType) =>
         dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***, value }),
-      getServerConfig: (***REMOVED***: string) => state.serverConfig[***REMOVED***],
+      getServerConfig: async (***REMOVED***: string) => {
+        const serverConfig =await loadServerConfigOnce();
+        return serverConfig[***REMOVED***];
+      },
       setSaveToLocalStorage: (value: boolean) => { 
         dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***: 'saveToLocalStorage', value });
         if(!value) {
