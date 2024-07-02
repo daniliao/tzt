@@ -15,7 +15,7 @@ export default function PatientList() {
           </div>
         ) : (
           patientsContext?.patients.map((patient, index) => (
-            <PatientItem ***REMOVED***={index} patient={patient} />
+            <PatientItem onClick={(e) => { e.preventDefault(); patientsContext.setCurrentPatient(patient); }} ***REMOVED***={index} patient={patient} selected={patientsContext?.currentPatient?.id === patient.id} />
           )) 
         )}
       </div>
