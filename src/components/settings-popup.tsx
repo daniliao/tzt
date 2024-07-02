@@ -78,8 +78,6 @@ export function SettingsPopup() {
   }
 
   async function handleSubmit(e){
-
-    // TODO: add button for creating new database
     config?.setLocalConfig('chatGptApiKey', newChatGptApiKey);
 
     const ***REMOVED***orizationToken = await config?.***REMOVED***orizeDB(newEncryptionKey as string); // try to ***REMOVED***orize the DB or check if new DB is required
