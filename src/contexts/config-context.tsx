@@ -5,17 +5,17 @@ import { generateEncryptionKey } from '@/lib/crypto';
 import { getCurrentTS } from '@/lib/utils';
 import { useEffectOnce } from 'react-use';
 import React, { PropsWithChildren, useReducer } from 'react';
-import { DBStatus, ServerDBStatus } from '@/data/client/models';
+import { DataLinkStatus, ServerDataLinkStatus } from '@/data/client/models';
 type ConfigSupportedValueType = string | number | boolean | null | undefined;
 
-export type AuthorizationTokenType = { status: ServerDBStatus, serverConfig: Record<string, ConfigSupportedValueType>};
+export type AuthorizationTokenType = { status: ServerDataLinkStatus, serverConfig: Record<string, ConfigSupportedValueType>};
 export type ConfigContextType = {
     localConfig: Record<string, ConfigSupportedValueType>;
     serverConfig: Record<string, ConfigSupportedValueType>;
-    dbStatus: ServerDBStatus;
+    dataLinkStatus: ServerDataLinkStatus;
 
-    ***REMOVED***orizeDB: (tryOutEncryptionKey: string) => Promise<AuthorizationTokenType>;
-    createNewDB: (serverConfigData: Record<string, ConfigSupportedValueType>) => Promise<Record<string, ConfigSupportedValueType>>;
+    ***REMOVED***orizeDataLink: (tryOutEncryptionKey: string) => Promise<AuthorizationTokenType>;
+    formatNewDataLink: (newEncryptionKey: string, serverConfigData: Record<string, ConfigSupportedValueType>) => Promise<Record<string, ConfigSupportedValueType>>;
 
     setLocalConfig(***REMOVED***: string, value: ConfigSupportedValueType): void;
     getLocalConfig(***REMOVED***: string): ConfigSupportedValueType;
@@ -32,9 +32,9 @@ type Action =
   | { type: 'LOAD_SERVER_CONFIG'; config: Record<string, ConfigSupportedValueType> };
 
 const initialState: ConfigContextType = {
-  dbStatus: new ServerDBStatus(DBStatus.AuthorizationError, 'Database not ***REMOVED***orized'),
-  ***REMOVED***orizeDB: async (tryOutEncryptionKey: string) => ({ status: new ServerDBStatus(DBStatus.AuthorizationError, 'Database not ***REMOVED***orized'), serverConfig: {} }),
-  createNewDB: async (serverConfigData: Record<string, ConfigSupportedValueType>) => serverConfigData,
+  dataLinkStatus: new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Database not ***REMOVED***orized'),
+  ***REMOVED***orizeDataLink: async (tryOutEncryptionKey: string) => ({ status: new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Database not ***REMOVED***orized'), serverConfig: {} }),
+  formatNewDataLink: async (newEncryptionKey: string, serverConfigData: Record<string, ConfigSupportedValueType>) => serverConfigData,
   localConfig: {},
   serverConfig: {},
   setLocalConfig: () => {},
@@ -102,7 +102,7 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
   initialState.localConfig.saveToLocalStorage = (typeof localStorage !== 'undefined') && localStorage.getItem("saveToLocalStorage") === "true";
   const [state, dispatch] = useReducer(configReducer, initialState);
   const [serverConfigLoaded, setServerConfigLoaded] = React.useState(false);
-  const [dbStatus, setDbStatus] = React.useState(new ServerDBStatus(DBStatus.AuthorizationError, 'Database not ***REMOVED***orized'));
+  const [dataLinkStatus, setDataLinkStatus] = React.useState(new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Database not ***REMOVED***orized'));
 
 
   const loadServerConfig = async (forceReload: boolean = false, tryOutEncryptionKey: string = (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || ""): Promise<Record<string, ConfigSupportedValueType>>  => { 
@@ -123,38 +123,41 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
     }
   }
 
-  const createNewDB = async (serverConfigData: Record<string, ConfigSupportedValueType>): Promise<Record<string, ConfigSupportedValueType>> => {
-//    if(!serverConfigData['dataEncryptionMasterKey']) { // no master ***REMOVED*** set - generate one
-    const ***REMOVED*** = generateEncryptionKey()
-    const dataCheck = 'PatientPad' + ***REMOVED***;
-    dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***: 'dataEncryptionMasterKey', value: ***REMOVED*** });
-    dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***: 'dataEncryptionCheckKey', value: dataCheck });
+  const formatNewDataLink = async (newEncryptionKey: string, serverConfigData: Record<string, ConfigSupportedValueType>): Promise<Record<string, ConfigSupportedValueType>> => {
+    state.setLocalConfig('encryptionKey', newEncryptionKey);
 
-    serverConfigData['dataEncryptionMasterKey'] = ***REMOVED***;
+    const masterKey = generateEncryptionKey()
+    const dataCheck = 'PatientPad-KTC-' + newEncryptionKey;
+
+    // TODO: as we're changing master ***REMOVED*** the data in the file is no longer readable; call API to erase the database
+    serverConfigData['dataEncryptionMasterKey'] = masterKey; // set it for immediate use as dispatch will have an delay someties due to reducer mechanism
     serverConfigData['dataEncryptionCheckKey'] = dataCheck;
-  //  }    
 
+    const client = getConfigApiClient(newEncryptionKey);
+    for(const ***REMOVED*** in serverConfigData) {  // TODO: move it to a single API call
+      client.put({ ***REMOVED***: ***REMOVED***, value: serverConfigData[***REMOVED***] as string, updatedAt: getCurrentTS() }); // update server config value
+    }
     return serverConfigData;
   }
 
-  const ***REMOVED***orizeDB = async (tryOutEncryptionKey: string = (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || ""): Promise<AuthorizationTokenType> => {
-    const status = new ServerDBStatus(DBStatus.InProgress, 'Authorization in progress ...');
-    setDbStatus(status)
+  const ***REMOVED***orizeDataLink = async (tryOutEncryptionKey: string = (typeof localStorage !== 'undefined') && localStorage.getItem("encryptionKey") || ""): Promise<AuthorizationTokenType> => {
+    const status = new ServerDataLinkStatus(DataLinkStatus.InProgress, 'Authorization in progress ...');
+    setDataLinkStatus(status)
 
     setServerConfigLoaded(false);
     const serverConfig = await loadServerConfig(true, tryOutEncryptionKey);
-    if (serverConfig.length === 0) {
-      const status = new ServerDBStatus(DBStatus.Empty, 'New and empty database on server');
-      setDbStatus(status)
+    if (!serverConfig || Object.***REMOVED***s(serverConfig).length === 0){
+      const status = new ServerDataLinkStatus(DataLinkStatus.Empty, 'New and empty database on server');
+      setDataLinkStatus(status)
       return { serverConfig, status };
     } else {
       if (serverConfig.dataEncryptionCheckKey && (serverConfig.dataEncryptionCheckKey as string).startsWith('PatientPad')) {
-        const status = new ServerDBStatus(DBStatus.Authorized, 'Database ***REMOVED***orized');
-        setDbStatus(status);
+        const status = new ServerDataLinkStatus(DataLinkStatus.Authorized, 'Database ***REMOVED***orized');
+        setDataLinkStatus(status);
         return { serverConfig, status };
       } else {
-        const status = new ServerDBStatus(DBStatus.AuthorizationError, 'Authorization error: invalid data encryption ***REMOVED***');
-        setDbStatus(status)
+        const status = new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Authorization error: invalid data encryption ***REMOVED***');
+        setDataLinkStatus(status)
         return { serverConfig, status };
       }
     }
@@ -165,17 +168,17 @@ export const ConfigContextProvider: React.FC<PropsWithChildren> = ({ children })
   
     const value = {
       ...state,
-      ***REMOVED***orizeDB,
-      createNewDB,
-      dbStatus,
-      setDbStatus,
+      ***REMOVED***orizeDataLink,
+      formatNewDataLink,
+      dataLinkStatus,
+      setDataLinkStatus,
       setLocalConfig: (***REMOVED***: string, value: ConfigSupportedValueType) =>
         dispatch({ type: 'SET_LOCAL_CONFIG', ***REMOVED***, value }),
       getLocalConfig: (***REMOVED***: string) => state.localConfig[***REMOVED***],
       setServerConfig: (***REMOVED***: string, value: ConfigSupportedValueType) =>
         dispatch({ type: 'SET_SERVER_CONFIG', ***REMOVED***, value }),
       getServerConfig: async (***REMOVED***: string) => {
-        const { serverConfig } = await ***REMOVED***orizeDB();
+        const { serverConfig } = await ***REMOVED***orizeDataLink();
         return serverConfig[***REMOVED***];
       },
       setSaveToLocalStorage: (value: boolean) => { 
