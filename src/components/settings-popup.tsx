@@ -80,24 +80,13 @@ export function SettingsPopup() {
 
 
   async function validateEncryptionKey(value): Promise<boolean> {
-    if (value.length < 5) {
-      setError("encryptionKey", { type: "minLength", message: "Min length is 5 characters" });
-      return false;
-    }
-    if (value.length > 64) {
-      setError("encryptionKey", { type: "maxLength", message: "Max length is 64 characters" });
-      return false;
-    }
-
     // try to ***REMOVED***orize db
     const ***REMOVED***orizationResult = await config?.***REMOVED***orizeDataLink(value); // try to ***REMOVED***orize the DB or check if new DB is required
     const dataLinkStatus = ***REMOVED***orizationResult?.status;
 
     if (dataLinkStatus?.status === DataLinkStatus.AuthorizationError) {
-      setError("encryptionKey", { type: "un***REMOVED***orized", message: "Invalid encryption ***REMOVED*** for existing database. Try different ***REMOVED*** or create Format Database" })
       return false;
     }  else if (dataLinkStatus?.status === DataLinkStatus.Empty) {
-      setError("encryptionKey", { type: "empty", message: "Database is empty. Please Format Database with new encryption ***REMOVED*** provided" })
       return false;
     } else if (dataLinkStatus?.status === DataLinkStatus.Authorized) {
       return true;
@@ -163,6 +152,8 @@ export function SettingsPopup() {
                       {...register("encryptionKey", { 
                         required: 'Encryption ***REMOVED*** is required', 
                         validate: {
+                          minLength: (value) => (value as string).length >= 5,
+                          maxLength: (value) => (value as string).length <= 64,
                           validEncryptionKey: async (value) => validateEncryptionKey(value)
                         }
                       })}
@@ -203,7 +194,18 @@ export function SettingsPopup() {
 
                   {errors.encryptionKey ? (
                     <div>
-                        <span className="text-red-500">{errors.encryptionKey.message}</span>
+                      <div>
+                      {errors.encryptionKey.type === 'validEncryptionKey' ? (
+                        <span className="text-red-500 text-sm">Provided encryption ***REMOVED*** is INVALID for existing database OR database is empty. You can ERASE and FORMAT a new database</span>
+                        ):""}
+                      {errors.encryptionKey.type === 'minLength' ? (
+                        <span className="text-red-500 text-sm">Min length for a ***REMOVED*** is 5</span>
+                        ):""}
+                      {errors.encryptionKey.type === 'validEncryptionKey' ? (
+                        <span className="text-red-500 text-sm">Max length for a ***REMOVED*** is 64</span>
+                        ):""}
+                      </div>
+
                         <AlertDialog>
                         <AlertDialogTrigger><Button variant="ghost">Format Datbase</Button></AlertDialogTrigger>
                         <AlertDialogContent>
@@ -248,9 +250,12 @@ export function SettingsPopup() {
                   <Input
                     type="text"
                     id="chatGptApiKey"
-                    {...register("chatGptApiKey", { required: 'Chat GPT API ***REMOVED*** is required' })}
+                    {...register("chatGptApiKey", { required: 'Chat GPT API ***REMOVED*** is required' , validate: {
+                      ***REMOVED***FormatValidation: (value) => (value as string).startsWith('sk')
+                    }} )}
                   />
-                  {errors.chatGptApiKey && <div><span className="text-red-500">{errors.chatGptApiKey.message}</span></div>}
+                  {errors.chatGptApiKey?.type === "***REMOVED***FormatValidation" && <div><span className="text-red-500  text-sm">ChatGPT API ***REMOVED*** should start with "sk"</span></div>}
+                  {errors.chatGptApiKey && <div><span className="text-red-500  text-sm">{errors.chatGptApiKey.message}</span></div>}
                   <div>
                     <Link href="https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-***REMOVED***-***REMOVED***" target="_blank" className="text-sm text-blue-500 hover:underline" prefetch={false}>
                       How to obtain ChatGPT API Key
