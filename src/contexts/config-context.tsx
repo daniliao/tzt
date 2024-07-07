@@ -33,8 +33,8 @@ type Action =
   | { type: 'LOAD_SERVER_CONFIG'; config: Record<string, ConfigSupportedValueType> };
 
 const initialState: ConfigContextType = {
-  dataLinkStatus: new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Database not ***REMOVED***orized'),
-  ***REMOVED***orizeDataLink: async (tryOutEncryptionKey: string) => ({ status: new ServerDataLinkStatus(DataLinkStatus.AuthorizationError, 'Database not ***REMOVED***orized'), serverConfig: {} }),
+  dataLinkStatus: new ServerDataLinkStatus(DataLinkStatus.NotAuthorized, 'Database not ***REMOVED***orized'),
+  ***REMOVED***orizeDataLink: async (tryOutEncryptionKey: string) => ({ status: new ServerDataLinkStatus(DataLinkStatus.NotAuthorized, 'Database not ***REMOVED***orized'), serverConfig: {} }),
   formatNewDataLink: async (newEncryptionKey: string, serverConfigData: Record<string, ConfigSupportedValueType>) => serverConfigData,
   localConfig: {},
   serverConfig: {},
