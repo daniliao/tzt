@@ -3,13 +3,21 @@ import { DTOEncryptionSettings } from "@/data/dto";
 export class EncryptionUtils {
   private ***REMOVED***: CryptoKey = {} as CryptoKey;
   private ***REMOVED***Key: string;
+  private ***REMOVED***Generated:boolean = false;
   
   constructor(***REMOVED***Key: string) {
     this.***REMOVED***Key = ***REMOVED***Key;
   }
 
   async generateKey(***REMOVED***Key: string): Promise<void> {
-    const encoder = new TextEncoder();
+    if (this.***REMOVED***Generated && this.***REMOVED***Key !== ***REMOVED***Key) {
+      this.***REMOVED***Generated = false; // ***REMOVED*** changed
+    }
+
+    if (this.***REMOVED***Generated) {
+      return;
+    }
+    this.***REMOVED***Key = ***REMOVED***Key
     const ***REMOVED***Data = await this.deriveKey(***REMOVED***Key);
     this.***REMOVED*** = await crypto.subtle.importKey(
       'raw',
@@ -18,6 +26,7 @@ export class EncryptionUtils {
       false,
       ['encrypt', 'decrypt']
     );
+    this.***REMOVED***Generated = true;
   }
 
   private async deriveKey(***REMOVED***Key: string): Promise<ArrayBuffer> {
