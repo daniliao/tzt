@@ -9,8 +9,10 @@ const storageService = new StorageService();
 // Rest of the code
 
 export async function PUT(request: Request) {
+    const formData = await request.formData();
+
     let ***REMOVED***Result = await genericPUT<PatientRecordAttachmentDTO>(
-        await request.json(),
+        JSON.parse(formData.get("attachmentDTO") as string), // TODO: add validation
         patientRecordAttachmentDTOSchema,
         new ServerPatientRecordAttachmentRepository(),
         'id'
@@ -18,7 +20,6 @@ export async function PUT(request: Request) {
     if (***REMOVED***Result.status === 200) {
         try {
             const savedAttachment: PatientRecordAttachmentDTO = ***REMOVED***Result.data as PatientRecordAttachmentDTO;
-            const formData = await request.formData();
             const file = formData.get("file") as File;
             // TODO: move to a separate storage service
             storageService.saveAttachment(file, savedAttachment.storageKey);
