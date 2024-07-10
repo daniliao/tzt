@@ -52,7 +52,34 @@ export class EncryptionUtils {
       ***REMOVED***Length
     );
   }
+  async encryptArrayBuffer(data: ArrayBuffer): Promise<ArrayBuffer> {
+    await this.generateKey(this.***REMOVED***Key);
 
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const encryptedData = await crypto.subtle.encrypt(
+      { name: 'AES-CBC', iv },
+      this.***REMOVED***,
+      data
+    );
+    return encryptedData;
+  }
+
+  async decryptArrayBuffer(encryptedData: ArrayBuffer): Promise<ArrayBuffer> {
+    try {
+      await this.generateKey(this.***REMOVED***Key);
+
+      const iv = new Uint8Array(16);
+      const decryptedData = await crypto.subtle.decrypt(
+        { name: 'AES-CBC', iv },
+        this.***REMOVED***,
+        encryptedData
+      );
+      return decryptedData;
+    } catch (e) {
+      console.error('Error decrypting ArrayBuffer', e);
+      return encryptedData;
+    }
+  }
   async encrypt(text: string): Promise<string> {
     await this.generateKey(this.***REMOVED***Key);
 
