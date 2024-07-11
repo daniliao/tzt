@@ -63,12 +63,18 @@ export function SettingsPopup() {
  
 
   useEffect(() => {
-    setDialogOpen(config?.dataLinkStatus.isError() === true);
+    setDialogOpen(config?.dataLinkStatus.isError() === true || config?.dataLinkStatus.isEmpty() === true);
     if (config?.dataLinkStatus.status === DataLinkStatus.AuthorizationError) {
       toast("Authorization error", {
         description: "Invalid encryption ***REMOVED***. Please try again with different ***REMOVED*** or create a new database",
         duration: 2000
       });
+    } 
+    if (config?.dataLinkStatus.status === DataLinkStatus.Empty) { 
+      toast("Authorization error", {
+        description: "Database is empty. Please create a new database with new encryption ***REMOVED***",
+        duration: 2000
+      });      
     }
   }, [config?.dataLinkStatus]);
 
