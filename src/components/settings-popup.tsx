@@ -63,12 +63,18 @@ export function SettingsPopup() {
  
 
   useEffect(() => {
-    setDialogOpen(config?.dataLinkStatus.isError() === true);
+    if (config?.dataLinkStatus.isError() === true || config?.dataLinkStatus.isEmpty() === true) setDialogOpen(true);
     if (config?.dataLinkStatus.status === DataLinkStatus.AuthorizationError) {
       toast("Authorization error", {
         description: "Invalid encryption ***REMOVED***. Please try again with different ***REMOVED*** or create a new database",
         duration: 2000
       });
+    } 
+    if (config?.dataLinkStatus.status === DataLinkStatus.Empty) { 
+      toast("Authorization error", {
+        description: "Database is empty. Please create a new database with new encryption ***REMOVED***",
+        duration: 2000
+      });      
     }
   }, [config?.dataLinkStatus]);
 
@@ -77,7 +83,7 @@ export function SettingsPopup() {
     await config?.***REMOVED***orizeDataLink(newEncryptionKey); // ***REMOVED***orize once ogain
     toast.info('New database created. Please save or print your encryption ***REMOVED***.');
     config?.setLocalConfig('encryptionKey', newEncryptionKey); // TODO: force data reload everywhere in the app
-
+    setDialogOpen(false);
   }
 
 
