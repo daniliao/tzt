@@ -9,6 +9,11 @@ export type PutEncryptedAttachmentResponseSuccess = {
   status: 200;
 };
 
+export type DeleteEncryptedAttachmentResponse = {
+  message: string;
+  status: 200;
+};
+
 export type PutEncryptedAttachmentResponseError = {
   message: string;
   status: 400;
@@ -33,6 +38,10 @@ export class EncryptedAttachmentApiClient extends ApiClient {
 
     async get(attachment: EncryptedAttachmentDTO): Promise<ArrayBuffer> {
       return this.getArrayBuffer('/***REMOVED***/encrypted-attachment/' + attachment.storageKey);
+    }
+
+    async delete(attachment: EncryptedAttachmentDTO): Promise<DeleteEncryptedAttachmentResponse> {
+      return this.request<DeleteEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment/' + attachment.storageKey, 'DELETE') as Promise<DeleteEncryptedAttachmentResponse>;
     }
     
   }
