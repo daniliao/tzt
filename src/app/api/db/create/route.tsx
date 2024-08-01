@@ -24,37 +24,50 @@ export async function POST(request: NextRequest) {
                     status: 409
                 };            
             } else {
-                maintenance.createDatabaseManifest(***REMOVED***CreateRequest.databaseIdHash, {
-                    databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
-                    createdAt: getCurrentTS(),
-                    creator: {
-                        ip: request.ip,
-                        ua: userAgent(request).ua,
-                        geo: request.geo
-                    }                
-                });                
+                const ***REMOVED***Repo = new ServerKeyRepository(getDatabaseId(request)); // creating a first User Key
+                const existingKeys = await ***REMOVED***Repo.findAll({  filter: { databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash } }); // check if ***REMOVED*** already exists
+
+                if(existingKeys.length > 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function
+                    return {
+                        message: 'Database already exists. Please select different Id.',
+                        data: { 
+                            databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash
+                        },
+                        status: 409               
+                    };                    
+                } else {
+                    const firstUserKey = ***REMOVED***Repo.create({
+                        ***REMOVED***LocatorHash: ***REMOVED***CreateRequest.***REMOVED***LocatorHash,
+                        ***REMOVED***Hash: ***REMOVED***CreateRequest.***REMOVED***Hash,
+                        ***REMOVED***HashParams: ***REMOVED***CreateRequest.***REMOVED***HashParams,
+                        encryptedMasterKey: ***REMOVED***CreateRequest.encryptedMasterKey,
+                        databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,                
+                        acl: null,
+                        extra: null,
+                        expiryDate: null,
+                        updatedAt: getCurrentTS(),
+                    })
+
+                    maintenance.createDatabaseManifest(***REMOVED***CreateRequest.databaseIdHash, {
+                        databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
+                        createdAt: getCurrentTS(),
+                        creator: {
+                            ip: request.ip,
+                            ua: userAgent(request).ua,
+                            geo: request.geo
+                        }                
+                    });       
+
+                    // check if db already exists - if so, return error
+                    // TODO: ***REMOVED***orize + return access ***REMOVED*** (?)
+
+                    return {
+                        message: 'Database created successfully. Now you can log in.',
+                        data: null,
+                        status: 200
+                    };                    
+                }         
             }
-
-            const ***REMOVED***Repo = new ServerKeyRepository(getDatabaseId(request)); // creating a first User Key
-            ***REMOVED***Repo.create({
-                ***REMOVED***LocatorHash: ***REMOVED***CreateRequest.***REMOVED***LocatorHash,
-                ***REMOVED***Hash: ***REMOVED***CreateRequest.***REMOVED***Hash,
-                ***REMOVED***HashParams: ***REMOVED***CreateRequest.***REMOVED***HashParams,
-                encryptedMasterKey: ***REMOVED***CreateRequest.encryptedMasterKey,
-                databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,                
-                acl: null,
-                extra: null,
-                expiryDate: null,
-                updatedAt: getCurrentTS(),
-            })
-
-            // check if db already exists - if so, return error
-
-            return {
-                message: 'Database created successfully. Now you can log in.',
-                data: null,
-                status: 200
-            };
         } else {
             return {
                 message: getZedErrorMessage(validationResult.error),

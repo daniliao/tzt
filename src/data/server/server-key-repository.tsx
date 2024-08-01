@@ -8,7 +8,7 @@ import { create } from "./generic-repository";
 
 
 export type KeysQuery = IQuery & { 
-    filter: { ***REMOVED***Hash: string, databaseIdHash: string }
+    filter: { ***REMOVED***Hash?: string, databaseIdHash?: string }
 }
 export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
 
