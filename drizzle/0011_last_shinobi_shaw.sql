@@ -1,5 +1,7 @@
 CREATE TABLE `***REMOVED***s` (
-	`***REMOVED***Hash` text PRIMARY KEY NOT NULL,
+	`***REMOVED***LocatorHash` text PRIMARY KEY NOT NULL,	
+	`***REMOVED***Hash` text NOT NULL,
+	`***REMOVED***HashParams` text NOT NULL,
 	`databaseIdHash` text,
 	`encryptedMasterKey` text,
 	`acl` text,

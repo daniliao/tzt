@@ -27,14 +27,14 @@ export const ConfigDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: [
 export type ConfigDTO = z.infer<typeof configDTOSchema>;
 
 export const ***REMOVED***DTOSchema = z.object({
-  ***REMOVED***LocatorHash: z.string().min(1),
-  ***REMOVED***Hash: z.string().min(1),
+  ***REMOVED***LocatorHash: z.string().min(64).max(64),
+  ***REMOVED***Hash: z.string().min(32),
   ***REMOVED***HashParams: z.string().min(1),
-  databaseIdHash: z.string().min(1),
+  databaseIdHash: z.string().min(64).max(64),
   encryptedMasterKey: z.string().min(1),
   acl: z.string().nullable(),
   extra: z.string().nullable(),
-  expiryDate: z.string().optional(),
+  expiryDate: z.string().nullable(),
   updatedAt: z.string().default(() => getCurrentTS()),
 });
 
@@ -88,3 +88,38 @@ export const patientRecordDTOSchema = z.object({
 
 export const PatientRecordDTOEncSettings = { ecnryptedFields: ['description', 'type', 'json', 'extra', 'text', 'attachments'] }
 export type PatientRecordDTO = z.infer<typeof patientRecordDTOSchema>;
+
+
+
+export const databaseCreateRequestSchema = z.object({
+  ***REMOVED***LocatorHash: z.string().min(64).max(64),
+  ***REMOVED***Hash: z.string().min(32),
+  ***REMOVED***HashParams: z.string().min(1),
+  databaseIdHash: z.string().min(1).min(64).max(64),
+  encryptedMasterKey: z.string().min(1),
+});
+export type DatabaseCreateRequestDTO = z.infer<typeof databaseCreateRequestSchema>;
+
+
+export const databaseAuthorizeChallengeRequestSchema = z.object({
+  ***REMOVED***LocatorHash: z.string().min(64).max(64),
+  databaseIdHash: z.string().min(1).min(64).max(64),
+});
+export type DatabaseAuthorizeChallengeRequestDTO = z.infer<typeof databaseAuthorizeChallengeRequestSchema>;
+
+export const databaseAuthorizeRequestSchema = z.object({
+  ***REMOVED***LocatorHash: z.string().min(64).max(64),
+  ***REMOVED***Hash: z.string().min(32),
+  databaseIdHash: z.string().min(1).min(64).max(64),
+});
+export type DatabaseAuthorizeRequestDTO = z.infer<typeof databaseAuthorizeRequestSchema>;
+
+
+  export const ***REMOVED***HashParamsDTOSchema = z.object({
+    salt: z.string(),
+    time: z.number().positive().int(),
+    mem: z.number().positive().int(),
+    hashLen: z.number().positive().int(),
+    parallelism: z.number().positive().int(),
+  });
+  export type KeyHashParamsDTO = z.infer<typeof ***REMOVED***HashParamsDTOSchema>;
