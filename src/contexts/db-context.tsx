@@ -1,9 +1,15 @@
 import React, { createContext, useState, useEffect, useContext, PropsWithChildren } from 'react';
 import { DatabaseCreateRequestDTO, KeyHashParamsDTO, PatientRecordDTO } from '@/data/dto';
-import { DatabaseAuthorize, DatabaseAuthStatus, DatabaseCreate, DataLoadingStatus, Patient, PatientRecord } from '@/data/client/models';
+import { DatabaseAuthorizeRequest, DatabaseAuthStatus, DatabaseCreateRequest, DataLoadingStatus, Patient, PatientRecord } from '@/data/client/models';
 import { AuthorizeDbResponse, CreateDbResponse, DbApiClient } from '@/data/client/db-***REMOVED***-client';
 import { ConfigContextType } from './config-context';
 import { generateEncryptionKey } from '@/lib/crypto';
+
+export type CreateDatabaseResult = {
+    success: boolean;
+    message: string;
+    issues: string[];
+}
 
 export type DatabaseContextType = {
 
@@ -39,8 +45,8 @@ export type DatabaseContextType = {
         isInProgress: () => boolean;   
     }
 
-    create: (createRequest:DatabaseCreate) => Promise<void>;
-    ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorize) => Promise<void>;
+    create: (createRequest:DatabaseCreateRequest) => Promise<CreateDatabaseResult>;
+    ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorizeRequest) => Promise<void>;
 }
 
 export const DatabaseContext = createContext<DatabaseContextType | null>(null);
@@ -82,13 +88,32 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const client = new DbApiClient('');
         return client;
     }
-    const create = async (createRequest: DatabaseCreate) => {
+    const create = async (createRequest: DatabaseCreateRequest): Promise<CreateDatabaseResult> => {
         // Implement UC01 hashing and encryption according to https://github.com/CatchTheTornado/patient-pad/issues/65
-        const masterKey = generateEncryptionKey()
 
+        const ***REMOVED***Client = await setupApiClient(null);
+        ***REMOVED***Client.create({
+            databaseIdHash: databaseHashId,
+            encryptedMasterKey: masterKey,
+            ***REMOVED***Hash: ***REMOVED***Hash,
+            ***REMOVED***HashParams: {
+                hashLen: 0,
+                salt: '',
+                time: 1,
+                mem: 16,
+                parallelism: 1
+            },
+            ***REMOVED***LocatorHash: ***REMOVED***LocatorHash,
+        });
+
+        return {
+            success: true,
+            message: 'Database created',
+            issues: []
+        }
     };
 
-    const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorize) => {
+    const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorizeRequest) => {
     };
 
     const databaseContextValue: DatabaseContextType = {
