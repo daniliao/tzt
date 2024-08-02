@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
 import { databaseIdValidator, userKeyValidator } from "@/data/client/models";
 import { PasswordInput } from "./ui/***REMOVED***-input";
-import { EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
+import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
 import { ReactElement, useContext, useState } from "react"
 import { Checkbox } from "./ui/checkbox";
 import NoSSR  from "react-no-ssr"
@@ -109,6 +109,15 @@ export function CreateDatabaseForm({
                 const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: getValues().databaseId }));
                 window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
               }}><PrinterIcon className="w-4 h-4" /></Button>
+              <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
+                e.preventDefault();
+                const textToCopy = 'Database Id: '+ getValues().databaseId + "\nKey Id: " + getValues().***REMOVED***;
+                if ('clipboard' in navigator) {
+                  navigator.clipboard.writeText(textToCopy);
+                } else {
+                  document.execCommand('copy', true, textToCopy);
+                }                
+              }}><CopyIcon className="w-4 h-4" /></Button>              
             </div>
             <div>
               {printKey}
