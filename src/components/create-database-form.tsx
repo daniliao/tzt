@@ -13,7 +13,8 @@ import NoSSR  from "react-no-ssr"
 import { DatabaseContext } from "@/contexts/db-context";
 import { generateEncryptionKey } from "@/lib/crypto";
 import { KeyPrint } from "./***REMOVED***-print";
-import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer'
+import { pdf, Document, Page } from '@react-pdf/renderer';
+
 
 interface CreateDatabaseFormProps {
 }
@@ -100,21 +101,10 @@ export function CreateDatabaseForm({
                 setValue('***REMOVED***', generateEncryptionKey());
                 setShowPassword(true);
               }}><WandIcon className="w-4 h-4" /></Button>
-              <Button variant="outline" className="p-1 h-10 w-10" onClick={(e) => {
+              <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                 e.preventDefault();
-                setPrintKey(
-                  <div className="text-sm text-blue-600 dark:text-blue-500 hover:underline">
-                    <BlobProvider document={<KeyPrint ***REMOVED***={getValues().***REMOVED***} databaseId={getValues().databaseId} />} fileName="PatientId-KEY.pdf">
-                    {({ blob, url, loading, error }) => {
-                      console.log(url);
-                            // Do whatever you need with blob here
-                            url = URL.createObjectURL(blob as Blob);
-                            window.open(url);
-                            return null;
-                          }}
-                    </BlobProvider>
-                  </div>
-                );
+                const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: getValues().databaseId }));
+                window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
               }}><PrinterIcon className="w-4 h-4" /></Button>
             </div>
             <div>
