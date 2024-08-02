@@ -3,7 +3,8 @@ import { DatabaseCreateRequestDTO, KeyHashParamsDTO, PatientRecordDTO } from '@/
 import { DatabaseAuthorizeRequest, DatabaseAuthStatus, DatabaseCreateRequest, DataLoadingStatus, Patient, PatientRecord } from '@/data/client/models';
 import { AuthorizeDbResponse, CreateDbResponse, DbApiClient } from '@/data/client/db-***REMOVED***-client';
 import { ConfigContextType } from './config-context';
-import { generateEncryptionKey } from '@/lib/crypto';
+import { EncryptionUtils, generateEncryptionKey, sha256 } from '@/lib/crypto';
+import getConfig from 'next/config';
 const argon2 = require("argon2-browser");
 
 
@@ -108,20 +109,27 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
           hashLen: ***REMOVED***HashParams.hashLen,
           parallelism: ***REMOVED***HashParams.parallelism
         });
-        console.log(***REMOVED***Hash);
+        const { publicRuntimeConfig } = getConfig()
+        const databaseIdHash = await sha256(createRequest.***REMOVED***, publicRuntimeConfig.defaultDatabaseIdHashSalt);
+        const ***REMOVED***LocatorHash = await sha256(createRequest.***REMOVED*** + createRequest.databaseId, publicRuntimeConfig.defaultKeyLocatorHashSalt);
 
+        const encryptionUtils = new EncryptionUtils(createRequest.***REMOVED***);
+        const encryptedMasterKey = await encryptionUtils.encrypt(generateEncryptionKey());
+        
         const ***REMOVED***Client = await setupApiClient(null);
-        ***REMOVED***Client.create({
-            databaseIdHash: databaseHashId,
-            encryptedMasterKey: masterKey,
-            ***REMOVED***Hash: ***REMOVED***Hash,
+        const ***REMOVED***Request = {
+            databaseIdHash,
+            encryptedMasterKey,
+            ***REMOVED***Hash,
             ***REMOVED***HashParams,
-            ***REMOVED***LocatorHash: ***REMOVED***LocatorHash,
-        });
+            ***REMOVED***LocatorHash,
+        };
+        console.log(***REMOVED***Request);
+        const ***REMOVED***Response = await ***REMOVED***Client.create(***REMOVED***Request);
 
         return {
-            success: true,
-            message: 'Database created',
+            success: ***REMOVED***Response.status === 200,
+            message: ***REMOVED***Response.message,
             issues: []
         }
     };
