@@ -55,6 +55,12 @@ export type DatabaseContextType = {
 export const DatabaseContext = createContext<DatabaseContextType | null>(null);
 
 export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
+
+    // the salts are static as they're used as record locators in the DB - once changed the whole DB needs to be re-hashed
+    // note: these salts ARE NOT used to hash ***REMOVED***s etc. (for this purpose we generate a dynamic per-user-***REMOVED*** hash - below)
+    const defaultDatabaseIdHashSalt = process.env.NEXT_PUBLIC_DATABASE_ID_HASH_SALT || 'ooph9uD4cohN9Eechog0nohzoon9ahra';
+    const defaultKeyLocatorHashSalt = process.env.NEXT_PUBLIC_KEY_LOCATOR_HASH_SALT || 'daiv2aez4thiewaegahyohNgaeFe2aij';
+
     const [databaseId, setDatabaseId] = useState<string>('');
     const [masterKey, setMasterKey] = useState<string>('');
     const [encryptionKey, setEncryptionKey] = useState<string>('');
@@ -109,9 +115,8 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
           hashLen: ***REMOVED***HashParams.hashLen,
           parallelism: ***REMOVED***HashParams.parallelism
         });
-        const { publicRuntimeConfig } = getConfig()
-        const databaseIdHash = await sha256(createRequest.***REMOVED***, publicRuntimeConfig.defaultDatabaseIdHashSalt);
-        const ***REMOVED***LocatorHash = await sha256(createRequest.***REMOVED*** + createRequest.databaseId, publicRuntimeConfig.defaultKeyLocatorHashSalt);
+        const databaseIdHash = await sha256(createRequest.databaseId, defaultDatabaseIdHashSalt);
+        const ***REMOVED***LocatorHash = await sha256(createRequest.***REMOVED*** + createRequest.databaseId, defaultKeyLocatorHashSalt);
 
         const encryptionUtils = new EncryptionUtils(createRequest.***REMOVED***);
         const encryptedMasterKey = await encryptionUtils.encrypt(generateEncryptionKey());
@@ -120,17 +125,27 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const ***REMOVED***Request = {
             databaseIdHash,
             encryptedMasterKey,
-            ***REMOVED***Hash,
-            ***REMOVED***HashParams,
+            ***REMOVED***Hash: ***REMOVED***Hash.encoded,
+            ***REMOVED***HashParams: JSON.stringify(***REMOVED***HashParams),
             ***REMOVED***LocatorHash,
         };
         console.log(***REMOVED***Request);
         const ***REMOVED***Response = await ***REMOVED***Client.create(***REMOVED***Request);
 
+        if(***REMOVED***Response.status === 200) { // user is virtually logged in
+            setDatabaseHashId(databaseIdHash);
+            setDatabaseId(createRequest.databaseId);
+            setKeyLocatorHash(***REMOVED***LocatorHash);
+            setKeyHash(***REMOVED***Hash.encoded);
+            setKeyHashParams(***REMOVED***HashParams);
+            setMasterKey(encryptedMasterKey);
+            setEncryptionKey(createRequest.***REMOVED***);
+        }
+
         return {
             success: ***REMOVED***Response.status === 200,
             message: ***REMOVED***Response.message,
-            issues: []
+            issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
         }
     };
 
