@@ -1,7 +1,9 @@
 import { BaseRepository } from "@/data/server/base-repository";
 import { getErrorMessage, getZedErrorMessage } from "./utils";
 import { ZodError, ZodObject } from "zod";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
+import { jwtVerify } from "jose";
 
 export type ApiResult = {
     message: string;
@@ -11,9 +13,27 @@ export type ApiResult = {
     status: 200 | 400 | 500;
 }
 
-export function getDatabaseIdHash(request: Request): string {
-    console.log(request.headers.get('database-id-hash'))
-    return request.headers.get('database-id-hash') || 'default';
+export async function ***REMOVED***orizeDatabaseIdHash(request: Request, response?: NextResponse): Promise<string> {
+    const ***REMOVED***orizationHeader = request.headers.get('Authorization');
+    const jwtToken = ***REMOVED***orizationHeader?.replace('Bearer ', '');
+
+    if (jwtToken) {
+        const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.PATIENT_PAD_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
+
+        const ***REMOVED***Result = ***REMOVED***orizeKey({
+            databaseIdHash: decoded.payload.databaseIdHash as string,
+            ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
+            ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string
+        });
+        if(!***REMOVED***Result) {
+            NextResponse.json({ message: 'Un***REMOVED***orized', status: 401 });
+            throw new Error('Un***REMOVED***orized. Wrong Key.');
+        } else {
+            return decoded.payload.databaseIdHash as string;
+        }
+    } else {
+        throw new Error('Un***REMOVED***orized. No Token');
+    }
 }
 
 export async function genericPUT<T extends { [***REMOVED***:string]: any }>(inputObject: any, schema: { safeParse: (a0:any) => { success: true; data: T; } | { success: false; error: ZodError; } }, repo: BaseRepository<T>, identityKey: string): Promise<ApiResult> {
