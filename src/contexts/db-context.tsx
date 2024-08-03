@@ -47,15 +47,12 @@ export type DatabaseContextType = {
     refreshToken: string;
     setRefreshToken: (hash: string) => void;
 
-    ***REMOVED***Status: {
-        status: DatabaseAuthStatus
-        isAuthorized: () => boolean;
-        isError: () => boolean;
-        isInProgress: () => boolean;   
-    }
+    ***REMOVED***Status: DatabaseAuthStatus;
+    setAuthStatus: (status: DatabaseAuthStatus) => void;
 
     create: (createRequest:DatabaseCreateRequest) => Promise<CreateDatabaseResult>;
-    ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorizeRequest) => Promise<void>;
+    ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorizeRequest) => Promise<AuthorizeDatabaseResult>;
+    logout: () => void;
 }
 
 export const DatabaseContext = createContext<DatabaseContextType | null>(null);
@@ -85,19 +82,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const [accessToken, setAccesToken] = useState<string>('');
     const [refreshToken, setRefreshToken] = useState<string>('');
 
-
-    const ***REMOVED***Status = {
-        status: DatabaseAuthStatus.NotAuthorized,
-        isAuthorized: () => {
-            return ***REMOVED***Status.status === DatabaseAuthStatus.Authorized;
-        },
-        isError: () => {
-            return ***REMOVED***Status.status === DatabaseAuthStatus.AuthorizationError;
-        },
-        isInProgress: () => {
-            return ***REMOVED***Status.status === DatabaseAuthStatus.InProgress;
-        }
-    }    
+    const [***REMOVED***Status, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
         const client = new DbApiClient('');
@@ -125,7 +110,8 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const ***REMOVED***LocatorHash = await sha256(createRequest.***REMOVED*** + createRequest.databaseId, defaultKeyLocatorHashSalt);
 
         const encryptionUtils = new EncryptionUtils(createRequest.***REMOVED***);
-        const encryptedMasterKey = await encryptionUtils.encrypt(generateEncryptionKey());
+        const masterKey = generateEncryptionKey()
+        const encryptedMasterKey = await encryptionUtils.encrypt(masterKey);
         
         const ***REMOVED***Client = await setupApiClient(null);
         const ***REMOVED***Request = {
@@ -144,7 +130,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             setKeyLocatorHash(***REMOVED***LocatorHash);
             setKeyHash(***REMOVED***Hash.encoded);
             setKeyHashParams(***REMOVED***HashParams);
-            setMasterKey(encryptedMasterKey);
+            setMasterKey(masterKey);
             setEncryptionKey(createRequest.***REMOVED***);
         }
 
@@ -155,8 +141,92 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         }
     };
 
-    const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorizeRequest) => {
-        const ***REMOVED***ChallengResult = 
+    const logout = () => {
+        setDatabaseId('');
+        setMasterKey('');
+        setEncryptionKey('');
+        setDatabaseHashId('');
+        setKeyLocatorHash('');
+        setKeyHash('');
+        setKeyHashParams({
+            hashLen: 0,
+            salt: '',
+            time: 0,
+            mem: 0,
+            parallelism: 1
+        });
+        setAccesToken('');
+        setRefreshToken('');
+        setAuthStatus(DatabaseAuthStatus.NotAuthorized);
+    };
+
+    const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorizeRequest): Promise<AuthorizeDatabaseResult> => {
+        setAuthStatus(DatabaseAuthStatus.InProgress);
+        const databaseIdHash = await sha256(***REMOVED***orizeRequest.databaseId, defaultDatabaseIdHashSalt);
+        const ***REMOVED***LocatorHash = await sha256(***REMOVED***orizeRequest.***REMOVED*** + ***REMOVED***orizeRequest.databaseId, defaultKeyLocatorHashSalt);
+        const ***REMOVED***Client = await setupApiClient(null);
+
+        const ***REMOVED***ChallengResponse = await ***REMOVED***Client.***REMOVED***orizeChallenge({
+            databaseIdHash,
+            ***REMOVED***LocatorHash
+        });
+        
+        if (***REMOVED***ChallengResponse.status === 200){ // ***REMOVED***orization challenge success
+            const ***REMOVED***HashParams = ***REMOVED***ChallengResponse.data as KeyHashParamsDTO;
+            console.log(***REMOVED***ChallengResponse);
+
+            const ***REMOVED***Hash = await argon2.hash({
+                pass: ***REMOVED***orizeRequest.***REMOVED***,
+                salt: ***REMOVED***HashParams.salt,
+                time: ***REMOVED***HashParams.time,
+                mem: ***REMOVED***HashParams.mem,
+                hashLen: ***REMOVED***HashParams.hashLen,
+                parallelism: ***REMOVED***HashParams.parallelism
+              });
+
+            const ***REMOVED***Response = await ***REMOVED***Client.***REMOVED***orize({
+                databaseIdHash,
+                ***REMOVED***Hash: ***REMOVED***Hash.encoded,
+                ***REMOVED***LocatorHash
+            });
+
+            if(***REMOVED***Response.status === 200) { // user is virtually logged in
+                const encryptionUtils = new EncryptionUtils(***REMOVED***orizeRequest.***REMOVED***);
+
+                setDatabaseHashId(databaseIdHash);
+                setDatabaseId(***REMOVED***orizeRequest.databaseId);
+                setKeyLocatorHash(***REMOVED***LocatorHash);
+                setKeyHash(***REMOVED***Hash.encoded);
+                setKeyHashParams(***REMOVED***HashParams);
+
+                const encryptedMasterKey = (***REMOVED***Response as AuthorizeDbResponse).data.encryptedMasterKey;
+                setMasterKey(await encryptionUtils.decrypt(encryptedMasterKey));
+                setEncryptionKey(***REMOVED***orizeRequest.***REMOVED***);
+
+                setAccesToken((***REMOVED***Response as AuthorizeDbResponse).data.accessToken);
+                setRefreshToken((***REMOVED***Response as AuthorizeDbResponse).data.refreshToken);
+                setAuthStatus(DatabaseAuthStatus.Authorized);
+                return {
+                    success: true,
+                    message: ***REMOVED***Response.message,
+                    issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                }
+
+            } else {
+                setAuthStatus(DatabaseAuthStatus.AuthorizationError);
+                return {
+                    success: false,
+                    message: ***REMOVED***Response.message,
+                    issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                }
+            }
+        }
+
+        return {
+            success: ***REMOVED***ChallengResponse.status === 200,
+            message: ***REMOVED***ChallengResponse.message,
+            issues: ***REMOVED***ChallengResponse.issues ? ***REMOVED***ChallengResponse.issues : []
+        }        
     };
 
     const databaseContextValue: DatabaseContextType = {
@@ -175,12 +245,14 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         encryptionKey,
         setEncryptionKey,
         ***REMOVED***Status,
+        setAuthStatus,
         accessToken,
         setAccesToken,
         refreshToken,
         setRefreshToken,       
         create,
         ***REMOVED***orize,
+        logout
     };
 
     return (

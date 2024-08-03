@@ -36,7 +36,7 @@ export default function PatientRecordItem(record: PatientRecord) {
 
   const getAttachmentApiClient = async () => {
     const ***REMOVED***Key = dbContext?.masterKey;
-    const ***REMOVED***Client = new EncryptedAttachmentApiClient('', {
+    const ***REMOVED***Client = new EncryptedAttachmentApiClient('', dbContext, {
       ***REMOVED***Key: ***REMOVED***Key,
       useEncryption: ***REMOVED***Key ? true : false
     })
@@ -45,7 +45,7 @@ export default function PatientRecordItem(record: PatientRecord) {
 
   const getPatientRecordApiClient = async () => {
     const ***REMOVED***Key = dbContext?.masterKey;
-    const ***REMOVED***Client = new PatientRecordApiClient('', {
+    const ***REMOVED***Client = new PatientRecordApiClient('', dbContext, {
       ***REMOVED***Key: ***REMOVED***Key,
       useEncryption: ***REMOVED***Key ? true : false
     })

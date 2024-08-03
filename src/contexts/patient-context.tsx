@@ -38,7 +38,7 @@ export const PatientContextProvider: React.FC<PropsWithChildren> = ({ children }
             ***REMOVED***Key: masterKey,
             useEncryption: true
         };
-        const client = new PatientApiClient('', encryptionConfig);
+        const client = new PatientApiClient('', dbContext, encryptionConfig);
         return client;
     }
     

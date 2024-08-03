@@ -1,3 +1,4 @@
+import { DatabaseContextType } from "@/contexts/db-context";
 import { DatabaseAuthorizeChallengeRequestDTO, DatabaseAuthorizeRequestDTO, DatabaseCreateRequestDTO, KeyHashParamsDTO } from "../dto";
 import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
 
@@ -28,8 +29,8 @@ export type AuthorizeDbResponse = {
 };
 
 export class DbApiClient extends ApiClient {
-    constructor(baseUrl: string, encryptionConfig?: ApiEncryptionConfig) {
-      super(baseUrl, encryptionConfig);
+    constructor(baseUrl: string, dbContext?: DatabaseContextType | null, encryptionConfig?: ApiEncryptionConfig) {
+      super(baseUrl, dbContext, encryptionConfig);
     }
   
     async create(createRequest:DatabaseCreateRequestDTO): Promise<CreateDbResponse> {
@@ -40,8 +41,8 @@ export class DbApiClient extends ApiClient {
        return this.request<AuthorizeDbChallengeResponse>('/***REMOVED***/db/challenge', 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeChallengeRequest) as Promise<AuthorizeDbChallengeResponse>;
     }
 
-    async ***REMOVED***orize(***REMOVED***orizeRequest: DatabaseAuthorizeRequestDTO): Promise<AuthorizeDbChallengeResponse> {
-      return this.request<AuthorizeDbChallengeResponse>('/***REMOVED***/db/***REMOVED***orize', 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeRequest) as Promise<AuthorizeDbChallengeResponse>;
+    async ***REMOVED***orize(***REMOVED***orizeRequest: DatabaseAuthorizeRequestDTO): Promise<AuthorizeDbResponse> {
+      return this.request<AuthorizeDbResponse>('/***REMOVED***/db/***REMOVED***orize', 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeRequest) as Promise<AuthorizeDbResponse>;
    }
 
   }
