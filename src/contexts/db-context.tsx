@@ -8,6 +8,12 @@ import getConfig from 'next/config';
 const argon2 = require("argon2-browser");
 
 
+export type AuthorizeDatabaseResult = {
+    success: boolean;
+    message: string;
+    issues: string[];
+}
+
 export type CreateDatabaseResult = {
     success: boolean;
     message: string;
@@ -150,6 +156,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     };
 
     const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorizeRequest) => {
+        const ***REMOVED***ChallengResult = 
     };
 
     const databaseContextValue: DatabaseContextType = {
