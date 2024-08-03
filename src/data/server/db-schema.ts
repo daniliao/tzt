@@ -17,6 +17,18 @@ export const config = sqliteTable('config', {
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
+export const ***REMOVED***s = sqliteTable('***REMOVED***s', {
+    ***REMOVED***LocatorHash: text('***REMOVED***LocatorHash').primaryKey(),
+    databaseIdHash: text('databaseIdHash', { mode: 'text' }).notNull(),
+    ***REMOVED***Hash: text('***REMOVED***Hash').notNull(),
+    ***REMOVED***HashParams: text('***REMOVED***HashParams').notNull(),
+    encryptedMasterKey: text('encryptedMasterKey').notNull(),
+    acl: text('acl'),
+    extra: text('extra'),
+    expiryDate: text('expiryDate').default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+}); 
+
 export const patientRecords = sqliteTable('patientRecords', {
     id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     patientId: integer('patientId', { mode: 'number' }).references(() => patients.id),
