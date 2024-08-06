@@ -95,7 +95,8 @@ export function CreateDatabaseForm({
         setOperationResult(null);
         dbContext?.***REMOVED***orize({ // this will ***REMOVED***orize the database and in a side effect close this popup
           databaseId: dbContext?.databaseId,
-          ***REMOVED***: dbContext?.encryptionKey
+          ***REMOVED***: dbContext?.encryptionKey,
+          keepLoggedIn: keepLoggedIn
         });
       }}>Go to application</Button>
     </div>)
