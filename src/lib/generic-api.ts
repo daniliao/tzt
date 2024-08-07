@@ -4,6 +4,7 @@ import { ZodError, ZodObject } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
 import { jwtVerify } from "jose";
+import { KeyDTO } from "@/data/dto";
 
 export type ApiResult = {
     message: string;
@@ -13,14 +14,22 @@ export type ApiResult = {
     status: 200 | 400 | 500;
 }
 
-export async function ***REMOVED***orizeDatabaseIdHash(request: Request, response?: NextResponse): Promise<string> {
+export type AuthorizedRequestContext = { 
+    databaseIdHash: string;
+    ***REMOVED***Hash: string;
+    ***REMOVED***LocatorHash: string;
+    acl: any;
+    extra: any;
+}
+
+export async function ***REMOVED***orizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
     const ***REMOVED***orizationHeader = request.headers.get('Authorization');
     const jwtToken = ***REMOVED***orizationHeader?.replace('Bearer ', '');
 
     if (jwtToken) {
         const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.PATIENT_PAD_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
 
-        const ***REMOVED***Result = ***REMOVED***orizeKey({
+        const ***REMOVED***Result = await ***REMOVED***orizeKey({
             databaseIdHash: decoded.payload.databaseIdHash as string,
             ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
             ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string
@@ -29,7 +38,13 @@ export async function ***REMOVED***orizeDatabaseIdHash(request: Request, respons
             NextResponse.json({ message: 'Un***REMOVED***orized', status: 401 });
             throw new Error('Un***REMOVED***orized. Wrong Key.');
         } else {
-            return decoded.payload.databaseIdHash as string;
+            return {
+                databaseIdHash: decoded.payload.databaseIdHash as string,
+                ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
+                ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string,
+                acl: (***REMOVED***Result as KeyDTO).acl,
+                extra: (***REMOVED***Result as KeyDTO).extra
+            }
         }
     } else {
         throw new Error('Un***REMOVED***orized. No Token');
