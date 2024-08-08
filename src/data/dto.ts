@@ -27,6 +27,7 @@ export const ConfigDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: [
 export type ConfigDTO = z.infer<typeof configDTOSchema>;
 
 export const ***REMOVED***DTOSchema = z.object({
+  displayName: z.string().min(1),
   ***REMOVED***LocatorHash: z.string().min(64).max(64),
   ***REMOVED***Hash: z.string().min(32),
   ***REMOVED***HashParams: z.string().min(1),

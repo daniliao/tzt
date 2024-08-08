@@ -1,7 +1,8 @@
-import { EncryptedAttachmentDTO, PatientDTO, PatientRecordDTO } from "../dto";
+import { EncryptedAttachmentDTO, KeyDTO, PatientDTO, PatientRecordDTO } from "../dto";
 import { z } from "zod";
 
 import PasswordValidator from '***REMOVED***-validator';
+import { getCurrentTS } from "@/lib/utils";
 
 
 export enum DataLoadingStatus {
@@ -209,6 +210,50 @@ export class PatientRecord {
       };
     }  
   }
+
+export class Key {
+    displayName: string;
+    ***REMOVED***LocatorHash: string;
+    ***REMOVED***Hash: string;
+    ***REMOVED***HashParams: string;
+    databaseIdHash: string;
+    encryptedMasterKey: string;
+    acl: string | null;
+    extra: string | null;
+    expiryDate: string | null;
+    updatedAt: string;
+
+    constructor(***REMOVED***DTO: KeyDTO) {
+        this.displayName = ***REMOVED***DTO.displayName;
+        this.***REMOVED***LocatorHash = ***REMOVED***DTO.***REMOVED***LocatorHash;
+        this.***REMOVED***Hash = ***REMOVED***DTO.***REMOVED***Hash;
+        this.***REMOVED***HashParams = ***REMOVED***DTO.***REMOVED***HashParams;
+        this.databaseIdHash = ***REMOVED***DTO.databaseIdHash;
+        this.encryptedMasterKey = ***REMOVED***DTO.encryptedMasterKey;
+        this.acl = ***REMOVED***DTO.acl ?? null;
+        this.extra = ***REMOVED***DTO.extra ?? null;
+        this.expiryDate = ***REMOVED***DTO.expiryDate ?? null;
+        this.updatedAt = ***REMOVED***DTO.updatedAt ?? getCurrentTS();
+    }
+
+    static fromDTO(***REMOVED***DTO: KeyDTO): Key {
+        return new Key(***REMOVED***DTO);
+    }
+
+    toDTO(): KeyDTO {
+        return {
+            ***REMOVED***LocatorHash: this.***REMOVED***LocatorHash,
+            ***REMOVED***Hash: this.***REMOVED***Hash,
+            ***REMOVED***HashParams: this.***REMOVED***HashParams,
+            databaseIdHash: this.databaseIdHash,
+            encryptedMasterKey: this.encryptedMasterKey,
+            acl: this.acl,
+            extra: this.extra,
+            expiryDate: this.expiryDate,
+            updatedAt: this.updatedAt,
+        };
+    }
+}
 
 export class DatabaseCreateRequest {
     databaseId: string;
