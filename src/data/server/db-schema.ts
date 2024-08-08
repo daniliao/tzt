@@ -19,6 +19,7 @@ export const config = sqliteTable('config', {
 
 export const ***REMOVED***s = sqliteTable('***REMOVED***s', {
     ***REMOVED***LocatorHash: text('***REMOVED***LocatorHash').primaryKey(),
+    displayName: text('displayName'),
     databaseIdHash: text('databaseIdHash', { mode: 'text' }).notNull(),
     ***REMOVED***Hash: text('***REMOVED***Hash').notNull(),
     ***REMOVED***HashParams: text('***REMOVED***HashParams').notNull(),
