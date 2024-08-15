@@ -142,7 +142,7 @@ export default function PatientRecordForm({ patient }: { patient?: Patient }) {
       if(savedPatientRecord?.id) // if patient record is saved successfully
       {
          const eaac = new EncryptedAttachmentApiClient('', dbContext, {
-          ***REMOVED***Key: dbContext,
+          ***REMOVED***Key: dbContext?.masterKey,
           useEncryption: true
         });
         uploadedAttachments?.forEach(async (attachmentToUpdate) => {
