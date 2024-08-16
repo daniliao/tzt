@@ -23,6 +23,7 @@ export type RefreshDatabaseResult = {
     success: boolean;
     message: string;
     issues: string[];
+    accessToken?: string;
 }
 
 export type CreateDatabaseResult = {
@@ -187,6 +188,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             setAuthStatus(DatabaseAuthStatus.Authorized);
             return {
                 success: true,
+                accessToken: (***REMOVED***Response as RefreshDbResponse).data.accessToken,
                 message: ***REMOVED***Response.message,
                 issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
             }
