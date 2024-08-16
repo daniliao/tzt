@@ -95,6 +95,7 @@ const [isConfigDialogOpen, setConfigDialogOpen] = React.useState(false);
       getServerConfig: async (***REMOVED***: string) => {
         const serverConfig  = await loadServerConfig();
         const val = serverConfig[***REMOVED***];
+        if (val === '' || val === undefined || val === 'null') return '';
         if (val === 'true') return true; // booleans are not supported by sqlite so we're converting them on input and outputse
         if (val === 'false') return false;
         if (isNumber(val)) return Number(val);
