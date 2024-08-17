@@ -5,7 +5,7 @@ import PatientRecordForm from "./patient-record-form";
 import { PatientContext } from "@/contexts/patient-context";
 import { useContext, useState } from "react";
 import { Chat } from "./chat";
-import { KeyIcon, LogOutIcon, MenuIcon, MenuSquareIcon, Settings2Icon, SettingsIcon, Share2Icon } from "lucide-react";
+import { Edit3Icon, KeyIcon, LogOutIcon, MenuIcon, MenuSquareIcon, MessageCircleIcon, PlusIcon, Settings2Icon, SettingsIcon, Share2Icon, UsersIcon } from "lucide-react";
 import { DatabaseContext } from "@/contexts/db-context";
 import { toast } from "sonner";
 import { useTheme } from 'next-themes';
@@ -14,11 +14,15 @@ import { KeyContext } from "@/contexts/***REMOVED***-context";
 import { ChangeKeyPopup } from "./change-***REMOVED***-popup";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { ConfigContext } from "@/contexts/config-context";
+import { ChatContext } from "@/contexts/chat-context";
+import { PatientRecordContext } from "@/contexts/patient-record-context";
 
 export default function TopHeader() {
     const patientContext = useContext(PatientContext);
     const dbContext = useContext(DatabaseContext);
     const ***REMOVED***Context = useContext(KeyContext);
+    const chatContext = useContext(ChatContext);
+    const patientRecordContext = useContext(PatientRecordContext);
     const config = useContext(ConfigContext);
     const { theme, systemTheme } = useTheme();
     const currentTheme = (theme === 'system' ? systemTheme : theme)
@@ -27,8 +31,8 @@ export default function TopHeader() {
     return (
       <div className="sticky top-0 z-1000 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-200 dark:bg-zinc-800 h-12">
         <div className="font-medium flex justify-center items-center">
-          <div><img className="h-12" src={currentTheme === 'dark' ? `/img/patient-pad-logo-white.svg` : `/img/patient-pad-logo.svg`} /></div>
-          <div>{patientContext?.currentPatient ? <Button className="ml-3" variant="outline" onClick={(e) => { patientContext?.setPatientListPopup(true); patientContext?.setPatientEditOpen(true); }}>Edit patient</Button> : null}</div>
+          <div><img className="sm:h-12 xs:h-30" src={currentTheme === 'dark' ? `/img/patient-pad-logo-white.svg` : `/img/patient-pad-logo.svg`} /></div>
+          <div className="xs:invisible sm:visible">{patientContext?.currentPatient ? ('Patient Pad for ' + patientContext.currentPatient.displayName()) : 'Patient Pad'} {patientContext?.currentPatient ? <Button className="ml-3" variant="outline" onClick={(e) => { patientContext?.setPatientListPopup(true); patientContext?.setPatientEditOpen(true); }}>Edit patient</Button> : null}</div>
         </div>
         <div className="flex items-center gap-2">
           <PatientListPopup />
@@ -46,14 +50,21 @@ export default function TopHeader() {
               <MenuIcon className="cursor-pointer w-6 h-6"/>
             </Button>
             <CommandDialog open={commandDialogOpen} onOpenChange={setCommandDialogOpen}>
-              <CommandInput className="text-sm" placeholder="Type a command or search..." />
+              <CommandInput className="cursor-pointer text-sm" placeholder="Type a command or search..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup heading="Suggestions">
-                    {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-share" className="text-xs" onSelect={(v) => { ***REMOVED***Context.setSharedKeysDialogOpen(true);  }}><Share2Icon className="w-6 h-6" />  Shared Keys</CommandItem>) : null}
-                    {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-settings" className="text-xs" onSelect={(v) => { config?.setConfigDialogOpen(true);  }}><Settings2Icon className="w-6 h-6" />  Settings</CommandItem>) : null}
-                    {!dbContext?.acl || dbContext.acl.role !== 'guest' ? (<CommandItem ***REMOVED***="cmd-change-***REMOVED***" className="text-xs" onSelect={(v) => { ***REMOVED***Context.setChangeEncryptionKeyDialogOpen(true);  }}><KeyIcon className="w-6 h-6" />  Change Encryption Key</CommandItem>) : null}
-                    <CommandItem ***REMOVED***="cmd-logout" className="text-xs" onSelect={(v) => { dbContext?.logout(); localStorage.removeItem('keepLoggedIn'); toast.info("Logged out successfully"); }}><LogOutIcon className="w-6 h-6" />  Logout</CommandItem>
+                  <CommandItem ***REMOVED***="cmd-edit-patient" className="cursor-pointer text-xs"  onSelect={(e) => { patientRecordContext?.setPatientRecordEditMode(true); }}><PlusIcon /> Add health record</CommandItem>
+                  {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-settings" className="cursor-pointer text-xs" onSelect={(v) => { config?.setConfigDialogOpen(true);  }}><Settings2Icon className="w-6 h-6" />  Settings</CommandItem>) : null}
+                    <CommandItem ***REMOVED***="cmd-list-patients" className="cursor-pointer text-xs"  onSelect={(e) => { patientContext?.setPatientListPopup(true); patientContext?.setPatientEditOpen(false); }}><UsersIcon /> List patients</CommandItem>
+                    <CommandItem ***REMOVED***="cmd-edit-patient" className="cursor-pointer text-xs"  onSelect={(e) => { patientContext?.setPatientListPopup(true); patientContext?.setPatientEditOpen(true); }}><Edit3Icon /> Edit currrent patient</CommandItem>
+                    <CommandItem ***REMOVED***="cmd-open-chat" className="cursor-pointer text-xs"  onSelect={(e) => { chatContext?.setChatOpen(true); }}><MessageCircleIcon /> Open AI Chat</CommandItem>
+
+                    {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-share" className="cursor-pointer text-xs" onSelect={(v) => { ***REMOVED***Context.setSharedKeysDialogOpen(true);  }}><Share2Icon className="w-6 h-6" />  Shared Keys</CommandItem>) : null}
+                  </CommandGroup>
+                  <CommandGroup heading="Security">
+                    <CommandItem ***REMOVED***="cmd-change-***REMOVED***" className="cursor-pointer text-xs" onSelect={(v) => { ***REMOVED***Context.setChangeEncryptionKeyDialogOpen(true);  }}><KeyIcon className="w-6 h-6" /> Change encryption ***REMOVED***</CommandItem>
+                    <CommandItem ***REMOVED***="cmd-logout" className="cursor-pointer text-xs" onSelect={(v) => { dbContext?.logout(); }}><LogOutIcon className="w-6 h-6" /> Logout</CommandItem>
                   </CommandGroup>
               </CommandList>
             </CommandDialog>
