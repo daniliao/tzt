@@ -55,12 +55,18 @@ export class ApiClient {
       if(response.status === 401) {
         console.error('Un***REMOVED***orized, first and only refresh attempt');
         // Refresh ***REMOVED***
-        const refreshResult = await this.dbContext?.refresh({
-          refreshToken: this.dbContext.refreshToken
-        })
-        if((refreshResult)?.success) {
-          console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
-          return this.getArrayBuffer(endpoint, refreshResult.accessToken);
+        if (!temporaryAccessToken) {
+          const refreshResult = await this.dbContext?.refresh({
+            refreshToken: this.dbContext.refreshToken
+          })
+          if((refreshResult)?.success) {
+            console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
+            return this.getArrayBuffer(endpoint, refreshResult.accessToken);
+          } else {
+            this.dbContext?.logout();
+            toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
+            throw new Error('Request failed. Refresh ***REMOVED*** failed. Try log-in again.');
+          }
         } else {
           this.dbContext?.logout();
           toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
@@ -127,12 +133,18 @@ export class ApiClient {
       if(response.status === 401) {
         console.error('Un***REMOVED***orized, first and only refresh attempt');
         // Refresh ***REMOVED***
-        const refreshResult = await this.dbContext?.refresh({
-          refreshToken: this.dbContext.refreshToken
-        })
-        if((refreshResult)?.success) {
-          console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
-          return this.request(endpoint, method, encryptionSettings, body, formData, refreshResult.accessToken);
+        if (!temporaryAccessToken) {
+          const refreshResult = await this.dbContext?.refresh({
+            refreshToken: this.dbContext.refreshToken
+          })
+          if((refreshResult)?.success) {
+            console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
+            return this.request(endpoint, method, encryptionSettings, body, formData, refreshResult.accessToken);
+          } else {
+            this.dbContext?.logout();
+            toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
+            throw new Error('Request failed. Refresh ***REMOVED*** failed. Try log-in again.');
+          }
         } else {
           this.dbContext?.logout();
           toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
