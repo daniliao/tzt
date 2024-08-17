@@ -60,7 +60,7 @@ export function SharedKeyEditPopup() {
 
     setSharedKey(data.sharedKey);
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
-    setApiResult(await ***REMOVED***sContext.addKey(dbContext?.databaseId, data.displayName, data.sharedKey.toString(), expDate));
+    setApiResult(await ***REMOVED***sContext.addKey(dbContext?.databaseId, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
     ***REMOVED***sContext.loadKeys();
 
     if(***REMOVED***Result && ***REMOVED***Result.status === 200) {

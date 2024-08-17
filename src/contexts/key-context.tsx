@@ -1,9 +1,9 @@
-import { DataLoadingStatus, Key } from '@/data/client/models';
+import { DataLoadingStatus, Key, KeyACL } from '@/data/client/models';
 import { EncryptionUtils, generateEncryptionKey, sha256 } from '@/lib/crypto';
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { DatabaseContext, DatabaseContextType, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt } from './db-context';
 import { toast } from 'sonner';
-import { KeyDTO } from '@/data/dto';
+import { KeyACLDTO, KeyDTO } from '@/data/dto';
 import { KeyApiClient, PutKeyResponse, PutKeyResponseError } from '@/data/client/***REMOVED***-***REMOVED***-client';
 import { ConfigContextType } from './config-context';
 import { getCurrentTS } from '@/lib/utils';
@@ -17,8 +17,8 @@ interface KeyContextProps {
     currentKey: Key | null;
 
     loadKeys: () => void;
-    addKey: (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null) => Promise<PutKeyResponse>;
-    removeKey: (***REMOVED***LocatorHash: string) => void;
+    addKey: (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO) => Promise<PutKeyResponse>;
+    removeKey: (***REMOVED***LocatorHash: string) => Promise<PutKeyResponse>;
 
     setCurrentKey: (***REMOVED***: Key | null) => void;
     setSharedKeysDialogOpen: (value: boolean) => void;
@@ -33,8 +33,8 @@ export const KeyContext = createContext<KeyContextProps>({
     currentKey: null,
     
     loadKeys: () => {},
-    addKey: (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null) => Promise.resolve({} as PutKeyResponse),
-    removeKey: (***REMOVED***LocatorHash: string) => {},
+    addKey: (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO) => Promise.resolve({} as PutKeyResponse),
+    removeKey: (***REMOVED***LocatorHash: string) => Promise.resolve({} as PutKeyResponse),
 
     setCurrentKey: (***REMOVED***: Key | null)  => {},
     setSharedKeysDialogOpen: () => {},
@@ -55,7 +55,10 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         return client;
     }
 
-    const addKey = async (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null): Promise<PutKeyResponse> => {
+    const addKey = async (databaseId: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO = {
+        role: 'guest',
+        features: ['*']
+    } ): Promise<PutKeyResponse> => {
         // setKeys((prevKeys) => [...prevKeys, newKey]);
         const ***REMOVED***HashParams = {
             salt: generateEncryptionKey(),
@@ -94,10 +97,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
             ***REMOVED***HashParams: JSON.stringify(***REMOVED***HashParams),
             ***REMOVED***LocatorHash,
             displayName,
-            acl: JSON.stringify({
-                role: 'guest',
-                features: ['*']
-            }),
+            acl: JSON.stringify(acl),
             expiryDate: expDate,
             updatedAt: getCurrentTS()
         };
@@ -115,19 +115,15 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
     };
 
     const removeKey = async (***REMOVED***LocatorHash: string) => {
-        if (***REMOVED***LocatorHash) {
-            setKeys((prevKeys) => prevKeys.filter((***REMOVED***) => ***REMOVED***.***REMOVED***LocatorHash !== ***REMOVED***LocatorHash));
-            const ***REMOVED***Client = await setupApiClient(null);
-            ***REMOVED***Client.delete(***REMOVED***LocatorHash);
-        }// } else {
-        //     toast.error('Cannot remove the last ***REMOVED***');
-        // }
+        setKeys((prevKeys) => prevKeys.filter((***REMOVED***) => ***REMOVED***.***REMOVED***LocatorHash !== ***REMOVED***LocatorHash));
+        const ***REMOVED***Client = await setupApiClient(null);
+        return ***REMOVED***Client.delete(***REMOVED***LocatorHash);
     };
 
     const loadKeys = async () => {
         const ***REMOVED***Client = await setupApiClient(null);
         const ***REMOVED***s = await ***REMOVED***Client.get();
-        setKeys(***REMOVED***s.filter(k => k.displayName).map(k=>new Key(k))); // skip ***REMOVED***s without display name
+        setKeys(***REMOVED***s.filter(k => k.displayName && (k.acl && (JSON.parse(k.acl) as KeyACLDTO).role !== 'owner') ).map(k=>new Key(k))); // skip ***REMOVED***s without display name
     }
 
     return (

@@ -16,6 +16,7 @@ import { KeyPrint } from "./***REMOVED***-print";
 import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
+import { KeyContext } from "@/contexts/***REMOVED***-context";
 
 
 interface ChangeKeyFormProps {
@@ -25,7 +26,7 @@ export function ChangeKeyForm({
 }: ChangeKeyFormProps) {
   const { register, setValue, getValues, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
-      databaseId: '',
+      currentKey: '',
       ***REMOVED***: generateEncryptionKey()
     }
   });
@@ -35,6 +36,7 @@ export function ChangeKeyForm({
   const [printKey, setPrintKey] = useState<ReactElement | null>(null);
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
   const dbContext = useContext(DatabaseContext);
+  const ***REMOVED***Context = useContext(KeyContext);
 
   useEffect(() => { 
     setOperationResult(null);
@@ -42,31 +44,51 @@ export function ChangeKeyForm({
   }, []);
   const handleChangeKey = handleSubmit(async (data) => {
     // Handle form submission
-    const result = await dbContext?.create({
-      databaseId: data.databaseId,
-      ***REMOVED***: data.***REMOVED***
-    });
 
-    if (keepLoggedIn){
-      localStorage.setItem("databaseId", data.databaseId);
-      localStorage.setItem("***REMOVED***", data.***REMOVED***);
+    if (dbContext?.encryptionKey !== data.currentKey) {
+      setOperationResult({ success: false, message: "Current ***REMOVED*** is incorrect", issues: [] });
+      toast.error('Current ***REMOVED*** is incorrect');
+    } else  {
+
+      const newKeyResult = await ***REMOVED***Context.addKey(dbContext?.databaseId, 'Owner Key', data.***REMOVED***, null, {
+        role: 'owner',
+        features: ['*']
+      });
+      if (newKeyResult.status === 200) {
+        dbContext?.setEncryptionKey(data.***REMOVED***);
+
+        const deleteOldKeyResult = await ***REMOVED***Context.removeKey(dbContext.***REMOVED***LocatorHash)
+
+        if(deleteOldKeyResult.status !== 200) {
+          setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: [deleteOldKeyResult.message]});
+          toast.error('Error while changing ***REMOVED***');
+          return;
+        } else {
+          setOperationResult({ success: true, message: "Key has been successfully changed", issues: [] });
+          toast.success('Key has been successfully changed');
+
+          if (keepLoggedIn){
+            localStorage.setItem("databaseId", dbContext?.databaseId);
+            localStorage.setItem("***REMOVED***", data.***REMOVED***);
+          }
+        }
+      } else {
+        setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: [newKeyResult.message]});
+        toast.error('Error while changing ***REMOVED***');
+        return;
+      }
     }
-    setOperationResult(result);
-    if(result?.success) {
-      toast.success(result?.message);
-    } else {
-      toast.error(result?.message);
-    }
+
   });
 
   if (operationResult?.success) {
     return (<div className="flex flex-col space-y-2 gap-2 mb-4">
       <h2 className="text-green-500 text-bold">Congratulations!</h2>
-      <p className="text-sm">Database has ben successfully created. Please store the credentials in safe place as they are <strong>NEVER send to server</strong> and thus <strong>CAN NOT be recovered</strong></p>
+      <p className="text-sm">Database Key has been changed. Please store the credentials in safe place as they are <strong>NEVER send to server</strong> and thus <strong>CAN NOT be recovered</strong></p>
       <div className="border-2 border-dashed border-green-400 p-5">
         <div className="text-sm mb-5">
-          <Label htmlFor="databaseId">Database ID:</Label>
-          <Input id="databaseId" readOnly value={dbContext?.databaseId} />
+          <Label htmlFor="current">Database Id:</Label>
+          <Input type="***REMOVED***" id="databaseId" readOnly value={dbContext?.databaseId} />
         </div>
         <div className="text-sm">
           <Label htmlFor="encryptionKey">User Key:</Label>
@@ -114,24 +136,24 @@ export function ChangeKeyForm({
               </ul>
             </div>
           ) : null}
-          <Label htmlFor="databaseId">Database ID</Label>
+          <Label htmlFor="currentKey">Current Key</Label>
           <Input autoFocus 
             type="text"
-            id="databaseId"
-            {...register("databaseId", { required: true,
+            id="currentKey"
+            {...register("currentKey", { required: true,
               validate: {
-                databaseId: databaseIdValidator
+                databaseId: userKeyValidator
               }
             })}
           />
-          {errors.databaseId && <span className="text-red-500 text-sm">Database Id must be at least 6 letters and/or digits and unique</span>}
+          {errors.databaseId && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Please pick a unique database id. We do not store this name. It could be your Personal ID if you like or any other unique name, at least 6 letters or digits.
+              Enter your current encryption ***REMOVED*** which is required to re-encrypt your data with new ***REMOVED***
           </p>        
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
-              <Label htmlFor="***REMOVED***">User Key</Label>
+              <Label htmlFor="***REMOVED***">New User Key</Label>
               <div className="flex gap-2">
                 <div className="relative">
                   <PasswordInput autoComplete="new-***REMOVED***" id="***REMOVED***"
@@ -218,7 +240,7 @@ export function ChangeKeyForm({
             </div>      
           </NoSSR>
           <div className="items-center flex justify-center">
-              <Button type="submit">Create database</Button>
+              <Button type="submit">Change Encryption Key</Button>
           </div>
         </div>
       </form>

@@ -19,7 +19,7 @@ import { SharedKeyEditPopup } from "./shared-***REMOVED***-edit-popup";
 export default function SharedKeysPopup() {
   const configContext = useContext(ConfigContext);
   const dbContext = useContext(DatabaseContext);
-  const ***REMOVED***sContext = useContext(KeyContext)
+  const ***REMOVED***sContext = useContext(KeyContext);
 
   useEffect(() => {
     ***REMOVED***sContext?.loadKeys();
@@ -27,11 +27,6 @@ export default function SharedKeysPopup() {
 
   return (
     <Credenza open={***REMOVED***sContext.sharedKeysDialogOpen} onOpenChange={***REMOVED***sContext.setSharedKeysDialogOpen}>
-      <CredenzaTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Share2Icon className="w-6 h-6" />
-        </Button>
-      </CredenzaTrigger>
       <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
         <CredenzaHeader>
           <CredenzaTitle>Shared ***REMOVED***s
