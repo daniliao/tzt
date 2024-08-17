@@ -1,4 +1,4 @@
-import { EncryptedAttachmentDTO, KeyDTO, PatientDTO, PatientRecordDTO } from "../dto";
+import { EncryptedAttachmentDTO, KeyACLDTO, KeyDTO, PatientDTO, PatientRecordDTO } from "../dto";
 import { z } from "zod";
 
 import PasswordValidator from '***REMOVED***-validator';
@@ -218,6 +218,27 @@ export class PatientRecord {
     }  
   }
 
+export class KeyACL {
+    role: string;
+    features: string[];
+    constructor(***REMOVED***ACLDTO: KeyACLDTO) {
+        this.role = ***REMOVED***ACLDTO.role;
+        this.features = ***REMOVED***ACLDTO.features;
+    }
+
+    static fromDTO(***REMOVED***ACLDTO: KeyACLDTO): KeyACL {
+        return new KeyACL(***REMOVED***ACLDTO);
+    }
+
+    toDTO(): KeyACLDTO {
+        return {
+            role: this.role,
+            features: this.features,
+        };
+    }
+
+}
+
 export class Key {
     displayName: string;
     ***REMOVED***LocatorHash: string;
@@ -225,19 +246,19 @@ export class Key {
     ***REMOVED***HashParams: string;
     databaseIdHash: string;
     encryptedMasterKey: string;
-    acl: string | null;
+    acl: KeyACL | null;
     extra: string | null;
     expiryDate: string | null;
     updatedAt: string;
 
-    constructor(***REMOVED***DTO: KeyDTO) {
+    constructor(***REMOVED***DTO: KeyDTO | Key) {
         this.displayName = ***REMOVED***DTO.displayName;
         this.***REMOVED***LocatorHash = ***REMOVED***DTO.***REMOVED***LocatorHash;
         this.***REMOVED***Hash = ***REMOVED***DTO.***REMOVED***Hash;
         this.***REMOVED***HashParams = ***REMOVED***DTO.***REMOVED***HashParams;
         this.databaseIdHash = ***REMOVED***DTO.databaseIdHash;
         this.encryptedMasterKey = ***REMOVED***DTO.encryptedMasterKey;
-        this.acl = ***REMOVED***DTO.acl ?? null;
+        this.acl = ***REMOVED***DTO instanceof Key ? ***REMOVED***DTO.acl :  (***REMOVED***DTO.acl ? JSON.parse(***REMOVED***DTO.acl) : null);
         this.extra = ***REMOVED***DTO.extra ?? null;
         this.expiryDate = ***REMOVED***DTO.expiryDate ?? null;
         this.updatedAt = ***REMOVED***DTO.updatedAt ?? getCurrentTS();
@@ -249,12 +270,13 @@ export class Key {
 
     toDTO(): KeyDTO {
         return {
+            displayName: this.displayName,
             ***REMOVED***LocatorHash: this.***REMOVED***LocatorHash,
             ***REMOVED***Hash: this.***REMOVED***Hash,
             ***REMOVED***HashParams: this.***REMOVED***HashParams,
             databaseIdHash: this.databaseIdHash,
             encryptedMasterKey: this.encryptedMasterKey,
-            acl: this.acl,
+            acl: JSON.stringify(this.acl),
             extra: this.extra,
             expiryDate: this.expiryDate,
             updatedAt: this.updatedAt,

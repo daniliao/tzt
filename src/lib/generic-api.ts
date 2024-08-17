@@ -4,7 +4,8 @@ import { ZodError, ZodObject } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
 import { jwtVerify } from "jose";
-import { KeyDTO } from "@/data/dto";
+import { defaultKeyACL, KeyACLDTO, KeyDTO } from "@/data/dto";
+import { Key } from "react";
 
 export type ApiResult = {
     message: string;
@@ -18,7 +19,7 @@ export type AuthorizedRequestContext = {
     databaseIdHash: string;
     ***REMOVED***Hash: string;
     ***REMOVED***LocatorHash: string;
-    acl: any;
+    acl: KeyACLDTO;
     extra: any;
 }
 
@@ -38,11 +39,13 @@ export async function ***REMOVED***orizeRequestContext(request: Request, respons
             NextResponse.json({ message: 'Un***REMOVED***orized', status: 401 });
             throw new Error('Un***REMOVED***orized. Wrong Key.');
         } else {
+            const ***REMOVED***ACL = (***REMOVED***Result as KeyDTO).acl ?? null;
+            const aclDTO = ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL
             return {
                 databaseIdHash: decoded.payload.databaseIdHash as string,
                 ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
                 ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string,
-                acl: (***REMOVED***Result as KeyDTO).acl,
+                acl: aclDTO as KeyACLDTO,
                 extra: (***REMOVED***Result as KeyDTO).extra
             }
         }

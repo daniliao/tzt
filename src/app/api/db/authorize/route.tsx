@@ -1,4 +1,4 @@
-import { databaseAuthorizeRequestSchema, KeyDTO } from "@/data/dto";
+import { databaseAuthorizeRequestSchema, defaultKeyACL, KeyDTO } from "@/data/dto";
 import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
                 .setIssuedAt()
                 .setIssuer('urn:ctt:patient-pad')
                 .setAudience('urn:ctt:patient-pad')
-                .setExpirationTime('10s')
+                .setExpirationTime('15m')
                 .sign(new TextEncoder().encode(process.env.PATIENT_PAD_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
 
                 const refreshToken = await new SignJWT(***REMOVED***Payload)
@@ -37,12 +37,14 @@ export async function POST(request: Request) {
                 .setExpirationTime('8h')
                 .sign(new TextEncoder().encode(process.env.PATIENT_PAD_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
 
+                const ***REMOVED***ACL = (***REMOVED***Details as KeyDTO).acl ?? null;
                 return Response.json({
                     message: 'Succesfully Authorized!',
                     data: {
                         encryptedMasterKey: (***REMOVED***Details as KeyDTO).encryptedMasterKey,
                         accessToken:  accessToken,
-                        refreshToken: refreshToken
+                        refreshToken: refreshToken,
+                        acl: ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL
                     },
                     status: 200
                 });                    

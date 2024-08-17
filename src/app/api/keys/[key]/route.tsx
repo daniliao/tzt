@@ -4,6 +4,9 @@ import { ***REMOVED***orizeRequestContext, genericDELETE } from "@/lib/generic-*
 
 export async function DELETE(request: Request, { params }: { params: { ***REMOVED***: string }} ) {
     const requestContext = await ***REMOVED***orizeRequestContext(request);
+    if (requestContext.acl.role !== 'owner') {
+        return Response.json({ message: "Owner role is required", status: 401 }, {status: 401});
+    }
 
     const recordLocator = params.***REMOVED***;
     if(!recordLocator){

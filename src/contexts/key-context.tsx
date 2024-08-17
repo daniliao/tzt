@@ -6,12 +6,14 @@ import { toast } from 'sonner';
 import { KeyDTO } from '@/data/dto';
 import { KeyApiClient, PutKeyResponse, PutKeyResponseError } from '@/data/client/***REMOVED***-***REMOVED***-client';
 import { ConfigContextType } from './config-context';
+import { getCurrentTS } from '@/lib/utils';
 const argon2 = require("argon2-browser");
 
 interface KeyContextProps {
     ***REMOVED***s: Key[];
     loaderStatus: DataLoadingStatus;
     sharedKeysDialogOpen: boolean;
+    changeEncryptionKeyDialogOpen: boolean;
     currentKey: Key | null;
 
     loadKeys: () => void;
@@ -20,12 +22,14 @@ interface KeyContextProps {
 
     setCurrentKey: (***REMOVED***: Key | null) => void;
     setSharedKeysDialogOpen: (value: boolean) => void;
+    setChangeEncryptionKeyDialogOpen: (value: boolean) => void;
 }
 
 export const KeyContext = createContext<KeyContextProps>({
     ***REMOVED***s: [],
     loaderStatus: DataLoadingStatus.Idle,
     sharedKeysDialogOpen: false,
+    changeEncryptionKeyDialogOpen: false,
     currentKey: null,
     
     loadKeys: () => {},
@@ -34,6 +38,7 @@ export const KeyContext = createContext<KeyContextProps>({
 
     setCurrentKey: (***REMOVED***: Key | null)  => {},
     setSharedKeysDialogOpen: () => {},
+    setChangeEncryptionKeyDialogOpen: () => {},
 });
 
 export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -41,7 +46,8 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const [sharedKeysDialogOpen, setSharedKeysDialogOpen] = useState(false);
     const [currentKey, setCurrentKey] = useState<Key | null>(null);
-    const dbContext:DatabaseContextType = useContext(DatabaseContext);
+    const [changeEncryptionKeyDialogOpen, setChangeEncryptionKeyDialogOpen] = useState(false);
+    const dbContext = useContext(DatabaseContext);
 
 
     const setupApiClient = async (config: ConfigContextType | null) => {
@@ -88,7 +94,12 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
             ***REMOVED***HashParams: JSON.stringify(***REMOVED***HashParams),
             ***REMOVED***LocatorHash,
             displayName,
+            acl: JSON.stringify({
+                role: 'guest',
+                features: ['*']
+            }),
             expiryDate: expDate,
+            updatedAt: getCurrentTS()
         };
 
         const result = await ***REMOVED***Client.put(***REMOVED***DTO);
@@ -116,11 +127,11 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
     const loadKeys = async () => {
         const ***REMOVED***Client = await setupApiClient(null);
         const ***REMOVED***s = await ***REMOVED***Client.get();
-        setKeys(***REMOVED***s.filter(k => k.displayName)); // skip ***REMOVED***s without display name
+        setKeys(***REMOVED***s.filter(k => k.displayName).map(k=>new Key(k))); // skip ***REMOVED***s without display name
     }
 
     return (
-        <KeyContext.Provider value={{ ***REMOVED***s, loaderStatus, currentKey, sharedKeysDialogOpen, addKey, removeKey, loadKeys, setSharedKeysDialogOpen, setCurrentKey }}>
+        <KeyContext.Provider value={{ ***REMOVED***s, loaderStatus, currentKey, changeEncryptionKeyDialogOpen, sharedKeysDialogOpen, addKey, removeKey, loadKeys, setSharedKeysDialogOpen, setChangeEncryptionKeyDialogOpen, setCurrentKey }}>
             {children}
         </KeyContext.Provider>
     );

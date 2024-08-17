@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    if (requestContext.acl.role !== 'owner') {
+        return Response.json({ message: "Owner role is required", status: 401 }, {status: 401});
+    }
     const ***REMOVED***Result = await genericPUT<ConfigDTO>(await request.json(), configDTOSchema, new ServerConfigRepository(requestContext.databaseIdHash), '***REMOVED***');
     return Response.json(***REMOVED***Result, { status: ***REMOVED***Result.status });
 }

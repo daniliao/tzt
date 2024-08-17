@@ -3,6 +3,7 @@ import { maintenance } from "@/data/server/db-provider";
 import ServerKeyRepository from "@/data/server/server-***REMOVED***-repository";
 import { getCurrentTS, getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, userAgent } from "next/server";
+import { features } from "process";
 
 
 
@@ -46,12 +47,16 @@ export async function POST(request: NextRequest) {
                     });                    
                 } else {
                     const firstUserKey = ***REMOVED***Repo.create({
+                        displayName: '',
                         ***REMOVED***LocatorHash: ***REMOVED***CreateRequest.***REMOVED***LocatorHash,
                         ***REMOVED***Hash: ***REMOVED***CreateRequest.***REMOVED***Hash,
                         ***REMOVED***HashParams: ***REMOVED***CreateRequest.***REMOVED***HashParams,
                         encryptedMasterKey: ***REMOVED***CreateRequest.encryptedMasterKey,
                         databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,                
-                        acl: null,
+                        acl: JSON.stringify({
+                            role: 'owner',
+                            features: ['*']
+                        }),
                         extra: null,
                         expiryDate: null,
                         updatedAt: getCurrentTS(),
