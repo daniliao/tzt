@@ -28,7 +28,7 @@ export async function ***REMOVED***orizeRequestContext(request: Request, respons
     const jwtToken = ***REMOVED***orizationHeader?.replace('Bearer ', '');
 
     if (jwtToken) {
-        const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.PATIENT_PAD_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
+        const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
 
         const ***REMOVED***Result = await ***REMOVED***orizeKey({
             databaseIdHash: decoded.payload.databaseIdHash as string,
