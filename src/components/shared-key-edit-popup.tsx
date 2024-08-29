@@ -55,7 +55,7 @@ export function SharedKeyEditPopup() {
     randomKey.current = getRandomSixDigit();
     setValue('sharedKey', randomKey.current);
     setValue('displayName', randomKey.current.toString().slice(0,2) + '****');
-  }, [***REMOVED***Result, randomKey, setValue])
+  }, [***REMOVED***Result])
 
 
   const onSubmit = async (data) => {

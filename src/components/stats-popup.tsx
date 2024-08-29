@@ -33,7 +33,7 @@ export default function FolderListPopup() {
       }
     }
     loadStats();
-  }, [chatContext.lastRequestStat, chatContext, dbContext?.***REMOVED***Status]);
+  }, [chatContext.lastRequestStat]);
 
   return (
     <Credenza open={chatContext?.statsPopupOpen} onOpenChange={chatContext?.setStatsPopupOpen}>
