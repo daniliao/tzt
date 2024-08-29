@@ -22,7 +22,7 @@ export default function RecordsWrapper({}) {
     if(recordContext && folderContext && folderContext.currentFolder) {
       recordContext?.listRecords(folderContext?.currentFolder);
     };
-  }, [folderContext?.currentFolder, recordContext?.filterSelectedTags]);
+  }, [folderContext?.currentFolder, recordContext?.filterSelectedTags, folderContext, recordContext]);
     
   return (
     <div className="grid min-h-screen w-full bg-zinc-100 dark:bg-zinc-950">
@@ -31,7 +31,7 @@ export default function RecordsWrapper({}) {
           <div>
             <div className="flex-1 overflow-auto">
               <div className="grid gap-6">
-                { (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized) ? (
+                { (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized && folderContext?.currentFolder) ? (
                   <RecordList ***REMOVED***={0} folder={folderContext?.currentFolder} />
                 ) : (
                   <DatabaseLinkAlert />

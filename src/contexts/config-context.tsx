@@ -21,7 +21,7 @@ export function coercedVal(val: any, defaultVal: any = ''): ConfigSupportedValue
   return val;
 }
 
-export const ENV_PROVIDED_CONFIG = {
+export const ENV_PROVIDED_CONFIG: Record<string, any> = {
   chatGptApiKey: process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY,
   displayAttachmentPreviews: process.env.NEXT_PUBLIC_DISPLAY_ATTACHMENT_PREVIEWS,
   ocrProvider: process.env.NEXT_PUBLIC_OCR_PROVIDER,
@@ -46,7 +46,6 @@ export type ConfigContextType = {
 
     setServerConfig(***REMOVED***: string, value: ConfigSupportedValueType): Promise<boolean>;
     getServerConfig(***REMOVED***: string): Promise<ConfigSupportedValueType>;
-    setSaveToLocalStorage(value: boolean): void;
 
     isConfigDialogOpen: boolean;
     setConfigDialogOpen: (value: boolean) => void;
@@ -123,7 +122,8 @@ const [isConfigDialogOpen, setConfigDialogOpen] = React.useState(false);
       {
         if (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized) {
           const client = getConfigApiClient(dbContext.masterKey as string, dbContext);
-          return client.put({ ***REMOVED***, value: `${value}`, updatedAt: getCurrentTS() });
+          client.put({ ***REMOVED***, value: `${value}`, updatedAt: getCurrentTS() });
+          return Promise.resolve(true);
         } else {
           return Promise.resolve(false);
         }

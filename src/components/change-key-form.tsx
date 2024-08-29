@@ -11,7 +11,7 @@ import { Checkbox } from "./ui/checkbox";
 import NoSSR  from "react-no-ssr"
 import { CreateDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { generateEncryptionKey } from "@/lib/crypto";
-import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
+import { Check, CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
 import { KeyPrint } from "./***REMOVED***-print";
 import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
@@ -60,7 +60,7 @@ export function ChangeKeyForm({
         const deleteOldKeyResult = await ***REMOVED***Context.removeKey(dbContext.***REMOVED***LocatorHash)
 
         if(deleteOldKeyResult.status !== 200) {
-          setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: [deleteOldKeyResult.message]});
+          setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: deleteOldKeyResult.issues ?? []});
           toast.error('Error while changing ***REMOVED***');
           return;
         } else {
@@ -73,7 +73,7 @@ export function ChangeKeyForm({
           }
         }
       } else {
-        setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: [newKeyResult.message]});
+        setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: newKeyResult.issues ?? []});
         toast.error('Error while changing ***REMOVED***');
         return;
       }
@@ -97,7 +97,7 @@ export function ChangeKeyForm({
         <div className="flex gap-2 mt-5">
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
-            const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: dbContext?.encryptionKey, databaseId: dbContext?.databaseId }));
+            const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: dbContext?.encryptionKey ?? '', databaseId: dbContext?.databaseId ?? '' }));
             window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
           }}><PrinterIcon className="w-4 h-4" /> Print</Button>
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
@@ -131,7 +131,7 @@ export function ChangeKeyForm({
               <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
               <ul>
                 {operationResult.issues.map((issue, index) => (
-                  <li ***REMOVED***={index}>{issue}</li>
+                  <li ***REMOVED***={index}>{issue.message}</li>
                 ))}
               </ul>
             </div>
@@ -146,7 +146,7 @@ export function ChangeKeyForm({
               }
             })}
           />
-          {errors.databaseId && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+          {errors.currentKey && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Enter your current encryption ***REMOVED*** which is required to re-encrypt your data with new ***REMOVED***
           </p>        
@@ -203,12 +203,12 @@ export function ChangeKeyForm({
                 }}><WandIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: getValues().databaseId }));
+                  const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: dbContext?.databaseId ?? '' }));
                   window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
                 }}><PrinterIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const textToCopy = 'Database Id: '+ getValues().databaseId + "\nKey Id: " + getValues().***REMOVED***;
+                  const textToCopy = 'Database Id: '+ dbContext?.databaseId + "\nKey Id: " + getValues().***REMOVED***;
                   if ('clipboard' in navigator) {
                     navigator.clipboard.writeText(textToCopy);
                   } else {
@@ -232,7 +232,7 @@ export function ChangeKeyForm({
                   id="keepLoggedIn"
                   checked={keepLoggedIn}
                   onCheckedChange={(checked) => {
-                  setKeepLoggedIn(checked);
+                  setKeepLoggedIn(!!checked);
                   localStorage.setItem("keepLoggedIn", checked.toString());
                       }}
               />
