@@ -100,7 +100,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
             ***REMOVED***LocatorHash,
             displayName,
             acl: JSON.stringify(acl),
-            expiryDate: expDate ? expDate.toISOString() : '',
+            expiryDate: expDate !== null ? expDate.toISOString() : '',
             updatedAt: getCurrentTS()
         };
 
