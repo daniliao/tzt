@@ -24,8 +24,10 @@ export class AuditApiClient extends ApiClient {
       super(baseUrl, dbContext, encryptionConfig);
     }
   
-    async get(): Promise<AuditDTO[]> {
-      return this.request<AuditDTO[]>('/***REMOVED***/audit', 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
+    async get(limit: number, offset: number): Promise<AuditDTO[]> {
+      if (limit <= 0) limit = 10;
+      if (offset < 0) offset = 0;
+      return this.request<AuditDTO[]>('/***REMOVED***/audit?limit=' + limit + '&offset=' + offset, 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
     }
   
     async put(***REMOVED***: PutAuditRequest): Promise<PutAuditResponse> {
