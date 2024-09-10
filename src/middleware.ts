@@ -27,5 +27,5 @@ export async function middleware(request: NextRequest) {
 }
  
 export const config = {
-  matcher: ['/((?!***REMOVED***/db|_next/static|content|_next/image|img|manifest|favicon.ico|$).*)'],
+  matcher: ['/((?!***REMOVED***/db|_next/static|content|_next/image|img|onboarding|manifest|favicon.ico|$).*)'],
 }
