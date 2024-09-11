@@ -1,4 +1,4 @@
-import { EncryptedAttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO } from "@/data/dto";
+import { EncryptedAttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO } from "@/data/dto";
 import { z } from "zod";
 
 import PasswordValidator from '***REMOVED***-validator';
@@ -327,6 +327,52 @@ export class Key {
             updatedAt: this.updatedAt,
         };
     }
+}
+
+export class Term {
+    id?: number;
+    content: string;
+    ***REMOVED***: string;
+    signature: string;
+    ip?: string;
+    ua?: string;
+    name?: string;
+    email?: string;
+    signedAt: string;
+    code: string;
+
+    constructor(termDTO: TermDTO | Term) {
+        this.id = termDTO.id;
+        this.***REMOVED*** = termDTO.***REMOVED***;
+        this.content = termDTO.content;
+        this.signature = termDTO.signature;
+        this.ip = termDTO.ip ?? '';
+        this.ua = termDTO.ua ?? '';
+        this.name = termDTO.name ?? '';
+        this.code = termDTO.code;
+        this.email = termDTO.email ?? '';
+        this.signedAt = termDTO.signedAt;
+    }
+
+    static fromDTO(termDTO: TermDTO): Term {
+        return new Term(termDTO);
+    }
+
+    toDTO(): TermDTO {
+        return {
+            id: this.id,
+            ***REMOVED***: this.***REMOVED***,
+            code: this.code,
+            content: this.content,
+            signature: this.signature,
+            ip: this.ip,
+            ua: this.ua,
+            name: this.name,
+            email: this.email,
+            signedAt: this.signedAt,
+        };
+    }
+    
 }
 
 export class DatabaseCreateRequest {
