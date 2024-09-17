@@ -1,5 +1,5 @@
 import { ApiClient } from "@/data/client/base-***REMOVED***-client";
-import { GetSaaSResponseSuccess } from "../client/saas-***REMOVED***-client";
+import { GetSaasResponse, GetSaaSResponseSuccess } from "../client/saas-***REMOVED***-client";
 
 export class PlatformApiClient extends ApiClient {
     ***REMOVED***Key: string;
@@ -9,8 +9,8 @@ export class PlatformApiClient extends ApiClient {
         this.***REMOVED***Key = saasToken;
     }
 
-    async account(): Promise<GetSaaSResponseSuccess> {
-        return this.request<GetSaaSResponseSuccess>('/***REMOVED***/users/me?***REMOVED***Key=' + encodeURIComponent(this.***REMOVED***Key), 'GET') as Promise<GetSaaSResponseSuccess>;
+    async account(): Promise<GetSaasResponse> {
+        return this.request<GetSaasResponse>('/***REMOVED***/users/me?***REMOVED***Key=' + encodeURIComponent(this.***REMOVED***Key), 'GET') as Promise<GetSaasResponse>;
     }
 
 }
