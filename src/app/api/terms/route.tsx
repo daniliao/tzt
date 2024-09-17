@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     }
 
     if (saasContext.isSaasMode) {
-        saasContext.***REMOVED***Client?.storeTerm({
+        saasContext.***REMOVED***Client?.storeTerm(requestContext.databaseIdHash, {
             content: valRes.data.content,
             signedAt: getCurrentTS(),
             email: valRes.data.email ?? '',

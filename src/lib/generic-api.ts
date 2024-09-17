@@ -42,18 +42,19 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
         }
     } else {
         const saasToken = request.headers.get('saas-***REMOVED***');
-        if (!saasToken) {
-            return {
-                saasContex: null,
-                isSaasMode: false,
-                hasAccess: false,
-                ***REMOVED***Client: null,
-                error: 'No SaaS Token provided. Please register your account / apply for beta tests on official landing page.'
+        const databaseIdHash = request.headers.get('database-id-hash');
+        if (!saasToken && !databaseIdHash) {
+             return {
+                 saasContex: null,
+                 isSaasMode: false,
+                 hasAccess: false,
+                 ***REMOVED***Client: null,
+                 error: 'No SaaS Token provided. Please register your account / apply for beta tests on official landing page.'
             }            
         }
-        const client = new PlatformApiClient(saasToken);
+        const client = new PlatformApiClient(saasToken ?? '');
         try {
-            const response = await client.account();
+            const response = await client.account({ databaseIdHash, ***REMOVED***Key: saasToken });
             if(response.status !== 200) {
                 return {
                     saasContex: null,

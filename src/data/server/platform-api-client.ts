@@ -8,6 +8,18 @@ type UniversalApiResult = {
     message?: string;
 }
 
+const qr = (databaseIdHash?: string|null, ***REMOVED***Key?: string|null) => {
+
+    if (***REMOVED***Key) {
+        return '?***REMOVED***Key=' + encodeURIComponent(***REMOVED***Key);
+    } else {
+        if (databaseIdHash) {
+            return `?databaseIdHash=${encodeURIComponent(databaseIdHash)}`
+        }
+    }
+
+    return '';
+}
 export class PlatformApiClient extends ApiClient {
     ***REMOVED***Key: string;
     constructor(saasToken: string) {
@@ -16,18 +28,23 @@ export class PlatformApiClient extends ApiClient {
         this.***REMOVED***Key = saasToken;
     }
 
-    async account(): Promise<GetSaasResponse> {
-        return this.request<GetSaasResponse>('/***REMOVED***/users/me?***REMOVED***Key=' + encodeURIComponent(this.***REMOVED***Key), 'GET') as Promise<GetSaasResponse>;
+
+
+    async account({ databaseIdHash, ***REMOVED***Key}:{
+        databaseIdHash?: string|null;
+        ***REMOVED***Key?: string|null;
+    }): Promise<GetSaasResponse> {
+        return this.request<GetSaasResponse>('/***REMOVED***/users/me' + qr(databaseIdHash, ***REMOVED***Key), 'GET') as Promise<GetSaasResponse>;
     }
 
-    async storeTerm(term: {
+    async storeTerm(databaseIdHash:string, term: {
         content: string;
         name: string;
         email: string;
         signedAt: string,
         code: string
     }): Promise<UniversalApiResult> {
-        return this.request<UniversalApiResult>('/***REMOVED***/terms?***REMOVED***Key=' + encodeURIComponent(this.***REMOVED***Key), 'POST', { ecnryptedFields: [] }, term) as Promise<UniversalApiResult>;
+        return this.request<UniversalApiResult>('/***REMOVED***/terms' + qr(databaseIdHash, this.***REMOVED***Key), 'POST', { ecnryptedFields: [] }, term) as Promise<UniversalApiResult>;
     }
 
     async newDatabase(dbData: {
