@@ -29,6 +29,7 @@ export type AuthorizedSaaSContext = {
     isSaasMode: boolean
     hasAccess: boolean;
     error?: string;
+    ***REMOVED***Client: PlatformApiClient|null
 }
 
 export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promise<AuthorizedSaaSContext> {
@@ -36,7 +37,8 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
         return {
             saasContex: null,
             hasAccess: true,
-            isSaasMode: false
+            isSaasMode: false,
+            ***REMOVED***Client: null
         }
     } else {
         const saasToken = request.headers.get('saas-***REMOVED***');
@@ -45,6 +47,7 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
                 saasContex: null,
                 isSaasMode: false,
                 hasAccess: false,
+                ***REMOVED***Client: null,
                 error: 'No SaaS Token provided. Please register your account / apply for beta tests on official landing page.'
             }            
         }
@@ -56,6 +59,7 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
                     saasContex: null,
                     isSaasMode: false,
                     hasAccess: false,
+                    ***REMOVED***Client: null,
                     error: response.message
                 }
 
@@ -64,7 +68,8 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
                 return {
                     saasContex: saasContext as SaaSDTO,
                     hasAccess: true,
-                    isSaasMode: true
+                    isSaasMode: true,
+                    ***REMOVED***Client: client
                 }
             }
         } catch (e) {
@@ -72,6 +77,7 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
                 saasContex: null,
                 isSaasMode: false,
                 hasAccess: false,
+                ***REMOVED***Client: null,
                 error: getErrorMessage(e)
             }
         }
