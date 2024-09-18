@@ -1,13 +1,24 @@
 import { databaseAuthorizeRequestSchema, defaultKeyACL, KeyDTO } from "@/data/dto";
 import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
+import { ***REMOVED***orizeSaasContext } from "@/lib/generic-***REMOVED***";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
+import { NextRequest } from "next/server";
 
 // clear all the database
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         const jsonRequest = await request.json();
         const validationResult = databaseAuthorizeRequestSchema.safeParse(jsonRequest); // validation
+
+        const saasContext = await ***REMOVED***orizeSaasContext(request); // ***REMOVED***orize SaaS context
+        if (!saasContext.hasAccess) {
+            return Response.json({
+                message: saasContext.error,
+                status: 401
+            });
+        }
+
         if (validationResult.success === true) {
             const ***REMOVED***Request = validationResult.data;
             const ***REMOVED***Details = await ***REMOVED***orizeKey(***REMOVED***Request);

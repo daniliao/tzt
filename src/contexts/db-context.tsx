@@ -67,9 +67,6 @@ export type DatabaseContextType = {
     ***REMOVED***Status: DatabaseAuthStatus;
     setAuthStatus: (status: DatabaseAuthStatus) => void;
 
-    saasToken: string;
-    setSaasToken: (***REMOVED***: string) => void;
-
     create: (createRequest:DatabaseCreateRequest) => Promise<CreateDatabaseResult>;
     ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorizeRequest) => Promise<AuthorizeDatabaseResult>;
     refresh: (***REMOVED***orizeRequest:DatabaseRefreshRequest) => Promise<RefreshDatabaseResult>;
@@ -106,14 +103,12 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         parallelism: 1
     });
 
-    const saasContext = useContext(SaaSContext);
-    const [saasToken, setSaasToken] = useState<string>('');
     const [accessToken, setAccesToken] = useState<string>('');
     const [refreshToken, setRefreshToken] = useState<string>('');
     const [***REMOVED***Status, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
-        const client = new DbApiClient('', null, saasContext);
+        const client = new DbApiClient('');
         return client;
     }
     const create = async (createRequest: DatabaseCreateRequest): Promise<CreateDatabaseResult> => {
@@ -334,7 +329,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         databaseHashId,
         setDatabaseHashId,
         masterKey,
-        setMasterKey,
+    setMasterKey,
         encryptionKey,
         setEncryptionKey,
         ***REMOVED***Status,
@@ -350,9 +345,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         keepLoggedIn,
         acl,
         setACL,
-        featureFlags,
-        saasToken,
-        setSaasToken
+        featureFlags
     };
 
     return (

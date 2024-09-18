@@ -46,15 +46,15 @@ export class DbApiClient extends ApiClient {
     }
   
     async create(createRequest:DatabaseCreateRequestDTO): Promise<CreateDbResponse> {
-      return this.request<CreateDbResponse>('/***REMOVED***/db/create', 'POST', { ecnryptedFields: [] }, createRequest) as Promise<CreateDbResponse>;
+      return this.request<CreateDbResponse>('/***REMOVED***/db/create?databaseIdHash=' + encodeURIComponent(createRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, createRequest) as Promise<CreateDbResponse>;
     }
   
     async ***REMOVED***orizeChallenge(***REMOVED***orizeChallengeRequest: DatabaseAuthorizeChallengeRequestDTO): Promise<AuthorizeDbChallengeResponse> {
-       return this.request<AuthorizeDbChallengeResponse>('/***REMOVED***/db/challenge', 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeChallengeRequest) as Promise<AuthorizeDbChallengeResponse>;
+       return this.request<AuthorizeDbChallengeResponse>('/***REMOVED***/db/challenge?databaseIdHash=' + encodeURIComponent(***REMOVED***orizeChallengeRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeChallengeRequest) as Promise<AuthorizeDbChallengeResponse>;
     }
 
     async ***REMOVED***orize(***REMOVED***orizeRequest: DatabaseAuthorizeRequestDTO): Promise<AuthorizeDbResponse> {
-      return this.request<AuthorizeDbResponse>('/***REMOVED***/db/***REMOVED***orize', 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeRequest) as Promise<AuthorizeDbResponse>;
+      return this.request<AuthorizeDbResponse>('/***REMOVED***/db/***REMOVED***orize?databaseIdHash=' + encodeURIComponent(***REMOVED***orizeRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, ***REMOVED***orizeRequest) as Promise<AuthorizeDbResponse>;
    }
 
    async refresh(refreshRequest: DatabaseRefreshRequestDTO): Promise<RefreshDbResponse> {
