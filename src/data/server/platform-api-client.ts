@@ -1,5 +1,6 @@
 import { ApiClient } from "@/data/client/base-***REMOVED***-client";
 import { GetSaasResponse, GetSaaSResponseSuccess } from "../client/saas-***REMOVED***-client";
+import { StatDTO } from "../dto";
 
 
 type UniversalApiResult = {
@@ -54,6 +55,12 @@ export class PlatformApiClient extends ApiClient {
         createdAt?: Date | null | undefined;
     }): Promise<UniversalApiResult> {
         return this.request<UniversalApiResult>('/***REMOVED***/events' + qr(databaseIdHash, this.***REMOVED***Key), 'POST', { ecnryptedFields: [] }, event) as Promise<UniversalApiResult>;
+    }
+
+    async saveStats(databaseIdHash:string, stat: StatDTO & {
+        databaseIdHash: string;
+    }): Promise<UniversalApiResult> {
+        return this.request<UniversalApiResult>('/***REMOVED***/stats?databaseIdHash=' + encodeURIComponent(databaseIdHash), 'POST', { ecnryptedFields: [] }, stat) as Promise<UniversalApiResult>;
     }
 
     async newDatabase(dbData: {

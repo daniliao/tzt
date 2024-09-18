@@ -1,6 +1,6 @@
 import { statsSchema } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
-import { ***REMOVED***orizeRequestContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { ***REMOVED***orizeRequestContext, ***REMOVED***orizeSaasContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
 import { getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,6 +17,14 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         })
     } else {
         const result = await statsRepo.aggregate(validationResult.data)
+
+        const saasContext = await ***REMOVED***orizeSaasContext(request);
+        if (saasContext.***REMOVED***Client) {
+            saasContext.***REMOVED***Client.saveStats(requestContext.databaseIdHash, {
+                ...result,
+                databaseIdHash: requestContext.databaseIdHash
+            });
+       }        
         return Response.json({
             message: 'Stats aggregated!',
             data: result,
