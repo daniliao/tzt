@@ -1,11 +1,13 @@
 import { AuditDTO, auditDTOSchema, KeyDTO, ***REMOVED***DTOSchema } from "@/data/dto";
 import ServerAuditRepository from "@/data/server/server-audit-repository";
-import { ***REMOVED***orizeRequestContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { ***REMOVED***orizeRequestContext, ***REMOVED***orizeSaasContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse, userAgent } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const saasContext = await ***REMOVED***orizeSaasContext(request); // ***REMOVED***orize SaaS context
+
     const inputObj = (await request.json())
     const valRes = auditDTOSchema.safeParse(inputObj);
     if(!valRes.success) {
@@ -24,6 +26,15 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     const now = new Date();
     const dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
     const ***REMOVED***Result = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition), 'id');
+
+    if (saasContext.***REMOVED***Client) {
+         saasContext.***REMOVED***Client.saveEvent(requestContext.databaseIdHash, {
+            eventName: logObj.eventName as string,
+            databaseIdHash: requestContext.databaseIdHash,
+            params: { recordLocator: valRes.data.recordLocator}
+        });
+    }
+
     return Response.json(***REMOVED***Result, { status: ***REMOVED***Result.status });
 }
 
