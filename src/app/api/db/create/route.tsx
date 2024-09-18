@@ -1,5 +1,6 @@
 import { KeyDTO, DatabaseCreateRequestDTO, databaseCreateRequestSchema } from "@/data/dto";
 import { maintenance } from "@/data/server/db-provider";
+import ServerFolderRepository from "@/data/server/server-folder-repository";
 import ServerKeyRepository from "@/data/server/server-***REMOVED***-repository";
 import { ***REMOVED***orizeSaasContext } from "@/lib/generic-***REMOVED***";
 import { getCurrentTS, getErrorMessage, getZedErrorMessage } from "@/lib/utils";
@@ -53,7 +54,8 @@ export async function POST(request: NextRequest) {
                         ua: userAgent(request).ua,
                         geo: request.geo
                     }                
-                });                     
+                });
+                const folderRepo = new ServerFolderRepository(***REMOVED***CreateRequest.databaseIdHash); // creating a first User Key                     
                 const ***REMOVED***Repo = new ServerKeyRepository(***REMOVED***CreateRequest.databaseIdHash); // creating a first User Key
                 const existingKeys = await ***REMOVED***Repo.findAll({  filter: { databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash } }); // check if ***REMOVED*** already exists
 
@@ -81,7 +83,16 @@ export async function POST(request: NextRequest) {
                         expiryDate: null,
                         updatedAt: getCurrentTS(),
                     })
-                    // TODO: ***REMOVED***orize + return access ***REMOVED*** (?)
+
+                    const firstFolder = folderRepo.create({
+                        name: 'General',
+                        json: JSON.stringify({
+                            name: 'root',
+                            type: 'folder',
+                            children: []
+                        }),
+                        updatedAt: getCurrentTS()
+                    });
 
                     if (saasContext.isSaasMode) {
                         try {
