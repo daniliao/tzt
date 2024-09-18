@@ -7,6 +7,9 @@ import { jwtVerify } from "jose";
 import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO } from "@/data/dto";
 import { Key } from "react";
 import { PlatformApiClient } from "@/data/server/platform-***REMOVED***-client";
+import NodeCache from "node-cache";
+
+const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
 export type ApiResult = {
     message: string;
@@ -53,34 +56,46 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
                  error: 'No SaaS Token / Database Id Hash provided. Please register your account / apply for beta tests on official landing page.'
             }            
         }
-        const client = new PlatformApiClient(saasToken ?? '');
-        try {
-            const response = await client.account({ databaseIdHash, ***REMOVED***Key: saasToken });
-            if(response.status !== 200) {
+        const resp = saasCtxCache.get(saasToken ?? '' + databaseIdHash);
+        if (resp) {
+            return {
+                ...resp,
+                ***REMOVED***Client: new PlatformApiClient(saasToken ?? '')
+            } as AuthorizedSaaSContext;
+        } else {
+            const client = new PlatformApiClient(saasToken ?? '');
+            try {
+                const response = await client.account({ databaseIdHash, ***REMOVED***Key: saasToken });
+                if(response.status !== 200) {
+                    const resp = {
+                        saasContex: null,
+                        isSaasMode: false,
+                        hasAccess: false,
+                        ***REMOVED***Client: null,
+                        error: response.message
+                    }
+                    saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 30); // errors cachef for 30s
+                    return resp;
+
+                } else {
+                    const saasContext = await response.data;
+                    const resp = {
+                        saasContex: saasContext as SaaSDTO,
+                        hasAccess: true,
+                        isSaasMode: true,
+                        ***REMOVED***Client: client
+                    }
+                    saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 60 * 10); // ok results cached for 10 min
+                    return resp;
+                }
+            } catch (e) {
                 return {
                     saasContex: null,
                     isSaasMode: false,
                     hasAccess: false,
                     ***REMOVED***Client: null,
-                    error: response.message
+                    error: getErrorMessage(e)
                 }
-
-            } else {
-                const saasContext = await response.data;
-                return {
-                    saasContex: saasContext as SaaSDTO,
-                    hasAccess: true,
-                    isSaasMode: true,
-                    ***REMOVED***Client: client
-                }
-            }
-        } catch (e) {
-            return {
-                saasContex: null,
-                isSaasMode: false,
-                hasAccess: false,
-                ***REMOVED***Client: null,
-                error: getErrorMessage(e)
             }
         }
     }
