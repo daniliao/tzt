@@ -240,7 +240,7 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: None" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="skip" value="skip">Doncle&apos;t remove personal data</SelectItem>
+                            <SelectItem ***REMOVED***="skip" value="skip">Don&apos;t remove personal data</SelectItem>
                             <SelectItem ***REMOVED***="ollama" value="ollama">Local: Ollama</SelectItem>
                             <SelectItem ***REMOVED***="replace" value="replace">Basic: Replace strings</SelectItem>
                             <SelectItem ***REMOVED***="both" value="both">Both: Replace strings + Ollama</SelectItem>
