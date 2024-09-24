@@ -106,6 +106,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const [accessToken, setAccesToken] = useState<string>('');
     const [refreshToken, setRefreshToken] = useState<string>('');
     const [***REMOVED***Status, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
+    const saasContext = useContext(SaaSContext);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
         const client = new DbApiClient('');
@@ -137,6 +138,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const encryptedMasterKey = await encryptionUtils.encrypt(masterKey);
         
         const ***REMOVED***Client = await setupApiClient(null);
+        ***REMOVED***Client.setSaasToken(localStorage.getItem('saasToken') || '');
         const ***REMOVED***Request = {
             databaseIdHash,
             encryptedMasterKey,

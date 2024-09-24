@@ -46,7 +46,7 @@ export class DbApiClient extends ApiClient {
     }
   
     async create(createRequest:DatabaseCreateRequestDTO): Promise<CreateDbResponse> {
-      return this.request<CreateDbResponse>('/***REMOVED***/db/create?databaseIdHash=' + encodeURIComponent(createRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, createRequest) as Promise<CreateDbResponse>;
+      return this.request<CreateDbResponse>('/***REMOVED***/db/create', 'POST', { ecnryptedFields: [] }, createRequest) as Promise<CreateDbResponse>;
     }
   
     async ***REMOVED***orizeChallenge(***REMOVED***orizeChallengeRequest: DatabaseAuthorizeChallengeRequestDTO): Promise<AuthorizeDbChallengeResponse> {
