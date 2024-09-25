@@ -55,7 +55,8 @@ export async function POST(request: NextRequest) {
                         encryptedMasterKey: (***REMOVED***Details as KeyDTO).encryptedMasterKey,
                         accessToken:  accessToken,
                         refreshToken: refreshToken,
-                        acl: ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL
+                        acl: ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL,
+                        saasContext: saasContext ? saasContext.saasContex : null
                     },
                     status: 200
                 });                    

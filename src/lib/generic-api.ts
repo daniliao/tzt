@@ -46,7 +46,7 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest): Promi
         }
     } else {
         
-        const useCache = request.nextUrl.searchParams.get('useCache') === 'true' ? true : false;
+        const useCache = request.nextUrl.searchParams.get('useCache') === 'false' ? false : true;
         const saasToken = request.headers.get('saas-***REMOVED***') !== null ? request.headers.get('saas-***REMOVED***') : request.nextUrl.searchParams.get('saasToken');
         const databaseIdHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('databaseIdHash');
         if (!saasToken && !databaseIdHash) {
