@@ -29,8 +29,6 @@ export class PlatformApiClient extends ApiClient {
         this.***REMOVED***Key = saasToken;
     }
 
-
-
     async account({ databaseIdHash, ***REMOVED***Key}:{
         databaseIdHash?: string|null;
         ***REMOVED***Key?: string|null;
