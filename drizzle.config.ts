@@ -3,5 +3,5 @@ import path from 'path'
 export default defineConfig({
   schema: './src/data/server/db-schema.ts',
   out: './drizzle',
-  dialect: 'sqlite', // 'postgresql' | 'mysql' | 'sqlite'
+  dialect: 'postgresql', // 'postgresql' | 'mysql' | 'sqlite'
 });

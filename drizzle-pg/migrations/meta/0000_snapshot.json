@@ -1,0 +1,81 @@
+{
+  "id": "fb05ce00-6d74-4b71-8db1-9b02232390ee",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.manifest": {
+      "name": "manifest",
+      "schema": "",
+      "columns": {
+        "database_id_hash": {
+          "name": "database_id_hash",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "creator_ip": {
+          "name": "creator_ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_ua": {
+          "name": "creator_ua",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_country": {
+          "name": "creator_country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_city": {
+          "name": "creator_city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_latitude": {
+          "name": "creator_latitude",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_longitude": {
+          "name": "creator_longitude",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

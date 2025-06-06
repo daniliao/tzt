@@ -1,7 +1,7 @@
-import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-// create a new folder record
-export async function create<T extends { [***REMOVED***:string]: any }>(item: T, schema: any, db:BetterSQLite3Database<Record<string, never>>): Promise<T> {
-    const returnedItem = db.insert(schema).values(item).returning().get();
-    return Promise.resolve(returnedItem as T);
+// create a new record
+export async function create<T extends { [***REMOVED***:string]: any }>(item: T, schema: any, db: PostgresJsDatabase): Promise<T> {
+    const [returnedItem] = await db.insert(schema).values(item).returning();
+    return returnedItem as T;
 }

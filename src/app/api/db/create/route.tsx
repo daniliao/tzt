@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         if (validationResult.success === true) {
             const ***REMOVED***CreateRequest = validationResult.data;
 
-            if (maintenance.checkIfDatabaseExists(***REMOVED***CreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
+            if (await maintenance.checkIfDatabaseExists(***REMOVED***CreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
                 return Response.json({
                     message: 'Database already exists. Please select different Id.',
                     data: { 

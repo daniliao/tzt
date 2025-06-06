@@ -1,46 +1,94 @@
 import { BaseRepository, IFilter, IQuery } from "./base-repository"
-import { KeyDTO, TermDTO } from "../dto";
-import { pool } from '@/data/server/db-provider'
+import { TermDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
 import { terms } from "./db-schema";
-import { eq } from "drizzle-orm/sql";
+import { eq } from "drizzle-orm";
 import { create } from "./generic-repository";
 
-
 export default class ServerTermRepository extends BaseRepository<TermDTO> {
-
-
-    // create a new config
     async create(item: TermDTO): Promise<TermDTO> {
         const db = (await this.db());
         return create(item, terms, db); // generic implementation
     }
 
-    // update config
-    async upsert(query:Record<string, any>, item: TermDTO): Promise<TermDTO> {        
+    async upsert(query: Record<string, any>, item: TermDTO): Promise<TermDTO> {        
         const db = (await this.db());
-        let existingTerm = db.select().from(terms).where(eq(terms.***REMOVED***, query['***REMOVED***'])).get() as TermDTO
+        const existingTerm = await db.select({
+            id: terms.id,
+            content: terms.content,
+            code: terms.code,
+            ***REMOVED***: terms.***REMOVED***,
+            signature: terms.signature,
+            ip: terms.ip,
+            ua: terms.ua,
+            name: terms.name,
+            email: terms.email,
+            signedAt: terms.signedAt
+        })
+        .from(terms)
+        .where(eq(terms.***REMOVED***, query['***REMOVED***']))
+        .then(rows => rows[0]);
+
         if (!existingTerm) {
-            existingTerm = await this.create(item)
-        } else {
-            existingTerm = item
-            existingTerm.signedAt = getCurrentTS()
-            db.update(terms).set(existingTerm).where(eq(terms.***REMOVED***, query['***REMOVED***'])).run();
+            return this.create(item);
         }
-        return Promise.resolve(existingTerm as TermDTO)   
+
+        const updatedTerm: TermDTO = {
+            ...item,
+            signedAt: getCurrentTS()
+        };
+
+        await db.update(terms)
+            .set({
+                content: updatedTerm.content,
+                code: updatedTerm.code,
+                signature: updatedTerm.signature,
+                ip: updatedTerm.ip,
+                ua: updatedTerm.ua,
+                name: updatedTerm.name,
+                email: updatedTerm.email,
+                signedAt: new Date(updatedTerm.signedAt)
+            })
+            .where(eq(terms.***REMOVED***, query['***REMOVED***']));
+
+        return updatedTerm;
     }
 
     async delete(query: IFilter): Promise<boolean> {
         const db = (await this.db());
-        return db.delete(terms).where(eq(terms.***REMOVED***, query['***REMOVED***'])).run().changes > 0
+        const result = await db.delete(terms)
+            .where(eq(terms.***REMOVED***, query['***REMOVED***']))
+            .returning();
+        return result.length > 0;
     }
 
     async findAll(query?: IQuery): Promise<TermDTO[]> {
         const db = (await this.db());
-        let dbQuery = db.select().from(terms);
-
-
-        return Promise.resolve(dbQuery.all() as TermDTO[])
+        const rows = await db.select({
+            id: terms.id,
+            content: terms.content,
+            code: terms.code,
+            ***REMOVED***: terms.***REMOVED***,
+            signature: terms.signature,
+            ip: terms.ip,
+            ua: terms.ua,
+            name: terms.name,
+            email: terms.email,
+            signedAt: terms.signedAt
+        })
+        .from(terms);
+        
+        return rows.map(row => ({
+            id: row.id,
+            content: row.content || '',
+            code: row.code || '',
+            ***REMOVED***: row.***REMOVED*** || '',
+            signature: row.signature || '',
+            ip: row.ip || null,
+            ua: row.ua || null,
+            name: row.name || null,
+            email: row.email || null,
+            signedAt: row.signedAt instanceof Date ? row.signedAt.toISOString() : getCurrentTS()
+        }));
     }
-
 }

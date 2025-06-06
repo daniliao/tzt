@@ -1,8 +1,9 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const audit = sqliteTable('audit', {
-    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+// Create a partitioned table by month
+export const audit = pgTable('audit', {
+    id: integer('id').primaryKey(),
     ip: text('ip'),
     ua: text('ua'),
     ***REMOVED***LocatorHash: text('***REMOVED***LocatorHash'),
@@ -10,6 +11,11 @@ export const audit = sqliteTable('audit', {
     recordLocator: text('recordLocator'),
     encryptedDiff: text('diff'),
     eventName: text('eventName'),
-    createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+    createdAt: timestamp('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+}, (table) => {
+    return {
+        // Add a partition ***REMOVED*** based on the month of createdAt
+        partitionKey: sql`date_trunc('month', ${table.createdAt})`
+    };
 });
 
