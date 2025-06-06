@@ -32,7 +32,7 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
         if (file) { // file could be not uploaded in case of metadata update
             try {
                 const savedAttachment: EncryptedAttachmentDTO = ***REMOVED***Result.data as EncryptedAttachmentDTO;
-                storageService.saveAttachment(file, savedAttachment.storageKey);
+                await storageService.saveAttachment(file, savedAttachment.storageKey);
             } catch (e) {
                 console.error("Error saving attachment", e);
                 ***REMOVED***Result.status = 500;

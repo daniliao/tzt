@@ -426,10 +426,14 @@ export const RecordContextProvider: React.FC<PropsWithChildren> = ({ children })
           return url;
         } else if (type === AttachmentFormat.blob) {
           const blob = new Blob([arrayBufferData]);
-//          if(useCache) cacheStorage.put(cacheKey, new Response(blob, { headers: { 'Content-Type': attachmentDTO.mimeType as string } })) we're skipping cache for BLOBs as there was some issue with encoding for that case
           return blob;
         } else {
-          const url = 'data:' + attachmentDTO.mimeType +';base64,' + convertDataContentToBase64String(arrayBufferData);
+          // Convert ArrayBuffer to base64
+          const base64 = btoa(
+            new Uint8Array(arrayBufferData)
+              .reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          const url = 'data:' + attachmentDTO.mimeType +';base64,' + base64;
           if(useCache) cacheStorage.put(cacheKey, new Response(url))
           return url;
         }

@@ -19,7 +19,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         }
         const ***REMOVED***Response = await genericDELETE(request, repo, { storageKey: recordLocator});
         if(***REMOVED***Response.status === 200){
-            storageService.deleteAttachment(recordLocator);
+            await storageService.deleteAttachment(recordLocator);
         }
         return Response.json(***REMOVED***Response);
     }
@@ -31,6 +31,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const headers = new Headers();
     headers.append('Content-Type', 'application/octet-stream');
-    const fileContent = await storageService.readAttachment(params.id) // TODO: add streaming
+    const fileContent = await storageService.readAttachment(params.id);
     return new Response(fileContent, { headers });
 }
