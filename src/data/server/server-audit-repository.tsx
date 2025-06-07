@@ -9,9 +9,23 @@ import { desc, asc } from 'drizzle-orm';
 
 
 export default class ServerAuditRepository extends BaseRepository<AuditDTO> {
+    private toISOStringIfDate(val: unknown): string {
+        return val instanceof Date ? val.toISOString() : (val as string);
+    }
+
     async create(item: AuditDTO): Promise<AuditDTO> {
         const db = (await this.db());
-        return create(item, audit, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            createdAt: item.createdAt ? new Date(item.createdAt) : new Date()
+        };
+        const result = await create(drizzleItem, audit, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            createdAt: this.toISOStringIfDate(result.createdAt)
+        };
     }
 
     async upsert(query: Record<string, any>, log: AuditDTO): Promise<AuditDTO> {        
@@ -37,7 +51,7 @@ export default class ServerAuditRepository extends BaseRepository<AuditDTO> {
             recordLocator: row.recordLocator || undefined,
             encryptedDiff: row.encryptedDiff || undefined,
             eventName: row.eventName || undefined,
-            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt
+            createdAt: this.toISOStringIfDate(row.createdAt)
         }));
     }
 
@@ -66,7 +80,7 @@ export default class ServerAuditRepository extends BaseRepository<AuditDTO> {
             recordLocator: row.recordLocator || undefined,
             encryptedDiff: row.encryptedDiff || undefined,
             eventName: row.eventName || undefined,
-            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt
+            createdAt: this.toISOStringIfDate(row.createdAt)
         }));
     }
 }

@@ -6,9 +6,26 @@ import { eq } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export default class ServerTermRepository extends BaseRepository<TermDTO> {
+    private toISOStringIfDate(value: Date | string | null | undefined): string {
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        return value || getCurrentTS();
+    }
+
     async create(item: TermDTO): Promise<TermDTO> {
         const db = (await this.db());
-        return create(item, terms, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            signedAt: item.signedAt ? new Date(item.signedAt) : new Date()
+        };
+        const result = await create(drizzleItem, terms, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            signedAt: this.toISOStringIfDate(result.signedAt)
+        };
     }
 
     async upsert(query: Record<string, any>, item: TermDTO): Promise<TermDTO> {        
@@ -88,7 +105,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
             ua: row.ua || null,
             name: row.name || null,
             email: row.email || null,
-            signedAt: row.signedAt instanceof Date ? row.signedAt.toISOString() : getCurrentTS()
+            signedAt: this.toISOStringIfDate(row.signedAt)
         }));
     }
 }

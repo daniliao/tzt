@@ -1,1 +1,0 @@
-ALTER TABLE `***REMOVED***s` ADD `displayName` text;

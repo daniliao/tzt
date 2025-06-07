@@ -31,13 +31,13 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
         const updatedConfig = {
             ***REMOVED***: existingConfig.***REMOVED***,
             value: item.value,
-            updatedAt: getCurrentTS()
+            updatedAt: new Date().toISOString()
         };
 
         await db.update(config)
             .set({
                 value: item.value,
-                updatedAt: new Date(getCurrentTS())
+                updatedAt: new Date()
             })
             .where(eq(config.***REMOVED***, query.***REMOVED***));
 

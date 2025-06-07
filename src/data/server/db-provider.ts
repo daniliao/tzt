@@ -1,9 +1,11 @@
-import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { sql } from 'drizzle-orm';
 import path from 'path'
 import { getCurrentTS } from '@/lib/utils';
 import fs from 'fs';
+import * as schema from './db-schema';
 
 const rootPath = path.resolve(process.cwd())
 
@@ -54,43 +56,76 @@ export const maintenance = {
 }
 
 export const Pool = async (maxPool = 50) => {
-	const databaseInstances: Record<string, BetterSQLite3Database> = {}
-	return async (databaseId: string, databaseSchema:string = '', databasePartition:string = '', createNewDb: boolean = false ) => {
-		const poolKey = `${databaseId}-${databaseSchema}${databasePartition ? '-' + databasePartition : ''}` // TODO: maybe we should use different pools for different schemas? however as for now it makes no big difference
+	const databaseInstances: Record<string, any> = {}
+	return async (databaseId: string, databaseSchema: string = '', databasePartition: string = '', createNewDb: boolean = false) => {
+		const poolKey = `${databaseId}-${databaseSchema}${databasePartition ? '-' + databasePartition : ''}`
 		if (databaseInstances[poolKey]) {
 			return databaseInstances[poolKey]
 		}
 
-		if (Object.***REMOVED***s(databaseInstances).length >= maxPool) {
-			delete databaseInstances[Object.***REMOVED***s(databaseInstances)[0]]
+		const connectionString = process.env.NEON_DATABASE_URL
+		if (!connectionString) {
+			throw new Error('NEON_DATABASE_URL environment variable is not set')
 		}
 
-		const databaseFile = maintenance.databaseFileName(databaseId, databaseSchema, databasePartition)
-		let requiresMigration = true
+		const neonSql = neon(connectionString)
+		const db = drizzle(neonSql, { schema })
 
-		if(!maintenance.checkIfDatabaseExists(databaseId)) {
-            if (!createNewDb) {
-                throw new Error('Database not found or inaccessible')
-            }			
-		}
+		try {
+			// Test database connection and permissions
+			console.log('Testing database connection...')
+			const testResult = await neonSql`SELECT current_user, current_database()`
+			console.log('Database connection test result:', testResult)
 
-		if (databasePartition) { // we store partitions in `audit-partitions` subfolder for example therefore we need to make sure the directory exists
-			const databaseDirectory = maintenance.databaseDirectory(databaseId, databaseSchema, databasePartition)
-			if (!fs.existsSync(databaseDirectory)) {
-				fs.mkdirSync(databaseDirectory, { recursive: true })
+			// Create schema if it doesn't exist
+			console.log('Creating schema:', databaseId)
+			await neonSql.unsafe(`CREATE SCHEMA IF NOT EXISTS "${databaseId}"`)
+
+			// Set the search path to the schema
+			console.log('Setting search path to schema:', databaseId)
+			await neonSql.unsafe(`SET search_path TO "${databaseId}"`)
+
+			// Check if tables exist in the schema
+			console.log('Checking for existing tables...')
+			const tables = await neonSql`
+				SELECT table_name 
+				FROM information_schema.tables 
+				WHERE table_schema = ${databaseId}
+			`
+			console.log('Existing tables:', tables)
+
+			// Only run migrations if no tables exist
+			if (tables.length === 0) {
+				console.log('No tables found, running migrations...')
+				try {
+					// Set the search path to the schema before running migrations
+					await neonSql.unsafe(`SET search_path TO "${databaseId}"`)
+					
+					// Run migrations
+					await migrate(db, { migrationsFolder: 'drizzle' })
+					console.log('Migrations completed successfully')
+					
+					// Reset search path after migrations
+					await neonSql.unsafe('SET search_path TO DEFAULT')
+				} catch (error: any) {
+					// If tables or constraints already exist, that's fine
+					if (error.cause?.code === '42710' || error.cause?.code === '42P07') {
+						console.log('Tables or constraints already exist, continuing...')
+					} else {
+						console.error('Migration error:', error)
+						throw error
+					}
+				}
+			} else {
+				console.log('Tables already exist, skipping migrations')
 			}
+
+			databaseInstances[poolKey] = db
+			return db
+		} catch (error) {
+			console.error('Database operation error:', error)
+			throw error
 		}
-
-
-		const db = new Database(databaseFile)
-		databaseInstances[poolKey] = drizzle(db)
-
-		if (requiresMigration) { // we are never skipping running the migrations when first adding database to the pool bc of possible changes in the schema
-            console.log('Running migrations')
-			await migrate(databaseInstances[poolKey], { migrationsFolder: `drizzle${ databaseSchema ? '-' + databaseSchema : '' }` }) // database migrations in subfolder for different schemas
-		}
-
-		return databaseInstances[poolKey]
 	}
 }
 

@@ -10,7 +10,17 @@ export default class ServerFolderRepository extends BaseRepository<FolderDTO> {
     // create a new patinet
     async create(item: FolderDTO): Promise<FolderDTO> {
         const db = (await this.db());
-        return create(item, folders, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            updatedAt: new Date(item.updatedAt)
+        };
+        const result = await create(drizzleItem, folders, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            updatedAt: this.toISOStringIfDate(result.updatedAt)
+        };
     }
 
     // update folder

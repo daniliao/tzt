@@ -6,10 +6,28 @@ import { eq } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export default class ServerEncryptedAttachmentRepository extends BaseRepository<EncryptedAttachmentDTO> {
+    private toISOStringIfDate(value: Date | string | null | undefined): string {
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        return value || getCurrentTS();
+    }
     
     async create(item: EncryptedAttachmentDTO): Promise<EncryptedAttachmentDTO> {
         const db = (await this.db());
-        return create(item, encryptedAttachments, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+            updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date()
+        };
+        const result = await create(drizzleItem, encryptedAttachments, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            createdAt: this.toISOStringIfDate(result.createdAt),
+            updatedAt: this.toISOStringIfDate(result.updatedAt)
+        };
     }
 
     async delete(query: Record<string, any>): Promise<boolean> {
@@ -41,8 +59,8 @@ export default class ServerEncryptedAttachmentRepository extends BaseRepository<
                     extra: row.extra as string,
                     size: row.size || 0,
                     storageKey: row.storageKey || '',
-                    createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : getCurrentTS(),
-                    updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : getCurrentTS(),
+                    createdAt: this.toISOStringIfDate(row.createdAt),
+                    updatedAt: this.toISOStringIfDate(row.updatedAt),
                     assignedTo: row.assignedTo as string
                 };
             }
@@ -68,7 +86,7 @@ export default class ServerEncryptedAttachmentRepository extends BaseRepository<
             size: item.size,
             storageKey: item.storageKey,
             assignedTo: item.assignedTo,
-            updatedAt: new Date(getCurrentTS())
+            updatedAt: new Date(updatedRecord.updatedAt)
         };
 
         await db.update(encryptedAttachments)
@@ -93,8 +111,8 @@ export default class ServerEncryptedAttachmentRepository extends BaseRepository<
             extra: row.extra as string,
             size: row.size || 0,
             storageKey: row.storageKey || '',
-            createdAt: row.createdAt instanceof Date ? row.createdAt.toISOString() : getCurrentTS(),
-            updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : getCurrentTS(),
+            createdAt: this.toISOStringIfDate(row.createdAt),
+            updatedAt: this.toISOStringIfDate(row.updatedAt),
             assignedTo: row.assignedTo as string
         }));
     }

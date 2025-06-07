@@ -11,10 +11,26 @@ export type KeysQuery = IQuery & {
 }
 
 export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
+    private toISOStringIfDate(val: unknown): string {
+        return val instanceof Date ? val.toISOString() : (val as string);
+    }
+
     // create a new ***REMOVED***
     async create(item: KeyDTO): Promise<KeyDTO> {
         const db = (await this.db());
-        return create(item, ***REMOVED***s, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            updatedAt: new Date(item.updatedAt),
+            expiryDate: item.expiryDate ? new Date(item.expiryDate) : null
+        };
+        const result = await create(drizzleItem, ***REMOVED***s, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            updatedAt: this.toISOStringIfDate(result.updatedAt),
+            expiryDate: result.expiryDate ? this.toISOStringIfDate(result.expiryDate) : null
+        };
     }
 
     // update ***REMOVED***
@@ -43,7 +59,7 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
         // Update the ***REMOVED*** with new values
         const updatedKey: KeyDTO = {
             ...item,
-            updatedAt: getCurrentTS()
+            updatedAt: new Date().toISOString()
         };
 
         await db.update(***REMOVED***s)
@@ -74,46 +90,51 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
 
     async findAll(query: KeysQuery): Promise<KeyDTO[]> {
         const db = (await this.db());
-        const conditions: any[] = [];
+        const conditions = [];
 
         if (query?.filter) {
             if (query.filter.databaseIdHash) {
-                conditions.push(sql`${***REMOVED***s.databaseIdHash} = ${query.filter.databaseIdHash}`);
+                conditions.push(eq(***REMOVED***s.databaseIdHash, query.filter.databaseIdHash));
             }
             if (query.filter.***REMOVED***Hash) {
-                conditions.push(sql`${***REMOVED***s.***REMOVED***Hash} = ${query.filter.***REMOVED***Hash}`);
+                conditions.push(eq(***REMOVED***s.***REMOVED***Hash, query.filter.***REMOVED***Hash));
             }
             if (query.filter.***REMOVED***LocatorHash) {
-                conditions.push(sql`${***REMOVED***s.***REMOVED***LocatorHash} = ${query.filter.***REMOVED***LocatorHash}`);
+                conditions.push(eq(***REMOVED***s.***REMOVED***LocatorHash, query.filter.***REMOVED***LocatorHash));
             }
         }
 
-        const rows = await db.select({
-            ***REMOVED***LocatorHash: ***REMOVED***s.***REMOVED***LocatorHash,
-            ***REMOVED***Hash: ***REMOVED***s.***REMOVED***Hash,
-            databaseIdHash: ***REMOVED***s.databaseIdHash,
-            updatedAt: ***REMOVED***s.updatedAt,
-            extra: ***REMOVED***s.extra,
-            acl: ***REMOVED***s.acl,
-            expiryDate: ***REMOVED***s.expiryDate,
-            displayName: ***REMOVED***s.displayName,
-            ***REMOVED***HashParams: ***REMOVED***s.***REMOVED***HashParams,
-            encryptedMasterKey: ***REMOVED***s.encryptedMasterKey
-        })
-        .from(***REMOVED***s)
-        .where(conditions.length > 0 ? sql`${sql.join(conditions, sql` AND `)}` : undefined);
+        try {
+            const rows = await db.select({
+                ***REMOVED***LocatorHash: ***REMOVED***s.***REMOVED***LocatorHash,
+                ***REMOVED***Hash: ***REMOVED***s.***REMOVED***Hash,
+                databaseIdHash: ***REMOVED***s.databaseIdHash,
+                updatedAt: ***REMOVED***s.updatedAt,
+                extra: ***REMOVED***s.extra,
+                acl: ***REMOVED***s.acl,
+                expiryDate: ***REMOVED***s.expiryDate,
+                displayName: ***REMOVED***s.displayName,
+                ***REMOVED***HashParams: ***REMOVED***s.***REMOVED***HashParams,
+                encryptedMasterKey: ***REMOVED***s.encryptedMasterKey
+            })
+            .from(***REMOVED***s)
+            .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-        return rows.map(row => ({
-            displayName: row.displayName || '',
-            ***REMOVED***LocatorHash: row.***REMOVED***LocatorHash,
-            ***REMOVED***Hash: row.***REMOVED***Hash,
-            ***REMOVED***HashParams: row.***REMOVED***HashParams,
-            databaseIdHash: row.databaseIdHash,
-            encryptedMasterKey: row.encryptedMasterKey,
-            expiryDate: row.expiryDate ? row.expiryDate.toISOString() : null,
-            updatedAt: row.updatedAt.toISOString(),
-            acl: row.acl || undefined,
-            extra: row.extra || undefined
-        }));
+            return rows.map(row => ({
+                displayName: row.displayName || '',
+                ***REMOVED***LocatorHash: row.***REMOVED***LocatorHash,
+                ***REMOVED***Hash: row.***REMOVED***Hash,
+                ***REMOVED***HashParams: row.***REMOVED***HashParams,
+                databaseIdHash: row.databaseIdHash,
+                encryptedMasterKey: row.encryptedMasterKey,
+                expiryDate: row.expiryDate ? row.expiryDate.toISOString() : null,
+                updatedAt: row.updatedAt.toISOString(),
+                acl: row.acl || undefined,
+                extra: row.extra || undefined
+            }));
+        } catch (error) {
+            console.error('Error in findAll:', error);
+            throw error;
+        }
     }
 }

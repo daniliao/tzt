@@ -1,4 +1,4 @@
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { pool } from "./db-provider";
 import { SQL, sql } from "drizzle-orm";
 
@@ -36,7 +36,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
         this.databasePartition = databasePartition;
     }
 
-    async db(): Promise<PostgresJsDatabase> {
+    async db(): Promise<NeonHttpDatabase> {
         return (await pool)(this.databaseId, this.databaseSchema, this.databasePartition, false);
     }
 

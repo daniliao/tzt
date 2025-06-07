@@ -46,9 +46,11 @@ export async function POST(request: NextRequest) {
                     status: 409
                 });            
             } else {
+                const now = new Date();
+                const nowISO = now.toISOString();
                 await maintenance.createDatabaseManifest(***REMOVED***CreateRequest.databaseIdHash, {
                     databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
-                    createdAt: getCurrentTS(),
+                    createdAt: nowISO,
                     creator: {
                         ip: request.ip,
                         ua: userAgent(request).ua,
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
                         }),
                         extra: null,
                         expiryDate: null,
-                        updatedAt: getCurrentTS(),
+                        updatedAt: nowISO
                     })
 
                     const firstFolder = folderRepo.create({
@@ -91,14 +93,14 @@ export async function POST(request: NextRequest) {
                             type: 'folder',
                             children: []
                         }),
-                        updatedAt: getCurrentTS()
+                        updatedAt: nowISO
                     });
 
                     if (saasContext.isSaasMode) {
                         try {
                             saasContext.***REMOVED***Client?.newDatabase({
                                 databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
-                                createdAt: getCurrentTS()
+                                createdAt: nowISO
                             })
                         } catch (e) {
                             console.log(e)

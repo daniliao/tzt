@@ -7,11 +7,30 @@ import { eq, sql } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export default class ServerRecordRepository extends BaseRepository<RecordDTO> {
-    
+    private toISOStringIfDate(value: Date | string | null | undefined): string {
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        return value || getCurrentTS();
+    }
     
     async create(item: RecordDTO): Promise<RecordDTO> {
         const db = (await this.db());
-        return create(item, records, db); // generic implementation
+        // Convert string timestamps to Date objects for Drizzle
+        const drizzleItem = {
+            ...item,
+            createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+            updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+            eventDate: item.eventDate || getCurrentTS()
+        };
+        const result = await create(drizzleItem, records, db);
+        // Convert back to string for DTO
+        return {
+            ...result,
+            createdAt: this.toISOStringIfDate(result.createdAt),
+            updatedAt: this.toISOStringIfDate(result.updatedAt),
+            eventDate: result.eventDate || getCurrentTS()
+        };
     }
 
     // update folder
@@ -62,7 +81,7 @@ export default class ServerRecordRepository extends BaseRepository<RecordDTO> {
                 checksumLastParsed: updatedRecord.checksumLastParsed,
                 extra: updatedRecord.extra,
                 attachments: updatedRecord.attachments,
-                eventDate: updatedRecord.eventDate,
+                eventDate: updatedRecord.eventDate || getCurrentTS(),
                 updatedAt: new Date(updatedRecord.updatedAt)
             })
             .where(eq(records.id, query.id));
@@ -124,8 +143,8 @@ export default class ServerRecordRepository extends BaseRepository<RecordDTO> {
             extra: row.extra ? JSON.stringify(row.extra) : null,
             attachments: row.attachments ? JSON.stringify(row.attachments) : null,
             eventDate: row.eventDate || getCurrentTS(),
-            createdAt: row.createdAt.toISOString(),
-            updatedAt: row.updatedAt.toISOString()
+            createdAt: this.toISOStringIfDate(row.createdAt),
+            updatedAt: this.toISOStringIfDate(row.updatedAt)
         }));
     }
 }
