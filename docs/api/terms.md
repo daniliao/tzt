@@ -1,8 +1,8 @@
 ### REST API Documentation for TermApiClient
 
-This documentation is based on the `TermApiClient` class defined in `src/data/client/term-***REMOVED***-client.ts`.
+This documentation is based on the `TermApiClient` class defined in `src/data/client/term-api-client.ts`.
 
-#### GET `/***REMOVED***/terms`
+#### GET `/api/terms`
 
 Fetches all terms.
 
@@ -13,11 +13,11 @@ Fetches all terms.
 
 ```typescript
 async get(): Promise<TermDTO[]> {
-  return this.request<TermDTO[]>('/***REMOVED***/terms', 'GET', { ecnryptedFields: [] }) as Promise<TermDTO[]>;
+  return this.request<TermDTO[]>('/api/terms', 'GET', { ecnryptedFields: [] }) as Promise<TermDTO[]>;
 }
 ```
 
-#### PUT `/***REMOVED***/terms`
+#### PUT `/api/terms`
 
 Updates a term.
 
@@ -31,16 +31,16 @@ Updates a term.
 
 ```typescript
 async put(Term: PutTermRequest): Promise<PutTermResponse> {
-  return this.request<PutTermResponse>('/***REMOVED***/terms', 'PUT', { ecnryptedFields: [] }, Term) as Promise<PutTermResponse>;
+  return this.request<PutTermResponse>('/api/terms', 'PUT', { ecnryptedFields: [] }, Term) as Promise<PutTermResponse>;
 }
 ```
 
-#### DELETE `/***REMOVED***/terms/{***REMOVED***}`
+#### DELETE `/api/terms/{key}`
 
 Deletes a term.
 
 - **Request Parameters**:
-  - `***REMOVED***` (Path): The identifier of the term to be deleted.
+  - `key` (Path): The identifier of the term to be deleted.
 - **Response**:
   - **Success** (`200 OK`):
     - `PutTermResponseSuccess`: Contains a message and a status code.
@@ -48,8 +48,8 @@ Deletes a term.
     - `PutTermResponseError`: Contains an error message, status code, and optional issues.
 
 ```typescript
-async delete(***REMOVED***: string): Promise<PutTermResponse> {
-  return this.request<PutTermResponse>('/***REMOVED***/terms/' + ***REMOVED***, 'DELETE', { ecnryptedFields: [] }) as Promise<PutTermResponse>;
+async delete(key: string): Promise<PutTermResponse> {
+  return this.request<PutTermResponse>('/api/terms/' + key, 'DELETE', { ecnryptedFields: [] }) as Promise<PutTermResponse>;
 }
 ```
 
@@ -109,4 +109,4 @@ A union type of `PutTermResponseSuccess` and `PutTermResponseError`.
 export type PutTermResponse = PutTermResponseSuccess | PutTermResponseError;
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/term-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/term-api-client.ts).

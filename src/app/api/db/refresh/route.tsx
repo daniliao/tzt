@@ -1,5 +1,5 @@
 import { DatabaseAuthorizeRequestDTO, databaseRefreshRequestSchema, KeyDTO } from "@/data/dto";
-import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
+import { authorizeKey } from "@/data/server/server-key-helpers";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
 
@@ -11,15 +11,15 @@ export async function POST(request: Request) {
         if (validationResult.success === true) {
 
             const jwtToken = validationResult.data.refreshToken;
-            const ***REMOVED***Data = await jwtVerify<DatabaseAuthorizeRequestDTO>(jwtToken, new TextEncoder().encode(process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
-            const ***REMOVED***Request = {
-                databaseIdHash: ***REMOVED***Data.payload.databaseIdHash,
-                ***REMOVED***Hash: ***REMOVED***Data.payload.***REMOVED***Hash,
-                ***REMOVED***LocatorHash: ***REMOVED***Data.payload.***REMOVED***LocatorHash                
+            const tokenData = await jwtVerify<DatabaseAuthorizeRequestDTO>(jwtToken, new TextEncoder().encode(process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
+            const authRequest = {
+                databaseIdHash: tokenData.payload.databaseIdHash,
+                keyHash: tokenData.payload.keyHash,
+                keyLocatorHash: tokenData.payload.keyLocatorHash                
             };
-            const ***REMOVED***Details = await ***REMOVED***orizeKey(***REMOVED***Request);
+            const keyDetails = await authorizeKey(authRequest);
 
-            if (!***REMOVED***Details) { // this situation theoretically should not happen bc. if database file exists we return out of the function
+            if (!keyDetails) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                 return Response.json({
                     message: 'Invalid Database Id or Key. Key not found.',
                     status: 401               
@@ -27,8 +27,8 @@ export async function POST(request: Request) {
             } else {
 
                 const alg = 'HS256'
-                const ***REMOVED***Payload = { databaseIdHash: ***REMOVED***Request.databaseIdHash, ***REMOVED***Hash: ***REMOVED***Request.***REMOVED***Hash, ***REMOVED***LocatorHash: ***REMOVED***Request.***REMOVED***LocatorHash }
-                const accessToken = await new SignJWT(***REMOVED***Payload)
+                const tokenPayload = { databaseIdHash: authRequest.databaseIdHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
+                const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()
                 .setIssuer('urn:ctt:doctor-dok')
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
                 .setExpirationTime('15m')
                 .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
 
-                const refreshToken = await new SignJWT(***REMOVED***Payload)
+                const refreshToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()
                 .setIssuer('urn:ctt:doctor-dok')

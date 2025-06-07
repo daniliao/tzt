@@ -12,9 +12,9 @@ import DatabaseLinkAlert from "./shared/database-link-alert";
 import { FolderEditPopup } from "./folder-edit-popup";
 import { NoRecordsAlert } from "./shared/no-records-alert";
 import { DatabaseContext } from "@/contexts/db-context";
-import { KeyContext, KeyContextProvider } from "@/contexts/***REMOVED***-context";
-import SharedKeyItem from "./shared-***REMOVED***-item";
-import { SharedKeyEditPopup } from "./shared-***REMOVED***-edit-popup";
+import { KeyContext, KeyContextProvider } from "@/contexts/key-context";
+import SharedKeyItem from "./shared-key-item";
+import { SharedKeyEditPopup } from "./shared-key-edit-popup";
 import { AuditContext } from "@/contexts/audit-context";
 import { auditLog } from "@/lib/audit";
 import AuditLogItem from "./audit-log-item";
@@ -22,15 +22,15 @@ import AuditLogItem from "./audit-log-item";
 export default function AuditLogPopup() {
   const configContext = useContext(ConfigContext);
   const dbContext = useContext(DatabaseContext);
-  const ***REMOVED***Context = useContext(KeyContext);
+  const keyContext = useContext(KeyContext);
   const auditContext = useContext(AuditContext);
   const [limit, setLimit] = useState(5);
   const [offset, setOffset] = useState(0);
 
   useEffect(() => {
     auditContext?.loadLogs(limit, offset);
-    ***REMOVED***Context.loadKeys();
-  }, [limit, offset/*, auditContext?.lastAudit*/]); // we re not loading the records and ***REMOVED***s each time new recod is added due to performance reasons
+    keyContext.loadKeys();
+  }, [limit, offset/*, auditContext?.lastAudit*/]); // we re not loading the records and keys each time new recod is added due to performance reasons
 
   return (
     <Credenza open={auditContext.auditLogOpen} onOpenChange={auditContext.setAuditLogDialogOpen}>
@@ -45,7 +45,7 @@ export default function AuditLogPopup() {
         <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-auto">
             
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <div className="p-4 space-y-4">
                 {auditContext?.loaderStatus === DataLoadingStatus.Loading ? (
                   <div className="flex justify-center">
@@ -54,7 +54,7 @@ export default function AuditLogPopup() {
                 ) : (
                   (auditContext?.logs.length > 0) ?
                     auditContext?.logs.map((audit, index) => (
-                      <AuditLogItem onClick={(e) => { auditContext.setCurrentAudit(audit); }} ***REMOVED***={index} audit={audit} selected={auditContext?.currentAudit?.id === audit.id} />
+                      <AuditLogItem onClick={(e) => { auditContext.setCurrentAudit(audit); }} key={index} audit={audit} selected={auditContext?.currentAudit?.id === audit.id} />
                     ))
                     : (
                       <NoRecordsAlert title="Data is not shared">

@@ -54,7 +54,7 @@ export default function RecordLinkHandler() {
         <div className="space-y-4">
           {referencedRecords.map((record) => (
             <RecordItem 
-              ***REMOVED***={record.id} 
+              key={record.id} 
               record={record} 
               displayAttachmentPreviews={false}
             />

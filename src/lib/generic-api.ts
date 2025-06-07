@@ -2,13 +2,13 @@ import { BaseRepository } from "@/data/server/base-repository";
 import { getErrorMessage, getZedErrorMessage } from "./utils";
 import { ZodError, ZodObject } from "zod";
 import { NextRequest, NextResponse } from "next/server";
-import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
+import { authorizeKey } from "@/data/server/server-key-helpers";
 import { jwtVerify } from "jose";
 import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO } from "@/data/dto";
 import { Key } from "react";
-import { PlatformApiClient } from "@/data/server/platform-***REMOVED***-client";
+import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
-import { ApiError } from "@/data/client/base-***REMOVED***-client";
+import { ApiError } from "@/data/client/base-api-client";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
@@ -22,8 +22,8 @@ export type ApiResult = {
 
 export type AuthorizedRequestContext = { 
     databaseIdHash: string;
-    ***REMOVED***Hash: string;
-    ***REMOVED***LocatorHash: string;
+    keyHash: string;
+    keyLocatorHash: string;
     acl: KeyACLDTO;
     extra: any;
 }
@@ -33,28 +33,28 @@ export type AuthorizedSaaSContext = {
     isSaasMode: boolean
     hasAccess: boolean;
     error?: string;
-    ***REMOVED***Client: PlatformApiClient|null
+    apiClient: PlatformApiClient|null
 }
 
-export async function ***REMOVED***orizeSaasContext(request: NextRequest, forceNoCache: boolean = false): Promise<AuthorizedSaaSContext> {
+export async function authorizeSaasContext(request: NextRequest, forceNoCache: boolean = false): Promise<AuthorizedSaaSContext> {
     if(!process.env.SAAS_PLATFORM_URL) {
         return {
             saasContex: null,
             hasAccess: true,
             isSaasMode: false,
-            ***REMOVED***Client: null
+            apiClient: null
         }
     } else {
         
         const useCache = forceNoCache ? false : (request.nextUrl.searchParams.get('useCache') === 'false' ? false : true);
-        const saasToken = request.headers.get('saas-***REMOVED***') !== null ? request.headers.get('saas-***REMOVED***') : request.nextUrl.searchParams.get('saasToken');
+        const saasToken = request.headers.get('saas-token') !== null ? request.headers.get('saas-token') : request.nextUrl.searchParams.get('saasToken');
         const databaseIdHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('databaseIdHash');
         if (!saasToken && !databaseIdHash) {
              return {
                  saasContex: null,
                  isSaasMode: false,
                  hasAccess: false,
-                 ***REMOVED***Client: null,
+                 apiClient: null,
                  error: 'No SaaS Token / Database Id Hash provided. Please register your account / apply for beta tests on official landing page.'
             }            
         }
@@ -65,18 +65,18 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest, forceN
         if (resp) {
             return {
                 ...resp,
-                ***REMOVED***Client: new PlatformApiClient(saasToken ?? '')
+                apiClient: new PlatformApiClient(saasToken ?? '')
             } as AuthorizedSaaSContext;
         } else {
             const client = new PlatformApiClient(saasToken ?? '');
             try {
-                const response = await client.account({ databaseIdHash, ***REMOVED***Key: saasToken });
+                const response = await client.account({ databaseIdHash, apiKey: saasToken });
                 if(response.status !== 200) {
                     const resp = {
                         saasContex: null,
                         isSaasMode: false,
                         hasAccess: false,
-                        ***REMOVED***Client: null,
+                        apiClient: null,
                         error: response.message
                     }
                     saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 2); // errors cachef for 2s
@@ -88,7 +88,7 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest, forceN
                         saasContex: saasContext as SaaSDTO,
                         hasAccess: true,
                         isSaasMode: true,
-                        ***REMOVED***Client: client
+                        apiClient: client
                     }
                     saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 60 * 10); // ok results cached for 10 min
                     return resp;
@@ -99,14 +99,14 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest, forceN
                         saasContex: null,
                         isSaasMode: false,
                         hasAccess: true,
-                        ***REMOVED***Client: null
+                        apiClient: null
                     }
                 } else {
                     return {
                         saasContex: null,
                         isSaasMode: false,
                         hasAccess: false,
-                        ***REMOVED***Client: null,
+                        apiClient: null,
                         error: getErrorMessage(e)
                     }
                 }
@@ -115,38 +115,38 @@ export async function ***REMOVED***orizeSaasContext(request: NextRequest, forceN
     }
 }
 
-export async function ***REMOVED***orizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
-    const ***REMOVED***orizationHeader = request.headers.get('Authorization');
-    const jwtToken = ***REMOVED***orizationHeader?.replace('Bearer ', '');
+export async function authorizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
+    const authorizationHeader = request.headers.get('Authorization');
+    const jwtToken = authorizationHeader?.replace('Bearer ', '');
 
     if (jwtToken) {
         const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
 
-        const ***REMOVED***Result = await ***REMOVED***orizeKey({
+        const authResult = await authorizeKey({
             databaseIdHash: decoded.payload.databaseIdHash as string,
-            ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
-            ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string
+            keyHash: decoded.payload.keyHash as string,
+            keyLocatorHash: decoded.payload.keyLocatorHash as string
         });
-        if(!***REMOVED***Result) {
-            NextResponse.json({ message: 'Un***REMOVED***orized', status: 401 });
-            throw new Error('Un***REMOVED***orized. Wrong Key.');
+        if(!authResult) {
+            NextResponse.json({ message: 'Unauthorized', status: 401 });
+            throw new Error('Unauthorized. Wrong Key.');
         } else {
-            const ***REMOVED***ACL = (***REMOVED***Result as KeyDTO).acl ?? null;
-            const aclDTO = ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL
+            const keyACL = (authResult as KeyDTO).acl ?? null;
+            const aclDTO = keyACL ? JSON.parse(keyACL) : defaultKeyACL
             return {
                 databaseIdHash: decoded.payload.databaseIdHash as string,
-                ***REMOVED***Hash: decoded.payload.***REMOVED***Hash as string,
-                ***REMOVED***LocatorHash: decoded.payload.***REMOVED***LocatorHash as string,
+                keyHash: decoded.payload.keyHash as string,
+                keyLocatorHash: decoded.payload.keyLocatorHash as string,
                 acl: aclDTO as KeyACLDTO,
-                extra: (***REMOVED***Result as KeyDTO).extra
+                extra: (authResult as KeyDTO).extra
             }
         }
     } else {
-        throw new Error('Un***REMOVED***orized. No Token');
+        throw new Error('Unauthorized. No Token');
     }
 }
 
-export async function genericPUT<T extends { [***REMOVED***:string]: any }>(inputObject: any, schema: { safeParse: (a0:any) => { success: true; data: T; } | { success: false; error: ZodError; } }, repo: BaseRepository<T>, identityKey: string): Promise<ApiResult> {
+export async function genericPUT<T extends { [key:string]: any }>(inputObject: any, schema: { safeParse: (a0:any) => { success: true; data: T; } | { success: false; error: ZodError; } }, repo: BaseRepository<T>, identityKey: string): Promise<ApiResult> {
     try {
         const validationResult = schema.safeParse(inputObject); // validation
         if (validationResult.success === true) {
@@ -175,7 +175,7 @@ export async function genericPUT<T extends { [***REMOVED***:string]: any }>(inpu
     }
 }
 
-export async function genericGET<T extends { [***REMOVED***:string]: any }>(request: NextRequest, repo: BaseRepository<T>, defaultLimit: number = -1, defaultOffset: number  = -1): Promise<T[]> {
+export async function genericGET<T extends { [key:string]: any }>(request: NextRequest, repo: BaseRepository<T>, defaultLimit: number = -1, defaultOffset: number  = -1): Promise<T[]> {
     const filterObj: Record<string, string> = Object.fromEntries(request.nextUrl.searchParams.entries());
 
     let limit = defaultLimit;
@@ -191,7 +191,7 @@ export async function genericGET<T extends { [***REMOVED***:string]: any }>(requ
 }
 
 
-export async function genericDELETE<T extends { [***REMOVED***:string]: any }>(request: Request, repo: BaseRepository<T>, query: Record<string, string | number>): Promise<ApiResult>{
+export async function genericDELETE<T extends { [key:string]: any }>(request: Request, repo: BaseRepository<T>, query: Record<string, string | number>): Promise<ApiResult>{
     try {
         if(await repo.delete(query)) {
             return {

@@ -5,7 +5,7 @@ import Script from "next/script";
 const FeedbackWidget = () => {
   return (
     <>
-      <Script src="https://w.appzi.io/w.js?***REMOVED***=TtIV6"  />
+      <Script src="https://w.appzi.io/w.js?token=TtIV6"  />
     </>
   );
 };

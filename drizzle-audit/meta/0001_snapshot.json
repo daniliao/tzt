@@ -28,8 +28,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "***REMOVED***LocatorHash": {
-          "name": "***REMOVED***LocatorHash",
+        "keyLocatorHash": {
+          "name": "keyLocatorHash",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -83,7 +83,7 @@
     "schemas": {},
     "tables": {},
     "columns": {
-      "\"audit\".\"***REMOVED***HashId\"": "\"audit\".\"***REMOVED***LocatorHash\"",
+      "\"audit\".\"keyHashId\"": "\"audit\".\"keyLocatorHash\"",
       "\"audit\".\"databaseHashId\"": "\"audit\".\"databaseIdHash\""
     }
   },

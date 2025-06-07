@@ -1,8 +1,8 @@
 ### REST API Documentation for StatApiClient
 
-This documentation is based on the `StatApiClient` class defined in `src/data/client/stat-***REMOVED***-client.ts`.
+This documentation is based on the `StatApiClient` class defined in `src/data/client/stat-api-client.ts`.
 
-#### GET `/***REMOVED***/stats/aggregated`
+#### GET `/api/stats/aggregated`
 
 Fetches aggregated statistics.
 
@@ -15,11 +15,11 @@ Fetches aggregated statistics.
 
 ```typescript
 async aggregated(): Promise<AggregatedStatsResponse> {
-  return this.request<AggregatedStatsResponse>('/***REMOVED***/stats/aggregated', 'GET', { ecnryptedFields: [] }) as Promise<AggregatedStatsResponse>;
+  return this.request<AggregatedStatsResponse>('/api/stats/aggregated', 'GET', { ecnryptedFields: [] }) as Promise<AggregatedStatsResponse>;
 }
 ```
 
-#### PUT `/***REMOVED***/stats`
+#### PUT `/api/stats`
 
 Aggregates a new statistic.
 
@@ -33,7 +33,7 @@ Aggregates a new statistic.
 
 ```typescript
 async aggregate(newItem: StatDTO): Promise<AggregateStatResponse> {
-  return this.request<AggregateStatResponse>('/***REMOVED***/stats', 'PUT', { ecnryptedFields: [] }, newItem) as Promise<AggregateStatResponse>;
+  return this.request<AggregateStatResponse>('/api/stats', 'PUT', { ecnryptedFields: [] }, newItem) as Promise<AggregateStatResponse>;
 }
 ```
 
@@ -135,4 +135,4 @@ A union type of `AggregatedStatsResponseSuccess` and `AggregatedStatsResponseErr
 export type AggregatedStatsResponse = AggregatedStatsResponseSuccess | AggregatedStatsResponseError;
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/stat-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/stat-api-client.ts).

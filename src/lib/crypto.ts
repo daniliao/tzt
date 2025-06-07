@@ -1,42 +1,42 @@
 import { DTOEncryptionSettings } from "@/data/dto";
 
 export class EncryptionUtils {
-  private ***REMOVED***: CryptoKey = {} as CryptoKey;
-  private ***REMOVED***Key: string;
-  private ***REMOVED***Generated:boolean = false;
+  private key: CryptoKey = {} as CryptoKey;
+  private secretKey: string;
+  private keyGenerated:boolean = false;
   
-  constructor(***REMOVED***Key: string) {
-    this.***REMOVED***Key = ***REMOVED***Key;
+  constructor(secretKey: string) {
+    this.secretKey = secretKey;
   }
 
-  async generateKey(***REMOVED***Key: string): Promise<void> {
-    if (this.***REMOVED***Generated && this.***REMOVED***Key !== ***REMOVED***Key) {
-      this.***REMOVED***Generated = false; // ***REMOVED*** changed
+  async generateKey(secretKey: string): Promise<void> {
+    if (this.keyGenerated && this.secretKey !== secretKey) {
+      this.keyGenerated = false; // key changed
     }
 
-    if (this.***REMOVED***Generated) {
+    if (this.keyGenerated) {
       return;
     }
-    this.***REMOVED***Key = ***REMOVED***Key
-    const ***REMOVED***Data = await this.deriveKey(***REMOVED***Key);
-    this.***REMOVED*** = await crypto.subtle.importKey(
+    this.secretKey = secretKey
+    const keyData = await this.deriveKey(secretKey);
+    this.key = await crypto.subtle.importKey(
       'raw',
-      ***REMOVED***Data,
+      keyData,
       { name: 'AES-GCM' },
       false,
       ['encrypt', 'decrypt']
     );
-    this.***REMOVED***Generated = true;
+    this.keyGenerated = true;
   }
 
-  private async deriveKey(***REMOVED***Key: string): Promise<ArrayBuffer> {
+  private async deriveKey(secretKey: string): Promise<ArrayBuffer> {
     const encoder = new TextEncoder();
     const salt = encoder.encode('someSalt'); // Replace 'someSalt' with a suitable salt value
     const iterations = 100000; // Adjust the number of iterations as needed
-    const ***REMOVED***Length = 256; // 256 bits (32 bytes)
+    const keyLength = 256; // 256 bits (32 bytes)
     const derivedKey = await crypto.subtle.importKey(
       'raw',
-      encoder.encode(***REMOVED***Key),
+      encoder.encode(secretKey),
       { name: 'PBKDF2' },
       false,
       ['deriveBits']
@@ -49,11 +49,11 @@ export class EncryptionUtils {
         hash: 'SHA-256'
       },
       derivedKey,
-      ***REMOVED***Length
+      keyLength
     );
   }
   async encryptArrayBuffer(data: ArrayBuffer): Promise<ArrayBuffer> {
-    await this.generateKey(this.***REMOVED***Key);
+    await this.generateKey(this.secretKey);
 
     const iv = crypto.getRandomValues(new Uint8Array(16)); // Initialization vector
     const encryptedData = await crypto.subtle.encrypt(
@@ -61,7 +61,7 @@ export class EncryptionUtils {
             name: 'AES-GCM',
             iv: iv,
         },
-        this.***REMOVED***,
+        this.key,
         data
     );
     return new Blob([iv, new Uint8Array(encryptedData)]).arrayBuffer(); // Prepend IV to the ciphertext
@@ -78,7 +78,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
  async decryptArrayBuffer(encryptedData: ArrayBuffer | Blob): Promise<ArrayBuffer> {
     try {
-      await this.generateKey(this.***REMOVED***Key);
+      await this.generateKey(this.secretKey);
 
       let encryptedArrayBuffer: ArrayBuffer;
       if (encryptedData instanceof Blob) {
@@ -95,7 +95,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
               name: 'AES-GCM',
               iv: iv,
           },
-          this.***REMOVED***,
+          this.key,
           cipherText
       );
     } catch (e) {
@@ -104,14 +104,14 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
     }
   }
   async encrypt(text: string): Promise<string> {
-    await this.generateKey(this.***REMOVED***Key);
+    await this.generateKey(this.secretKey);
 
     const encoder = new TextEncoder();
     const data = encoder.encode(text);
     const iv = crypto.getRandomValues(new Uint8Array(16));
     const encryptedData = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
-      this.***REMOVED***,
+      this.key,
       data
     );
     const encryptedArray = Array.from(new Uint8Array(encryptedData));
@@ -123,7 +123,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
   async decrypt(cipherText: string): Promise<string> {
     try {
       if (cipherText) {
-        await this.generateKey(this.***REMOVED***Key);
+        await this.generateKey(this.secretKey);
 
         const ivHex = cipherText.slice(0, 32);
         const encryptedHex = cipherText.slice(32);
@@ -132,7 +132,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
         const decryptedData = await crypto.subtle.decrypt(
           { name: 'AES-GCM', iv },
-          this.***REMOVED***,
+          this.key,
           encryptedArray
         );
         const decoder = new TextDecoder();
@@ -149,15 +149,15 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
 
 export function generateEncryptionKey() {
-  const ***REMOVED*** = crypto.getRandomValues(new Uint8Array(32))
-  return btoa(String.fromCharCode(...***REMOVED***))
+  const key = crypto.getRandomValues(new Uint8Array(32))
+  return btoa(String.fromCharCode(...key))
 }
 
 export class DTOEncryptionFilter<T> {
     private utils: EncryptionUtils;
   
-    constructor(***REMOVED***Key: string) {
-      this.utils = new EncryptionUtils(***REMOVED***Key);
+    constructor(secretKey: string) {
+      this.utils = new EncryptionUtils(secretKey);
     }
   
     async encrypt(dto: T, encryptionSettings?: DTOEncryptionSettings): Promise<T> {
@@ -193,11 +193,11 @@ export class DTOEncryptionFilter<T> {
   
     private async process(dto: T, encryptionSettings?: DTOEncryptionSettings, processFn: (value: string) => Promise<string>): T {
       const result = {} as T;
-      for (const ***REMOVED*** in dto) {
-        if ((encryptionSettings && encryptionSettings.ecnryptedFields.indexOf(***REMOVED***) >=0) || (!encryptionSettings && (typeof dto[***REMOVED***] === 'string' || typeof dto[***REMOVED***] === 'object'))) {
-          result[***REMOVED***] = await processFn(dto[***REMOVED***] as string);
+      for (const key in dto) {
+        if ((encryptionSettings && encryptionSettings.ecnryptedFields.indexOf(key) >=0) || (!encryptionSettings && (typeof dto[key] === 'string' || typeof dto[key] === 'object'))) {
+          result[key] = await processFn(dto[key] as string);
         } else {
-          result[***REMOVED***] = dto[***REMOVED***];
+          result[key] = dto[key];
         }
       }
       return result;

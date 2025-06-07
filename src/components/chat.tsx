@@ -92,7 +92,7 @@ export function Chat() {
       setFolderContext(coercedVal(await config?.getServerConfig('autoLoadFolderContext'), true) as boolean);
 //      if (chatContext.areRecordsLoaded === false && !chatContext.isStreaming && await chatContext.checkApiConfig()) {
 //        try {
-          // await recordContext?.sendAllRecordsToChat(); - changed due to too high ***REMOVED***s usage - now it's an option in the chat
+          // await recordContext?.sendAllRecordsToChat(); - changed due to too high tokens usage - now it's an option in the chat
 //        } catch (error) {
 //          console.error(error);
 //          toast.error('Failed to load folder records into chat: ' + error);
@@ -293,7 +293,7 @@ export function Chat() {
               <OnboardingChat />              
             ) : null}
             {chatContext.messages.length > 1 && chatContext.visibleMessages.slice(chatContext.visibleMessages.length > 5 ? chatContext.visibleMessages.length-5 : 0, chatContext.visibleMessages.length).map((message, index) => ( // display only last 5 messages
-              <ChatMessage ***REMOVED***={index} message={message} />
+              <ChatMessage key={index} message={message} />
             ))}
 
             {chatContext.crossCheckResult !== null ? (
@@ -385,14 +385,14 @@ export function Chat() {
                     classify objects in images with superhuman accuracy.
                   </p>
                   <p>
-                    Another area of r***REMOVED***d progress is in reinforcement learning, where AI agents learn to make decisions
+                    Another area of rapid progress is in reinforcement learning, where AI agents learn to make decisions
                     by interacting with their environment and receiving rewards or penalties. This has led to AI systems
                     that can master complex games and even outperform humans in certain tasks.
                   </p>
                   <img src="/placeholder.svg" width={400} height={300} alt="AI Advancements" className="rounded-md" />
                   <p>
                     Of course, there are also important ethical considerations as AI becomes more advanced and
-                    influential. Ensuring that AI systems are safe, reliable, and aligned with human values is a ***REMOVED***
+                    influential. Ensuring that AI systems are safe, reliable, and aligned with human values is a key
                     challenge that researchers and policymakers are grappling with.
                   </p>
                 </div>
@@ -404,7 +404,7 @@ export function Chat() {
                 <div className="prose text-muted-foreground">
                   <p>
                     That's really fascinating, thank you for the overview! I'm particularly interested in the ethical
-                    considerations around AI. What are some of the ***REMOVED*** issues that need to be addressed as the
+                    considerations around AI. What are some of the key issues that need to be addressed as the
                     technology becomes more advanced?
                   </p>
                 </div>
@@ -471,7 +471,7 @@ export function Chat() {
                 id="message"
                 rows={1}
                 onKeyDown={(e) => {
-                  if(e.***REMOVED*** === "Enter" && !e.shiftKey) {
+                  if(e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleSubmit()
                   }
@@ -487,12 +487,12 @@ export function Chat() {
                       <SelectValue placeholder="Default: Chat GPT" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem ***REMOVED***="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
+                      <SelectItem key="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
                       {showProviders ? (  
-                        <SelectItem ***REMOVED***="gemini" value="gemini">Cloud: Gemini</SelectItem>
+                        <SelectItem key="gemini" value="gemini">Cloud: Gemini</SelectItem>
                       ): null}
                       {showProviders ? (
-                        <SelectItem ***REMOVED***="ollama" value="ollama">Local: Ollama</SelectItem>
+                        <SelectItem key="ollama" value="ollama">Local: Ollama</SelectItem>
                       ): null}
                     </SelectContent>
                   </Select>

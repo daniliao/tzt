@@ -1,8 +1,8 @@
 ### REST API Documentation for EncryptedAttachmentApiClient
 
-This documentation is based on the `EncryptedAttachmentApiClient` class defined in `src/data/client/encrypted-attachment-***REMOVED***-client.ts`.
+This documentation is based on the `EncryptedAttachmentApiClient` class defined in `src/data/client/encrypted-attachment-api-client.ts`.
 
-#### PUT `/***REMOVED***/encrypted-attachment`
+#### PUT `/api/encrypted-attachment`
 
 Uploads or updates an encrypted attachment.
 
@@ -17,42 +17,42 @@ Uploads or updates an encrypted attachment.
 ```typescript
 async put(inputObject:PutEncryptedAttachmentRequest): Promise<PutEncryptedAttachmentResponse> {
   if (inputObject instanceof FormData) {
-    return this.request<PutEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData) as Promise<PutEncryptedAttachmentResponse>;
+    return this.request<PutEncryptedAttachmentResponse>('/api/encrypted-attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData) as Promise<PutEncryptedAttachmentResponse>;
   } else {
-    return this.request<PutEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as EncryptedAttachmentDTO) as Promise<PutEncryptedAttachmentResponse>;
+    return this.request<PutEncryptedAttachmentResponse>('/api/encrypted-attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as EncryptedAttachmentDTO) as Promise<PutEncryptedAttachmentResponse>;
   }
 }
 ```
 
-#### GET `/***REMOVED***/encrypted-attachment/{storageKey}`
+#### GET `/api/encrypted-attachment/{storageKey}`
 
 Fetches an encrypted attachment.
 
 - **Request Parameters**:
-  - `storageKey` (Path): The storage ***REMOVED*** of the encrypted attachment to fetch.
+  - `storageKey` (Path): The storage key of the encrypted attachment to fetch.
 - **Response**:
   - **Success** (`200 OK`):
     - Returns the attachment as an `ArrayBuffer`.
 
 ```typescript
 async get(attachment: EncryptedAttachmentDTO): Promise<ArrayBuffer | undefined | null> {
-  return this.getArrayBuffer('/***REMOVED***/encrypted-attachment/' + attachment.storageKey);
+  return this.getArrayBuffer('/api/encrypted-attachment/' + attachment.storageKey);
 }
 ```
 
-#### DELETE `/***REMOVED***/encrypted-attachment/{storageKey}`
+#### DELETE `/api/encrypted-attachment/{storageKey}`
 
 Deletes an encrypted attachment.
 
 - **Request Parameters**:
-  - `storageKey` (Path): The storage ***REMOVED*** of the encrypted attachment to be deleted.
+  - `storageKey` (Path): The storage key of the encrypted attachment to be deleted.
 - **Response**:
   - **Success** (`200 OK`):
     - `DeleteEncryptedAttachmentResponse`: Contains a message and a status code.
 
 ```typescript
 async delete(attachment: EncryptedAttachmentDTO): Promise<DeleteEncryptedAttachmentResponse> {
-  return this.request<DeleteEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteEncryptedAttachmentResponse>;
+  return this.request<DeleteEncryptedAttachmentResponse>('/api/encrypted-attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteEncryptedAttachmentResponse>;
 }
 ```
 
@@ -122,4 +122,4 @@ export type DeleteEncryptedAttachmentResponse = {
 };
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/encrypted-attachment-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/encrypted-attachment-api-client.ts).

@@ -99,18 +99,18 @@ const TemplateStringRenderer = ({ template, onChange }) => {
     <div>
       {segments.map((segment, index) => {
         if (segment.type === 'text') {
-          return <span ***REMOVED***={index}>{segment.content}</span>;
+          return <span key={index}>{segment.content}</span>;
         } else if (segment.type === 'select') {
           return (
             <select
-              ***REMOVED***={index}
+              key={index}
               value={values[index]}
               className="max-w-[120px]"
               onChange={(e) => handleChange(index, e.target.value)}
               style={{ margin: '0 5px' }}
             >
               {segment.options.map((option, i) => (
-                <option ***REMOVED***={i} value={option}>
+                <option key={i} value={option}>
                   {option}
                 </option>
               ))}
@@ -119,7 +119,7 @@ const TemplateStringRenderer = ({ template, onChange }) => {
         } else if (segment.type === 'input') {
           return (
             <input
-              ***REMOVED***={index}
+              key={index}
               type="text"
               value={values[index]}
               className="max-w-[120px]"
@@ -130,7 +130,7 @@ const TemplateStringRenderer = ({ template, onChange }) => {
           );
         } else if (segment.type === 'checkbox') {
           return (
-            <label ***REMOVED***={index} style={{ margin: '0 5px' }}>
+            <label key={index} style={{ margin: '0 5px' }}>
               <input
                 type="checkbox"
                 checked={values[index]}

@@ -16,20 +16,20 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
     async upsert(query: Record<string, any>, item: ConfigDTO): Promise<ConfigDTO> {      
         const db = (await this.db());  
         const existingConfig = await db.select({ 
-            ***REMOVED***: config.***REMOVED***, 
+            key: config.key, 
             value: config.value, 
             updatedAt: config.updatedAt
         })
         .from(config)
-        .where(eq(config.***REMOVED***, query.***REMOVED***))
-        .then(rows => rows[0] as { ***REMOVED***: string; value: string | null; updatedAt: Date } | undefined);
+        .where(eq(config.key, query.key))
+        .then(rows => rows[0] as { key: string; value: string | null; updatedAt: Date } | undefined);
 
         if (!existingConfig) {
             return this.create(item);
         }
 
         const updatedConfig = {
-            ***REMOVED***: existingConfig.***REMOVED***,
+            key: existingConfig.key,
             value: item.value,
             updatedAt: new Date().toISOString()
         };
@@ -39,7 +39,7 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
                 value: item.value,
                 updatedAt: new Date()
             })
-            .where(eq(config.***REMOVED***, query.***REMOVED***));
+            .where(eq(config.key, query.key));
 
         return updatedConfig;
     }
@@ -47,7 +47,7 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
     async delete(query: Record<string, string>): Promise<boolean> {
         const db = (await this.db());
         const result = await db.delete(config)
-            .where(eq(config.***REMOVED***, query.***REMOVED***))
+            .where(eq(config.key, query.key))
             .returning();
         return result.length > 0;
     }
@@ -55,14 +55,14 @@ export default class ServerConfigRepository extends BaseRepository<ConfigDTO> {
     async findAll(): Promise<ConfigDTO[]> {
         const db = (await this.db());
         const rows = await db.select({
-            ***REMOVED***: config.***REMOVED***,
+            key: config.key,
             value: config.value,
             updatedAt: config.updatedAt
         })
         .from(config);
         
         return rows.map(row => ({
-            ***REMOVED***: row.***REMOVED***,
+            key: row.key,
             value: row.value,
             updatedAt: row.updatedAt instanceof Date ? row.updatedAt.toISOString() : getCurrentTS()
         }));

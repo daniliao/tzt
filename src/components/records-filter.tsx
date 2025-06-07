@@ -57,7 +57,7 @@ export default function RecordsFilter({}) {
               {recordContext?.filterAvailableTags && recordContext?.filterAvailableTags.length > 0 ? (
                 <div className="p-2 flex flex-wrap items-center gap-1 w-full ">
                 {recordContext.filterAvailableTags.sort((a,b) => a.tag.localeCompare(b.tag)).map((tag, index) => (
-                  <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag.tag) ? 'default' : 'secondary' } onClick={() => { 
+                  <div key={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag.tag) ? 'default' : 'secondary' } onClick={() => { 
                     if (folderContext?.currentFolder) {
                       recordContext?.filterToggleTag(tag.tag);
                       recordContext.setFiltersOpen(false);

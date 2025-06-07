@@ -1,8 +1,8 @@
 ### REST API Documentation for AuditApiClient
 
-This documentation is based on the `AuditApiClient` class defined in `src/data/client/audit-***REMOVED***-client.ts`.
+This documentation is based on the `AuditApiClient` class defined in `src/data/client/audit-api-client.ts`.
 
-#### GET `/***REMOVED***/audit`
+#### GET `/api/audit`
 
 Fetches audit records with pagination.
 
@@ -17,11 +17,11 @@ Fetches audit records with pagination.
 async get(limit: number, offset: number): Promise<AuditDTO[]> {
   if (limit <= 0) limit = 10;
   if (offset < 0) offset = 0;
-  return this.request<AuditDTO[]>('/***REMOVED***/audit?limit=' + limit + '&offset=' + offset, 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
+  return this.request<AuditDTO[]>('/api/audit?limit=' + limit + '&offset=' + offset, 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
 }
 ```
 
-#### PUT `/***REMOVED***/audit`
+#### PUT `/api/audit`
 
 Adds a new audit record.
 
@@ -34,8 +34,8 @@ Adds a new audit record.
     - `PutAuditResponseError`: Contains an error message, status code, and optional issues.
 
 ```typescript
-async put(***REMOVED***: PutAuditRequest): Promise<PutAuditResponse> {
-  return this.request<PutAuditResponse>('/***REMOVED***/audit', 'PUT', { ecnryptedFields: ['encryptedDiff'] }, ***REMOVED***) as Promise<PutAuditResponse>;
+async put(key: PutAuditRequest): Promise<PutAuditResponse> {
+  return this.request<PutAuditResponse>('/api/audit', 'PUT', { ecnryptedFields: ['encryptedDiff'] }, key) as Promise<PutAuditResponse>;
 }
 ```
 
@@ -95,4 +95,4 @@ A union type of `PutAuditResponseSuccess` and `PutAuditResponseError`.
 export type PutAuditResponse = PutAuditResponseSuccess | PutAuditResponseError;
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/audit-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/audit-api-client.ts).

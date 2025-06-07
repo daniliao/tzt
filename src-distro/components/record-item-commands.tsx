@@ -120,10 +120,10 @@ const RecordItemCommands: React.FC<Props> = ({ record, folder, open, setOpen }) 
         <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
-                <CommandItem ***REMOVED***="cmd-interpret" className="text-xs" onSelect={(v) => { recordContext?.extraToRecord('interpretation', prompts.recordInterpretation({ record }), record) }}><Wand2Icon /> AI Interpretation</CommandItem>
-                <CommandItem ***REMOVED***="cmd-summary" className="text-xs" onSelect={(v) => { recordContext?.extraToRecord('summary', prompts.recordSummary({ record }), record) }}><TextQuoteIcon /> Summary in one sentence</CommandItem>
+                <CommandItem key="cmd-interpret" className="text-xs" onSelect={(v) => { recordContext?.extraToRecord('interpretation', prompts.recordInterpretation({ record }), record) }}><Wand2Icon /> AI Interpretation</CommandItem>
+                <CommandItem key="cmd-summary" className="text-xs" onSelect={(v) => { recordContext?.extraToRecord('summary', prompts.recordSummary({ record }), record) }}><TextQuoteIcon /> Summary in one sentence</CommandItem>
                 {Object.entries(promptTemplates).map(promptTpl => (
-                    <CommandItem ***REMOVED***={promptTpl[0]} className="text-xs" onSelect={(v) => {
+                    <CommandItem key={promptTpl[0]} className="text-xs" onSelect={(v) => {
                         chatContext.setPromptTemplate(promptTpl[1].template({ config }));
                         chatContext.setChatCustomPromptVisible(false);
                         chatContext.setTemplatePromptVisible(true);
@@ -131,8 +131,8 @@ const RecordItemCommands: React.FC<Props> = ({ record, folder, open, setOpen }) 
                     }}><QuestionMarkIcon /> {promptTpl[1].label}</CommandItem>        
                  ))       
                 }                
-                {/* <CommandItem ***REMOVED***="cmd-send-all" className="text-xs" onSelect={(v) => { recordContext?.sendAllRecordsToChat(); chatContext.setChatOpen(true); }}><ClipboardPasteIcon /> Add all records to chat context</CommandItem> */}
-                {/* <CommandItem ***REMOVED***="cmd-best-next-steps" className="text-xs" onSelect={(v) => { 
+                {/* <CommandItem key="cmd-send-all" className="text-xs" onSelect={(v) => { recordContext?.sendAllRecordsToChat(); chatContext.setChatOpen(true); }}><ClipboardPasteIcon /> Add all records to chat context</CommandItem> */}
+                {/* <CommandItem key="cmd-best-next-steps" className="text-xs" onSelect={(v) => { 
                         chatContext.setChatOpen(true);
                         chatContext.sendMessage({
                           message: {
@@ -146,13 +146,13 @@ const RecordItemCommands: React.FC<Props> = ({ record, folder, open, setOpen }) 
             <CommandSeparator />
             {((record.attachments && record.attachments.length > 0 || record.transcription) && !record.parseInProgress) ? (
                 <CommandGroup heading="Technical">
-                    <CommandItem ***REMOVED***="cmd-parse" className="text-xs" onSelect={(v) => { recordContext?.parseRecord(record); }}><CogIcon /> Parse record again</CommandItem>
+                    <CommandItem key="cmd-parse" className="text-xs" onSelect={(v) => { recordContext?.parseRecord(record); }}><CogIcon /> Parse record again</CommandItem>
                 </CommandGroup>
             ) : (null)}
             <CommandSeparator />
             <CommandGroup heading="Translations">
                 {supportedLanguages.map((item) => (
-                    <CommandItem ***REMOVED***={item.code}  onSelect={(v) => {
+                    <CommandItem key={item.code}  onSelect={(v) => {
                         chatContext.setChatOpen(true);
                         chatContext.sendMessage({
                           message: {

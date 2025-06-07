@@ -24,7 +24,7 @@ const VoiceRecorder: React.FC<PropsWithChildren<{
         startRecording,
         stopRecording,
     } = useWhisper({
-        ***REMOVED***Key: chatGptKey as string,
+        apiKey: chatGptKey as string,
         removeSilence: false,
         autoTranscribe: true,
         timeSlice: 5_000, // 1 second
@@ -84,7 +84,7 @@ const VoiceRecorder: React.FC<PropsWithChildren<{
             <div className="gap-4 flex">
                 <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                     {Object.entries(languageNames).map(([code, name]) => (
-                        <option ***REMOVED***={code} value={code}>{name}</option>
+                        <option key={code} value={code}>{name}</option>
                     ))}
                 </select>      
                 <Button disabled={recording} onClick={(e) => { e.preventDefault(); startRecording(); }}><Mic2Icon className="w-6 h-6"/> Start</Button>

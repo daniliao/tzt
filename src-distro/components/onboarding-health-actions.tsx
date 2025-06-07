@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { FileDown, Upload } from "lucide-react"
 import { useContext } from "react";
 import { RecordContext } from "@/contexts/record-context";
-import { ApiClient } from "@/data/client/base-***REMOVED***-client";
+import { ApiClient } from "@/data/client/base-api-client";
 import { DatabaseContext } from "@/contexts/db-context";
 import { toast } from "sonner";
 import { FolderContext } from "@/contexts/folder-context";
@@ -20,10 +20,10 @@ export function OnboardingHealthActions() {
   
   const handleImportExamples = async () => {
     try {
-      const ***REMOVED***Client = new ApiClient('', dbContext, saasContext)
+      const apiClient = new ApiClient('', dbContext, saasContext)
       toast.info('Downloading examples ...');
 
-      const examplesArrayBuffer = await ***REMOVED***Client.getArrayBuffer('/onboarding/DoctorDok-onboarding.zip');
+      const examplesArrayBuffer = await apiClient.getArrayBuffer('/onboarding/DoctorDok-onboarding.zip');
       await recordContext?.importRecords(examplesArrayBuffer as ArrayBuffer);
       recordContext?.listRecords(folderContext?.currentFolder as Folder);
     } catch (error) {

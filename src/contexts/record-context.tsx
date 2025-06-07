@@ -1,13 +1,13 @@
 import '@enhances/with-resolvers';
 import React, { createContext, useState, useEffect, useContext, PropsWithChildren, useRef } from 'react';
 import { EncryptedAttachmentDTO, EncryptedAttachmentDTOEncSettings, RecordDTO } from '@/data/dto';
-import { RecordApiClient } from '@/data/client/record-***REMOVED***-client';
-import { ApiEncryptionConfig } from '@/data/client/base-***REMOVED***-client';
+import { RecordApiClient } from '@/data/client/record-api-client';
+import { ApiEncryptionConfig } from '@/data/client/base-api-client';
 import { DataLoadingStatus, DisplayableDataObject, EncryptedAttachment, Folder, Record } from '@/data/client/models';
 import { ConfigContext, ConfigContextType } from '@/contexts/config-context';
 import { toast } from 'sonner';
 import { sort } from 'fast-sort';
-import { EncryptedAttachmentApiClient } from '@/data/client/encrypted-attachment-***REMOVED***-client';
+import { EncryptedAttachmentApiClient } from '@/data/client/encrypted-attachment-api-client';
 import { DatabaseContext } from './db-context';
 import { ChatContext, CreateMessageEx, MessageType, MessageVisibility, OnResultCallback } from './chat-context';
 import { convertDataContentToBase64String } from "ai";
@@ -23,7 +23,7 @@ import { parse } from 'path';
 import { CreateMessage, Message } from 'ai/react';
 import { DTOEncryptionFilter, EncryptionUtils, sha256 } from '@/lib/crypto';
 import { jsonrepair } from 'jsonrepair'
-import { GPTTokens } from 'gpt-***REMOVED***s'
+import { GPTTokens } from 'gpt-tokens'
 import JSZip, { file } from 'jszip'
 import { saveAs } from 'file-saver';
 import filenamify from 'filenamify/browser';
@@ -387,7 +387,7 @@ export const RecordContextProvider: React.FC<PropsWithChildren> = ({ children })
     const setupApiClient = async (config: ConfigContextType | null) => {
         const masterKey = dbContext?.masterKey;
         const encryptionConfig: ApiEncryptionConfig = {
-            ***REMOVED***Key: masterKey,
+            secretKey: masterKey,
             useEncryption: true
         };
         const client = new RecordApiClient('', dbContext, saasContext, encryptionConfig);
@@ -397,7 +397,7 @@ export const RecordContextProvider: React.FC<PropsWithChildren> = ({ children })
     const setupAttachmentsApiClient = async (config: ConfigContextType | null) => {
         const masterKey = dbContext?.masterKey;
         const encryptionConfig: ApiEncryptionConfig = {
-            ***REMOVED***Key: masterKey,
+            secretKey: masterKey,
             useEncryption: true
         };
         const client = new EncryptedAttachmentApiClient('', dbContext, saasContext, encryptionConfig);
@@ -623,7 +623,7 @@ export const RecordContextProvider: React.FC<PropsWithChildren> = ({ children })
               messages: msgs as GPTTokens["messages"]
             });
 
-            console.log('Context msg ***REMOVED***s', preUsage.usedTokens, preUsage.usedUSD);
+            console.log('Context msg tokens', preUsage.usedTokens, preUsage.usedUSD);
             chatContext.setRecordsLoaded(true);
             chatContext.sendMessages({
                 messages: msgs, providerName, onResult: (resultMessage, result) => {
@@ -681,11 +681,11 @@ export const RecordContextProvider: React.FC<PropsWithChildren> = ({ children })
                       attachmentDTO = encFilter ? await encFilter.encrypt(attachmentDTO, EncryptedAttachmentDTOEncSettings) as EncryptedAttachmentDTO : attachmentDTO;
                       formData.append("attachmentDTO", JSON.stringify(attachmentDTO));
                       try {
-                        const ***REMOVED***Client = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
+                        const apiClient = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
                           useEncryption: false  // for FormData we're encrypting records by ourselves - above
                         })
                         toast.info('Uploading attachment: ' + attachment.displayName);
-                        const result = await ***REMOVED***Client.put(formData);
+                        const result = await apiClient.put(formData);
                         if (result.status === 200) {
                           const decryptedAttachmentDTO: EncryptedAttachmentDTO = (encFilter ? await encFilter.decrypt(result.data, EncryptedAttachmentDTOEncSettings) : result.data) as EncryptedAttachmentDTO;
                           console.log('Attachment saved', decryptedAttachmentDTO);

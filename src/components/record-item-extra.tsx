@@ -17,7 +17,7 @@ const RecordItemExtra: React.FC<Props> = ({ record }) => {
             <div className="w-full">
                 <Accordion type="single" collapsible className="w-full">
                     {(record.extra as any[]).map((item, index) => (
-                        <AccordionItem ***REMOVED***={index} value={'item-' + index}>
+                        <AccordionItem key={index} value={'item-' + index}>
                             <AccordionTrigger>{formatString('{0}', labels.recordItemLabel(item.type, { record }))}</AccordionTrigger>
                             <AccordionContent>
                                 <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{item.value}</Markdown>

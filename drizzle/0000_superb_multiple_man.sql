@@ -1,3 +1,15 @@
+CREATE TABLE "audit" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"ip" text,
+	"ua" text,
+	"keyLocatorHash" text,
+	"databaseIdHash" text,
+	"recordLocator" text,
+	"diff" text,
+	"eventName" text,
+	"createdAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "config" (
 	"key" text PRIMARY KEY NOT NULL,
 	"value" text,
@@ -59,12 +71,29 @@ CREATE TABLE "records" (
 	"updatedAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "stats" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"eventName" text NOT NULL,
+	"promptTokens" integer DEFAULT 0 NOT NULL,
+	"completionTokens" integer DEFAULT 0 NOT NULL,
+	"finishReasons" text DEFAULT '' NOT NULL,
+	"createdAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	"createdMonth" integer NOT NULL,
+	"createdDay" integer NOT NULL,
+	"createdYear" integer NOT NULL,
+	"createdHour" integer NOT NULL,
+	"counter" integer DEFAULT 1 NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "terms" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"content" text,
 	"code" text,
 	"key" text,
+	"signature" text,
+	"ip" text,
+	"ua" text,
+	"name" text,
+	"email" text,
 	"signedAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
---> statement-breakpoint
-ALTER TABLE "records" ADD CONSTRAINT "records_folderId_folders_id_fk" FOREIGN KEY ("folderId") REFERENCES "public"."folders"("id") ON DELETE no action ON UPDATE no action;

@@ -1,7 +1,7 @@
 import React, { createContext, useState,  PropsWithChildren, useContext } from 'react';
 import { KeyHashParamsDTO } from '@/data/dto';
 import { DatabaseAuthorizeRequest, DatabaseAuthStatus, DatabaseCreateRequest, DatabaseKeepLoggedInRequest, DatabaseRefreshRequest, DataLoadingStatus, KeyACL, Folder, Record } from '@/data/client/models';
-import { AuthorizeDbResponse, DbApiClient, RefreshDbResponse } from '@/data/client/db-***REMOVED***-client';
+import { AuthorizeDbResponse, DbApiClient, RefreshDbResponse } from '@/data/client/db-api-client';
 import { ConfigContextType } from '@/contexts/config-context';
 import { EncryptionUtils, generateEncryptionKey, sha256 } from '@/lib/crypto';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { SaaSContext } from './saas-context';
 const argon2 = require("argon2-browser");
 
 // the salts are static as they're used as record locators in the DB - once changed the whole DB needs to be re-hashed
-// note: these salts ARE NOT used to hash ***REMOVED***s etc. (for this purpose we generate a dynamic per-user-***REMOVED*** hash - below)
+// note: these salts ARE NOT used to hash passwords etc. (for this purpose we generate a dynamic per-user-key hash - below)
 export const defaultDatabaseIdHashSalt = process.env.NEXT_PUBLIC_DATABASE_ID_HASH_SALT || 'ooph9uD4cohN9Eechog0nohzoon9ahra';
 export const defaultKeyLocatorHashSalt = process.env.NEXT_PUBLIC_KEY_LOCATOR_HASH_SALT || 'daiv2aez4thiewaegahyohNgaeFe2aij';
 export const keepLoggedInKeyEncryptionKey = process.env.NEXT_PUBLIC_KEEP_LOGGED_IN_KEY_ENCRYPTION_KEY || 'aeghah9eeghah9eeghah9eeghah9eegh';
@@ -39,9 +39,9 @@ export type DatabaseContextType = {
     databaseId: string;
     setDatabaseId: (hashId: string) => void;
     masterKey: string;
-    setMasterKey: (***REMOVED***: string) => void;
+    setMasterKey: (key: string) => void;
     encryptionKey: string;
-    setEncryptionKey: (***REMOVED***: string) => void; 
+    setEncryptionKey: (key: string) => void; 
 
     acl: KeyACL | null;
     setACL: (acl: KeyACL | null) => void;
@@ -49,13 +49,13 @@ export type DatabaseContextType = {
 
     databaseHashId: string;
     setDatabaseHashId: (hashId: string) => void;
-    ***REMOVED***LocatorHash: string;
+    keyLocatorHash: string;
     setKeyLocatorHash: (hash: string) => void;
 
-    ***REMOVED***Hash: string;
+    keyHash: string;
     setKeyHash: (hash: string) => void;
 
-    ***REMOVED***HashParams: KeyHashParamsDTO;
+    keyHashParams: KeyHashParamsDTO;
     setKeyHashParams: (params: KeyHashParamsDTO) => void;
 
     accessToken: string;
@@ -64,18 +64,18 @@ export type DatabaseContextType = {
     refreshToken: string;
     setRefreshToken: (hash: string) => void;
 
-    ***REMOVED***Status: DatabaseAuthStatus;
+    authStatus: DatabaseAuthStatus;
     setAuthStatus: (status: DatabaseAuthStatus) => void;
 
     create: (createRequest:DatabaseCreateRequest) => Promise<CreateDatabaseResult>;
-    ***REMOVED***orize: (***REMOVED***orizeRequest:DatabaseAuthorizeRequest) => Promise<AuthorizeDatabaseResult>;
-    refresh: (***REMOVED***orizeRequest:DatabaseRefreshRequest) => Promise<RefreshDatabaseResult>;
+    authorize: (authorizeRequest:DatabaseAuthorizeRequest) => Promise<AuthorizeDatabaseResult>;
+    refresh: (authorizeRequest:DatabaseRefreshRequest) => Promise<RefreshDatabaseResult>;
     keepLoggedIn: (kliReqest: DatabaseKeepLoggedInRequest) => Promise<AuthorizeDatabaseResult>;
 
     logout: () => void;
 
     featureFlags: {
-        [***REMOVED***: string]: boolean
+        [key: string]: boolean
     }
 }
 
@@ -87,15 +87,15 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const [masterKey, setMasterKey] = useState<string>('');
     const [encryptionKey, setEncryptionKey] = useState<string>('');
 
-    const [featureFlags, setFeatureFlags] = useState<{[***REMOVED***: string]: boolean}>({
+    const [featureFlags, setFeatureFlags] = useState<{[key: string]: boolean}>({
         voiceRecorder: !!process.env.NEXT_PUBLIC_FEATURE_VOICE_RECORDER
     });
 
     const [acl, setACL] = useState<KeyACL|null>(null);
     const [databaseHashId, setDatabaseHashId] = useState<string>('');
-    const [***REMOVED***LocatorHash, setKeyLocatorHash] = useState<string>('');
-    const [***REMOVED***Hash, setKeyHash] = useState<string>('');
-    const [***REMOVED***HashParams, setKeyHashParams] = useState<KeyHashParamsDTO>({
+    const [keyLocatorHash, setKeyLocatorHash] = useState<string>('');
+    const [keyHash, setKeyHash] = useState<string>('');
+    const [keyHashParams, setKeyHashParams] = useState<KeyHashParamsDTO>({
         hashLen: 0,
         salt: '',
         time: 0,
@@ -105,7 +105,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
 
     const [accessToken, setAccesToken] = useState<string>('');
     const [refreshToken, setRefreshToken] = useState<string>('');
-    const [***REMOVED***Status, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
+    const [authStatus, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
     const saasContext = useContext(SaaSContext);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
@@ -115,53 +115,53 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const create = async (createRequest: DatabaseCreateRequest): Promise<CreateDatabaseResult> => {
         // Implement UC01 hashing and encryption according to https://github.com/CatchTheTornado/doctor-dok/issues/65
 
-        const ***REMOVED***HashParams = {
+        const keyHashParams = {
             salt: generateEncryptionKey(),
             time: 2,
             mem: 16 * 1024,
             hashLen: 32,
             parallelism: 1
         } 
-        const ***REMOVED***Hash = await argon2.hash({
-          pass: createRequest.***REMOVED***,
-          salt: ***REMOVED***HashParams.salt,
-          time: ***REMOVED***HashParams.time,
-          mem: ***REMOVED***HashParams.mem,
-          hashLen: ***REMOVED***HashParams.hashLen,
-          parallelism: ***REMOVED***HashParams.parallelism
+        const keyHash = await argon2.hash({
+          pass: createRequest.key,
+          salt: keyHashParams.salt,
+          time: keyHashParams.time,
+          mem: keyHashParams.mem,
+          hashLen: keyHashParams.hashLen,
+          parallelism: keyHashParams.parallelism
         });
         const databaseIdHash = await sha256(createRequest.databaseId, defaultDatabaseIdHashSalt);
-        const ***REMOVED***LocatorHash = await sha256(createRequest.***REMOVED*** + createRequest.databaseId, defaultKeyLocatorHashSalt);
+        const keyLocatorHash = await sha256(createRequest.key + createRequest.databaseId, defaultKeyLocatorHashSalt);
 
-        const encryptionUtils = new EncryptionUtils(createRequest.***REMOVED***);
+        const encryptionUtils = new EncryptionUtils(createRequest.key);
         const masterKey = generateEncryptionKey()
         const encryptedMasterKey = await encryptionUtils.encrypt(masterKey);
         
-        const ***REMOVED***Client = await setupApiClient(null);
-        ***REMOVED***Client.setSaasToken(localStorage.getItem('saasToken') || '');
-        const ***REMOVED***Request = {
+        const apiClient = await setupApiClient(null);
+        apiClient.setSaasToken(localStorage.getItem('saasToken') || '');
+        const apiRequest = {
             databaseIdHash,
             encryptedMasterKey,
-            ***REMOVED***Hash: ***REMOVED***Hash.encoded,
-            ***REMOVED***HashParams: JSON.stringify(***REMOVED***HashParams),
-            ***REMOVED***LocatorHash,
+            keyHash: keyHash.encoded,
+            keyHashParams: JSON.stringify(keyHashParams),
+            keyLocatorHash,
         };
-        const ***REMOVED***Response = await ***REMOVED***Client.create(***REMOVED***Request);
+        const apiResponse = await apiClient.create(apiRequest);
 
-        if(***REMOVED***Response.status === 200) { // user is virtually logged in
+        if(apiResponse.status === 200) { // user is virtually logged in
             setDatabaseHashId(databaseIdHash);
             setDatabaseId(createRequest.databaseId);
-            setKeyLocatorHash(***REMOVED***LocatorHash);
-            setKeyHash(***REMOVED***Hash.encoded);
-            setKeyHashParams(***REMOVED***HashParams);
+            setKeyLocatorHash(keyLocatorHash);
+            setKeyHash(keyHash.encoded);
+            setKeyHashParams(keyHashParams);
             setMasterKey(masterKey.trim());
-            setEncryptionKey(createRequest.***REMOVED***);
+            setEncryptionKey(createRequest.key);
         }
 
         return {
-            success: ***REMOVED***Response.status === 200,
-            message: ***REMOVED***Response.message,
-            issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+            success: apiResponse.status === 200,
+            message: apiResponse.message,
+            issues: apiResponse.issues ? apiResponse.issues : []
         }
     };
 
@@ -180,7 +180,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             mem: 0,
             parallelism: 1
         });
-        setAccesToken(''); // we're not clearing keep logged in ***REMOVED***
+        setAccesToken(''); // we're not clearing keep logged in token
         setRefreshToken('');
         setAuthStatus(DatabaseAuthStatus.NotAuthorized);
 
@@ -188,21 +188,21 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     };
 
     const refresh = async (refreshRequest: DatabaseRefreshRequest): Promise<RefreshDatabaseResult> => {
-        const ***REMOVED***Client = await setupApiClient(null);
-        const ***REMOVED***Response = await ***REMOVED***Client.refresh({
+        const apiClient = await setupApiClient(null);
+        const apiResponse = await apiClient.refresh({
             refreshToken: refreshRequest.refreshToken
         });
 
-        if(***REMOVED***Response.status === 200) { // user is virtually logged in
-            setAccesToken((***REMOVED***Response as RefreshDbResponse).data.accessToken);
-            setRefreshToken((***REMOVED***Response as RefreshDbResponse).data.refreshToken);
+        if(apiResponse.status === 200) { // user is virtually logged in
+            setAccesToken((apiResponse as RefreshDbResponse).data.accessToken);
+            setRefreshToken((apiResponse as RefreshDbResponse).data.refreshToken);
 
             setAuthStatus(DatabaseAuthStatus.Authorized);
             return {
                 success: true,
-                accessToken: (***REMOVED***Response as RefreshDbResponse).data.accessToken,
-                message: ***REMOVED***Response.message,
-                issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                accessToken: (apiResponse as RefreshDbResponse).data.accessToken,
+                message: apiResponse.message,
+                issues: apiResponse.issues ? apiResponse.issues : []
             }
         } else {
             toast.error('Error refreshing the session. Please log in again.');
@@ -210,17 +210,17 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             logout();
             return {
                 success: false,
-                message: ***REMOVED***Response.message,
-                issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                message: apiResponse.message,
+                issues: apiResponse.issues ? apiResponse.issues : []
             }
         }
     };
 
     const keepLoggedIn = async (kliReqest: DatabaseKeepLoggedInRequest): Promise<AuthorizeDatabaseResult> => {
         const encryptionUtils = new EncryptionUtils(keepLoggedInKeyEncryptionKey);
-        return ***REMOVED***orize({
+        return authorize({
             databaseId: await encryptionUtils.decrypt(kliReqest.encryptedDatabaseId),
-            ***REMOVED***: await encryptionUtils.decrypt(kliReqest.encryptedKey),
+            key: await encryptionUtils.decrypt(kliReqest.encryptedKey),
             keepLoggedIn: kliReqest.keepLoggedIn
         });
     }
@@ -228,74 +228,74 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const disableKeepLoggedIn = () => {
         if(typeof localStorage !== 'undefined') {
             localStorage.setItem('keepLoggedIn', 'false');
-            localStorage.removeItem('***REMOVED***');
+            localStorage.removeItem('key');
             localStorage.removeItem('databaseId');
         }        
     }
 
-    const ***REMOVED***orize = async (***REMOVED***orizeRequest: DatabaseAuthorizeRequest): Promise<AuthorizeDatabaseResult> => {
+    const authorize = async (authorizeRequest: DatabaseAuthorizeRequest): Promise<AuthorizeDatabaseResult> => {
         setAuthStatus(DatabaseAuthStatus.InProgress);
-        const databaseIdHash = await sha256(***REMOVED***orizeRequest.databaseId, defaultDatabaseIdHashSalt);
-        const ***REMOVED***LocatorHash = await sha256(***REMOVED***orizeRequest.***REMOVED*** + ***REMOVED***orizeRequest.databaseId, defaultKeyLocatorHashSalt);
-        const ***REMOVED***Client = await setupApiClient(null);
+        const databaseIdHash = await sha256(authorizeRequest.databaseId, defaultDatabaseIdHashSalt);
+        const keyLocatorHash = await sha256(authorizeRequest.key + authorizeRequest.databaseId, defaultKeyLocatorHashSalt);
+        const apiClient = await setupApiClient(null);
 
-        const ***REMOVED***ChallengResponse = await ***REMOVED***Client.***REMOVED***orizeChallenge({
+        const authChallengResponse = await apiClient.authorizeChallenge({
             databaseIdHash,
-            ***REMOVED***LocatorHash
+            keyLocatorHash
         });
         
-        if (***REMOVED***ChallengResponse.status === 200){ // ***REMOVED***orization challenge success
-            const ***REMOVED***HashParams = ***REMOVED***ChallengResponse.data as KeyHashParamsDTO;
-            console.log(***REMOVED***ChallengResponse);
+        if (authChallengResponse.status === 200){ // authorization challenge success
+            const keyHashParams = authChallengResponse.data as KeyHashParamsDTO;
+            console.log(authChallengResponse);
 
-            const ***REMOVED***Hash = await argon2.hash({
-                pass: ***REMOVED***orizeRequest.***REMOVED***,
-                salt: ***REMOVED***HashParams.salt,
-                time: ***REMOVED***HashParams.time,
-                mem: ***REMOVED***HashParams.mem,
-                hashLen: ***REMOVED***HashParams.hashLen,
-                parallelism: ***REMOVED***HashParams.parallelism
+            const keyHash = await argon2.hash({
+                pass: authorizeRequest.key,
+                salt: keyHashParams.salt,
+                time: keyHashParams.time,
+                mem: keyHashParams.mem,
+                hashLen: keyHashParams.hashLen,
+                parallelism: keyHashParams.parallelism
               });
 
-            const ***REMOVED***Response = await ***REMOVED***Client.***REMOVED***orize({
+            const authResponse = await apiClient.authorize({
                 databaseIdHash,
-                ***REMOVED***Hash: ***REMOVED***Hash.encoded,
-                ***REMOVED***LocatorHash
+                keyHash: keyHash.encoded,
+                keyLocatorHash
             });
 
-            if(***REMOVED***Response.status === 200) { // user is virtually logged in
-                const encryptionUtils = new EncryptionUtils(***REMOVED***orizeRequest.***REMOVED***);
+            if(authResponse.status === 200) { // user is virtually logged in
+                const encryptionUtils = new EncryptionUtils(authorizeRequest.key);
 
-                if (***REMOVED***Response.data.saasContext) {
+                if (authResponse.data.saasContext) {
                     if (typeof localStorage !== 'undefined') {
-                        localStorage.setItem('saasToken', ***REMOVED***Response.data.saasContext.saasToken);
+                        localStorage.setItem('saasToken', authResponse.data.saasContext.saasToken);
                     }
                 }
 
                 setDatabaseHashId(databaseIdHash);
-                setDatabaseId(***REMOVED***orizeRequest.databaseId);
-                setKeyLocatorHash(***REMOVED***LocatorHash);
-                setKeyHash(***REMOVED***Hash.encoded);
-                setKeyHashParams(***REMOVED***HashParams);
+                setDatabaseId(authorizeRequest.databaseId);
+                setKeyLocatorHash(keyLocatorHash);
+                setKeyHash(keyHash.encoded);
+                setKeyHashParams(keyHashParams);
 
-                const encryptedMasterKey = (***REMOVED***Response as AuthorizeDbResponse).data.encryptedMasterKey;
+                const encryptedMasterKey = (authResponse as AuthorizeDbResponse).data.encryptedMasterKey;
                 setMasterKey((await encryptionUtils.decrypt(encryptedMasterKey)).trim());
-                setEncryptionKey(***REMOVED***orizeRequest.***REMOVED***);
+                setEncryptionKey(authorizeRequest.key);
 
-                setAccesToken((***REMOVED***Response as AuthorizeDbResponse).data.accessToken);
-                setRefreshToken((***REMOVED***Response as AuthorizeDbResponse).data.refreshToken);
+                setAccesToken((authResponse as AuthorizeDbResponse).data.accessToken);
+                setRefreshToken((authResponse as AuthorizeDbResponse).data.refreshToken);
                 setAuthStatus(DatabaseAuthStatus.Authorized);
 
                 if(typeof localStorage !== 'undefined') {
-                    localStorage.setItem('keepLoggedIn', (***REMOVED***orizeRequest.keepLoggedIn ? 'true' : 'false'));
-                    if (***REMOVED***orizeRequest.keepLoggedIn) {
+                    localStorage.setItem('keepLoggedIn', (authorizeRequest.keepLoggedIn ? 'true' : 'false'));
+                    if (authorizeRequest.keepLoggedIn) {
                         const encryptionUtils = new EncryptionUtils(keepLoggedInKeyEncryptionKey);
-                        localStorage.setItem('***REMOVED***', await encryptionUtils.encrypt(***REMOVED***orizeRequest.***REMOVED***));
-                        localStorage.setItem('databaseId', await encryptionUtils.encrypt(***REMOVED***orizeRequest.databaseId));
+                        localStorage.setItem('key', await encryptionUtils.encrypt(authorizeRequest.key));
+                        localStorage.setItem('databaseId', await encryptionUtils.encrypt(authorizeRequest.databaseId));
                     }
                 }
 
-                const aclDTO = (***REMOVED***Response as AuthorizeDbResponse).data.acl;
+                const aclDTO = (authResponse as AuthorizeDbResponse).data.acl;
                 if(aclDTO) {
                     console.log('Setting ACL: ', aclDTO);
                     setACL(new KeyACL(aclDTO));
@@ -304,43 +304,43 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
                 }
                 return {
                     success: true,
-                    message: ***REMOVED***Response.message,
-                    issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                    message: authResponse.message,
+                    issues: authResponse.issues ? authResponse.issues : []
                 }
 
             } else {
                 disableKeepLoggedIn();
 
-                console.error('Error in ***REMOVED***orize: ', ***REMOVED***Response.message);
+                console.error('Error in authorize: ', authResponse.message);
                 setAuthStatus(DatabaseAuthStatus.AuthorizationError);
                 return {
                     success: false,
-                    message: ***REMOVED***Response.message,
-                    issues: ***REMOVED***Response.issues ? ***REMOVED***Response.issues : []
+                    message: authResponse.message,
+                    issues: authResponse.issues ? authResponse.issues : []
                 }
             }
         } else {
             disableKeepLoggedIn();
 
-            toast.error('Error in ***REMOVED***orization challenge. Please try again.');
-            console.error('Error in ***REMOVED***orize/challenge: ', ***REMOVED***ChallengResponse.message);
+            toast.error('Error in authorization challenge. Please try again.');
+            console.error('Error in authorize/challenge: ', authChallengResponse.message);
         }
 
         return {
-            success: ***REMOVED***ChallengResponse.status === 200,
-            message: ***REMOVED***ChallengResponse.message,
-            issues: ***REMOVED***ChallengResponse.issues ? ***REMOVED***ChallengResponse.issues : []
+            success: authChallengResponse.status === 200,
+            message: authChallengResponse.message,
+            issues: authChallengResponse.issues ? authChallengResponse.issues : []
         }        
     };
 
     const databaseContextValue: DatabaseContextType = {
         databaseId,
         setDatabaseId,
-        ***REMOVED***LocatorHash,
+        keyLocatorHash,
         setKeyLocatorHash,
-        ***REMOVED***Hash,
+        keyHash,
         setKeyHash,        
-        ***REMOVED***HashParams,
+        keyHashParams,
         setKeyHashParams,
         databaseHashId,
         setDatabaseHashId,
@@ -348,14 +348,14 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     setMasterKey,
         encryptionKey,
         setEncryptionKey,
-        ***REMOVED***Status,
+        authStatus,
         setAuthStatus,
         accessToken,
         setAccesToken,
         refreshToken,
         setRefreshToken,       
         create,
-        ***REMOVED***orize,
+        authorize,
         logout,
         refresh,
         keepLoggedIn,

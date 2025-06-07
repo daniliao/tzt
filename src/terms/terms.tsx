@@ -1,5 +1,5 @@
 export const requiredTerms: {
-    [***REMOVED***: string]: {
+    [key: string]: {
         title: string;
         content: string | JSX.Element;
         contentPlain?: string;

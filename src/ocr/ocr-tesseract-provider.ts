@@ -88,9 +88,9 @@ export async function parse(record: Record, chatContext: ChatContextType, config
             if (folderContext?.currentFolder) {
                 const folderJsonData = folderContext?.currentFolder.json;
                 if (folderJsonData) {
-                    Object.***REMOVED***s(folderJsonData).forEach((***REMOVED***) => {
-                        const piiToken = folderJsonData[***REMOVED***] as string;
-                        if (piiToken && piiToken.length > 3) piiTokens.push(folderJsonData[***REMOVED***]);
+                    Object.keys(folderJsonData).forEach((key) => {
+                        const piiToken = folderJsonData[key] as string;
+                        if (piiToken && piiToken.length > 3) piiTokens.push(folderJsonData[key]);
                     });
                 }
                 piiTokens.push(folderContext?.currentFolder.name);

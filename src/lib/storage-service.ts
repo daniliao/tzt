@@ -38,12 +38,12 @@ export class StorageService {
         return sanitized.replace(/-+/g, '-');
     }
 
-    private validateStorageKey(***REMOVED***: string): void {
-        if (!***REMOVED*** || typeof ***REMOVED*** !== 'string') {
-            throw new Error('Invalid storage ***REMOVED***');
+    private validateStorageKey(key: string): void {
+        if (!key || typeof key !== 'string') {
+            throw new Error('Invalid storage key');
         }
-        if (***REMOVED***.length > 1024) {
-            throw new Error('Storage ***REMOVED*** exceeds maximum length');
+        if (key.length > 1024) {
+            throw new Error('Storage key exceeds maximum length');
         }
         // Add any additional validation as needed
     }

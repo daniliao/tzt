@@ -1,12 +1,12 @@
 import ServerEncryptedAttachmentRepository from "@/data/server/server-encryptedattachment-repository";
-import { ***REMOVED***orizeRequestContext, genericDELETE } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic' // defaults to auto
 
 export async function DELETE(request: Request, { params }: { params: { id: string }} ) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request);
+    const requestContext = await authorizeRequestContext(request);
     const storageService = new StorageService(requestContext.databaseIdHash);
 
     const recordLocator = params.id;
@@ -19,11 +19,11 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
             return Response.json({ message: "Record not found", status: 404 }, {status: 404});
         }
         try {
-            const ***REMOVED***Response = await genericDELETE(request, repo, { storageKey: recordLocator});
-            if(***REMOVED***Response.status === 200){
+            const apiResponse = await genericDELETE(request, repo, { storageKey: recordLocator});
+            if(apiResponse.status === 200){
                 await storageService.deleteAttachment(recordLocator);
             }
-            return Response.json(***REMOVED***Response);
+            return Response.json(apiResponse);
         } catch (error) {
             console.error("Error deleting attachment from Azure Blob storage:", error);
             return Response.json({ 
@@ -36,7 +36,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 }
 
 export async function GET(request: Request, { params }: { params: { id: string }}) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request);
+    const requestContext = await authorizeRequestContext(request);
     const storageService = new StorageService(requestContext.databaseIdHash);
 
     try {

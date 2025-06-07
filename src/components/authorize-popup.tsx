@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader } from "./ui/card";
-import { AuthorizeDatabaseForm } from "./***REMOVED***orize-database-form";
+import { AuthorizeDatabaseForm } from "./authorize-database-form";
 import { CreateDatabaseForm } from "./create-database-form";
 import { Suspense, useContext, useEffect, useState } from 'react';
 import DataLoader from './data-loader';
@@ -17,7 +17,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   const { theme, systemTheme } = useTheme();
   const currentTheme = (theme === 'system' ? systemTheme : theme)
   const saasContext = useContext(SaaSContext);
-  const [currentTab, setCurrentTab] = useState('***REMOVED***orize');
+  const [currentTab, setCurrentTab] = useState('authorize');
 
   useEffect(() => {
     setApplicationLoaded(true);
@@ -25,7 +25,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
 
   useEffect(() => {
     if (saasContext?.email) {
-      const defaultTab = saasContext?.email && ((saasContext?.currentQuota.allowedDatabases - (saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0)) > 0) ? `create` : `***REMOVED***orize`;
+      const defaultTab = saasContext?.email && ((saasContext?.currentQuota.allowedDatabases - (saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0)) > 0) ? `create` : `authorize`;
       setCurrentTab(defaultTab);
     }
   }, [saasContext?.email]);
@@ -51,12 +51,12 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
           <img alt="Application logo" className="w-20" src={currentTheme === 'dark' ? `/img/doctor-dok-logo-white.svg` : `/img/doctor-dok-logo.svg`} />
           <h1 className="text-5xl text-center p-8 pl-0">Doctor Dok</h1>
         </div>
-        <Tabs defaultValue="***REMOVED***orize" value={currentTab} onValueChange={(value) => setCurrentTab(value)} className="w-96">
+        <Tabs defaultValue="authorize" value={currentTab} onValueChange={(value) => setCurrentTab(value)} className="w-96">
           <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="***REMOVED***orize" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100">Open database</TabsTrigger>
+            <TabsTrigger value="authorize" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100">Open database</TabsTrigger>
             <TabsTrigger value="create" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100">Create database</TabsTrigger>
           </TabsList>
-          <TabsContent value="***REMOVED***orize" className="max-w-600">
+          <TabsContent value="authorize" className="max-w-600">
             <Card>
               <CardHeader>
                 <CardDescription>

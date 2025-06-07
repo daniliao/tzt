@@ -3,7 +3,7 @@ import React, { createContext, PropsWithChildren, useContext, useState } from 'r
 import { DatabaseContext } from './db-context';
 import { toast } from 'sonner';
 import { ConfigContextType } from '@/contexts/config-context';
-import { TermApiClient } from '@/data/client/term-***REMOVED***-client';
+import { TermApiClient } from '@/data/client/term-api-client';
 import { TermDTO } from '@/data/dto';
 import { sha256 } from '@/lib/crypto';
 import { SaaSContext } from './saas-context';
@@ -40,17 +40,17 @@ export const TermsContextProvider: React.FC<PropsWithChildren> = ({ children }) 
     const saasContext = useContext(SaaSContext);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
-        const client = new TermApiClient('', dbContext, saasContext, { ***REMOVED***Key: dbContext?.masterKey, useEncryption: true });
+        const client = new TermApiClient('', dbContext, saasContext, { secretKey: dbContext?.masterKey, useEncryption: true });
         return client;
     }
 
     const sign = async (term: TermDTO) => {
-        const ***REMOVED***Client = await setupApiClient(null);
+        const apiClient = await setupApiClient(null);
 
-        term.***REMOVED*** = term.code + dbContext?.***REMOVED***LocatorHash;
-        term.signature = await sha256(term.content + dbContext?.***REMOVED***LocatorHash, dbContext?.encryptionKey ?? '');
-        ***REMOVED***Client.put(term).then((response) => {
-            setTerms(terms.find((t) => t.***REMOVED*** === term.***REMOVED***) ? terms.map((t) => t.***REMOVED*** === term.***REMOVED*** ? term : t) : [...terms, term]);
+        term.key = term.code + dbContext?.keyLocatorHash;
+        term.signature = await sha256(term.content + dbContext?.keyLocatorHash, dbContext?.encryptionKey ?? '');
+        apiClient.put(term).then((response) => {
+            setTerms(terms.find((t) => t.key === term.key) ? terms.map((t) => t.key === term.key ? term : t) : [...terms, term]);
             if (response.status === 200) {
                 console.log('Term signed', term);
             } else {
@@ -66,7 +66,7 @@ export const TermsContextProvider: React.FC<PropsWithChildren> = ({ children }) 
         setLoaderStatus(DataLoadingStatus.Loading);
         const client = await setupApiClient(null);
         const terms = await client.get();
-        setTerms(terms.filter((term) => term.***REMOVED***?.endsWith(dbContext?.***REMOVED***LocatorHash ?? '')));
+        setTerms(terms.filter((term) => term.key?.endsWith(dbContext?.keyLocatorHash ?? '')));
         setLoaderStatus(DataLoadingStatus.Success);
         return terms;
     }

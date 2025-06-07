@@ -1,6 +1,6 @@
 'use client'
-import { ApiEncryptionConfig } from '@/data/client/base-***REMOVED***-client';
-import { ConfigApiClient } from '@/data/client/config-***REMOVED***-client';
+import { ApiEncryptionConfig } from '@/data/client/base-api-client';
+import { ConfigApiClient } from '@/data/client/config-api-client';
 import { getCurrentTS } from '@/lib/utils';
 import { useEffectOnce } from 'react-use';
 import React, { PropsWithChildren, useContext, useReducer, useRef } from 'react';
@@ -46,11 +46,11 @@ export type ConfigContextType = {
     localConfig: Record<string, ConfigSupportedValueType>;
     serverConfig: Record<string, ConfigSupportedValueType>;
 
-    setLocalConfig(***REMOVED***: string, value: ConfigSupportedValueType): void;
-    getLocalConfig(***REMOVED***: string): ConfigSupportedValueType;
+    setLocalConfig(key: string, value: ConfigSupportedValueType): void;
+    getLocalConfig(key: string): ConfigSupportedValueType;
 
-    setServerConfig(***REMOVED***: string, value: ConfigSupportedValueType): Promise<boolean>;
-    getServerConfig(***REMOVED***: string): Promise<ConfigSupportedValueType>;
+    setServerConfig(key: string, value: ConfigSupportedValueType): Promise<boolean>;
+    getServerConfig(key: string): Promise<ConfigSupportedValueType>;
 
     isConfigDialogOpen: boolean;
     setConfigDialogOpen: (value: boolean) => void;
@@ -58,7 +58,7 @@ export type ConfigContextType = {
 
 function getConfigApiClient(encryptionKey: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null): ConfigApiClient {
   const encryptionConfig: ApiEncryptionConfig = {
-    ***REMOVED***Key: encryptionKey, // TODO: for entities other than Config we should take the masterKey from server config
+    secretKey: encryptionKey, // TODO: for entities other than Config we should take the masterKey from server config
     useEncryption: encryptionKey !== null
   };
   return new ConfigApiClient('', dbContext, saasContext, encryptionConfig);  
@@ -76,7 +76,7 @@ const [isConfigDialogOpen, setConfigDialogOpen] = React.useState(false);
 
   const loadServerConfig = async (forceReload: boolean = false): Promise<Record<string, ConfigSupportedValueType>>  => { 
       return await configMutex.current.runExclusive(async () => {
-        if((!serverConfigLoaded.current || forceReload) && dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized) {
+        if((!serverConfigLoaded.current || forceReload) && dbContext?.authStatus === DatabaseAuthStatus.Authorized) {
           try {
             console.log('Mutex acquired. Loading server config');
             const client = getConfigApiClient(dbContext?.masterKey as string, dbContext);
@@ -84,7 +84,7 @@ const [isConfigDialogOpen, setConfigDialogOpen] = React.useState(false);
 
             const configs = await client.get();
             for (const config of configs) {
-              serverConfigData[config.***REMOVED***] = config.value; // convert out from ConfigDTO to ***REMOVED***=>value
+              serverConfigData[config.key] = config.value; // convert out from ConfigDTO to key=>value
             }
             serverConfig.current = serverConfigData;
             serverConfigLoaded.current = true;
@@ -107,39 +107,39 @@ const [isConfigDialogOpen, setConfigDialogOpen] = React.useState(false);
       serverConfig: serverConfig.current,
       isConfigDialogOpen,
       setConfigDialogOpen,
-      setLocalConfig: (***REMOVED***: string, value: ConfigSupportedValueType) =>
+      setLocalConfig: (key: string, value: ConfigSupportedValueType) =>
         {
           if (typeof localStorage !== 'undefined'){ 
-            if(localConfig.saveToLocalStorage || (***REMOVED*** === 'saveToLocalStorage')) {
-              localStorage.setItem(***REMOVED***, value as string);          
+            if(localConfig.saveToLocalStorage || (key === 'saveToLocalStorage')) {
+              localStorage.setItem(key, value as string);          
             }
           }
-          localConfig = ({ ...localConfig, [***REMOVED***]: value });
+          localConfig = ({ ...localConfig, [key]: value });
         },
-      getLocalConfig: (***REMOVED***: string) => {
-        if (typeof localConfig[***REMOVED***] !== 'undefined') {
-          return coercedVal(localConfig[***REMOVED***]);
+      getLocalConfig: (key: string) => {
+        if (typeof localConfig[key] !== 'undefined') {
+          return coercedVal(localConfig[key]);
         } else {
-          return coercedVal(ENV_PROVIDED_CONFIG[***REMOVED***]);
+          return coercedVal(ENV_PROVIDED_CONFIG[key]);
         }
       },
-      setServerConfig: (***REMOVED***: string, value: ConfigSupportedValueType) =>
+      setServerConfig: (key: string, value: ConfigSupportedValueType) =>
       {
-        if (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized) {
+        if (dbContext?.authStatus === DatabaseAuthStatus.Authorized) {
           const client = getConfigApiClient(dbContext.masterKey as string, dbContext);
-          client.put({ ***REMOVED***, value: `${value}`, updatedAt: getCurrentTS() });
+          client.put({ key, value: `${value}`, updatedAt: getCurrentTS() });
           return Promise.resolve(true);
         } else {
           return Promise.resolve(false);
         }
       },
-      getServerConfig: async (***REMOVED***: string) => {
+      getServerConfig: async (key: string) => {
         const serverConfig  = await loadServerConfig();
-        const val = serverConfig[***REMOVED***];
-        if (serverConfig && typeof serverConfig[***REMOVED***] !== 'undefined') {
+        const val = serverConfig[key];
+        if (serverConfig && typeof serverConfig[key] !== 'undefined') {
           return coercedVal(val);
         } else {
-            return coercedVal(ENV_PROVIDED_CONFIG[***REMOVED***]);
+            return coercedVal(ENV_PROVIDED_CONFIG[key]);
         }
       },
     };

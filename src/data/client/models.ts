@@ -1,7 +1,7 @@
 import { EncryptedAttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO } from "@/data/dto";
 import { z } from "zod";
 
-import PasswordValidator from '***REMOVED***-validator';
+import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
 import { sha256 } from "@/lib/crypto";
 
@@ -268,13 +268,13 @@ export class Record {
 export class KeyACL {
     role: string;
     features: string[];
-    constructor(***REMOVED***ACLDTO: KeyACLDTO) {
-        this.role = ***REMOVED***ACLDTO.role;
-        this.features = ***REMOVED***ACLDTO.features;
+    constructor(keyACLDTO: KeyACLDTO) {
+        this.role = keyACLDTO.role;
+        this.features = keyACLDTO.features;
     }
 
-    static fromDTO(***REMOVED***ACLDTO: KeyACLDTO): KeyACL {
-        return new KeyACL(***REMOVED***ACLDTO);
+    static fromDTO(keyACLDTO: KeyACLDTO): KeyACL {
+        return new KeyACL(keyACLDTO);
     }
 
     toDTO(): KeyACLDTO {
@@ -288,9 +288,9 @@ export class KeyACL {
 
 export class Key {
     displayName: string;
-    ***REMOVED***LocatorHash: string;
-    ***REMOVED***Hash: string;
-    ***REMOVED***HashParams: string;
+    keyLocatorHash: string;
+    keyHash: string;
+    keyHashParams: string;
     databaseIdHash: string;
     encryptedMasterKey: string;
     acl: KeyACL | null;
@@ -298,29 +298,29 @@ export class Key {
     expiryDate: string | null;
     updatedAt: string;
 
-    constructor(***REMOVED***DTO: KeyDTO | Key) {
-        this.displayName = ***REMOVED***DTO.displayName;
-        this.***REMOVED***LocatorHash = ***REMOVED***DTO.***REMOVED***LocatorHash;
-        this.***REMOVED***Hash = ***REMOVED***DTO.***REMOVED***Hash;
-        this.***REMOVED***HashParams = ***REMOVED***DTO.***REMOVED***HashParams;
-        this.databaseIdHash = ***REMOVED***DTO.databaseIdHash;
-        this.encryptedMasterKey = ***REMOVED***DTO.encryptedMasterKey;
-        this.acl = ***REMOVED***DTO instanceof Key ? ***REMOVED***DTO.acl :  (***REMOVED***DTO.acl ? JSON.parse(***REMOVED***DTO.acl) : null);
-        this.extra = ***REMOVED***DTO.extra ?? null;
-        this.expiryDate = ***REMOVED***DTO.expiryDate ?? null;
-        this.updatedAt = ***REMOVED***DTO.updatedAt ?? getCurrentTS();
+    constructor(keyDTO: KeyDTO | Key) {
+        this.displayName = keyDTO.displayName;
+        this.keyLocatorHash = keyDTO.keyLocatorHash;
+        this.keyHash = keyDTO.keyHash;
+        this.keyHashParams = keyDTO.keyHashParams;
+        this.databaseIdHash = keyDTO.databaseIdHash;
+        this.encryptedMasterKey = keyDTO.encryptedMasterKey;
+        this.acl = keyDTO instanceof Key ? keyDTO.acl :  (keyDTO.acl ? JSON.parse(keyDTO.acl) : null);
+        this.extra = keyDTO.extra ?? null;
+        this.expiryDate = keyDTO.expiryDate ?? null;
+        this.updatedAt = keyDTO.updatedAt ?? getCurrentTS();
     }
 
-    static fromDTO(***REMOVED***DTO: KeyDTO): Key {
-        return new Key(***REMOVED***DTO);
+    static fromDTO(keyDTO: KeyDTO): Key {
+        return new Key(keyDTO);
     }
 
     toDTO(): KeyDTO {
         return {
             displayName: this.displayName,
-            ***REMOVED***LocatorHash: this.***REMOVED***LocatorHash,
-            ***REMOVED***Hash: this.***REMOVED***Hash,
-            ***REMOVED***HashParams: this.***REMOVED***HashParams,
+            keyLocatorHash: this.keyLocatorHash,
+            keyHash: this.keyHash,
+            keyHashParams: this.keyHashParams,
             databaseIdHash: this.databaseIdHash,
             encryptedMasterKey: this.encryptedMasterKey,
             acl: JSON.stringify(this.acl),
@@ -334,7 +334,7 @@ export class Key {
 export class Term {
     id?: number;
     content: string;
-    ***REMOVED***: string;
+    key: string;
     signature: string;
     ip?: string;
     ua?: string;
@@ -345,7 +345,7 @@ export class Term {
 
     constructor(termDTO: TermDTO | Term) {
         this.id = termDTO.id;
-        this.***REMOVED*** = termDTO.***REMOVED***;
+        this.key = termDTO.key;
         this.content = termDTO.content;
         this.signature = termDTO.signature;
         this.ip = termDTO.ip ?? '';
@@ -363,7 +363,7 @@ export class Term {
     toDTO(): TermDTO {
         return {
             id: this.id,
-            ***REMOVED***: this.***REMOVED***,
+            key: this.key,
             code: this.code,
             content: this.content,
             signature: this.signature,
@@ -379,11 +379,11 @@ export class Term {
 
 export class DatabaseCreateRequest {
     databaseId: string;
-    ***REMOVED***: string;
+    key: string;
 
-    constructor(databaseId: string, ***REMOVED***: string) {
+    constructor(databaseId: string, key: string) {
         this.databaseId = databaseId;
-        this.***REMOVED*** = ***REMOVED***;
+        this.key = key;
     }
 }
 
@@ -402,12 +402,12 @@ export class DatabaseKeepLoggedInRequest {
 
 export class DatabaseAuthorizeRequest {
     databaseId: string;
-    ***REMOVED***: string;
+    key: string;
     keepLoggedIn: boolean;
 
-    constructor(databaseId: string, ***REMOVED***: string, keepLoggedIn: boolean) {
+    constructor(databaseId: string, key: string, keepLoggedIn: boolean) {
         this.databaseId = databaseId;
-        this.***REMOVED*** = ***REMOVED***;
+        this.key = key;
         this.keepLoggedIn = keepLoggedIn;
     }
 }

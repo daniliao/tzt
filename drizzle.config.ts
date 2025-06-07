@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 const connectionString = process.env.NEON_DATABASE_URL || '';
-const [host, port, user, ***REMOVED***, database] = connectionString
+const [host, port, user, password, database] = connectionString
   .replace('postgres://', '')
   .split(/[\/:@?]/);
 
@@ -16,7 +16,7 @@ export default defineConfig({
     host,
     port: parseInt(port),
     user,
-    ***REMOVED***,
+    password,
     database,
     ssl: true
   },

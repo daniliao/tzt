@@ -1,12 +1,12 @@
-import { AuditDTO, auditDTOSchema, KeyDTO, ***REMOVED***DTOSchema } from "@/data/dto";
+import { AuditDTO, auditDTOSchema, KeyDTO, keyDTOSchema } from "@/data/dto";
 import ServerAuditRepository from "@/data/server/server-audit-repository";
-import { ***REMOVED***orizeRequestContext, ***REMOVED***orizeSaasContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse, userAgent } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
-    const saasContext = await ***REMOVED***orizeSaasContext(request); // ***REMOVED***orize SaaS context
+    const requestContext = await authorizeRequestContext(request, response);
+    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
 
     const inputObj = (await request.json())
     const valRes = auditDTOSchema.safeParse(inputObj);
@@ -19,28 +19,28 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     const { device, ua } = userAgent(request)
     logObj.ua = ua;
     logObj.databaseIdHash = requestContext.databaseIdHash
-    logObj.***REMOVED***LocatorHash = requestContext.***REMOVED***LocatorHash;
+    logObj.keyLocatorHash = requestContext.keyLocatorHash;
     logObj.createdAt = new Date().toISOString();
 
     // TODO: Add audit rotation
     const now = new Date();
     const dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
-    const ***REMOVED***Result = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition), 'id');
+    const apiResult = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition), 'id');
 
-    if (saasContext.***REMOVED***Client) {
-         saasContext.***REMOVED***Client.saveEvent(requestContext.databaseIdHash, {
+    if (saasContext.apiClient) {
+         saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
             eventName: logObj.eventName as string,
             databaseIdHash: requestContext.databaseIdHash,
             params: { recordLocator: JSON.parse(valRes.data.recordLocator as string)}
         });
     }
 
-    return Response.json(***REMOVED***Result, { status: ***REMOVED***Result.status });
+    return Response.json(apiResult, { status: apiResult.status });
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
     try {
-        const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+        const requestContext = await authorizeRequestContext(request, response);
         const now = new Date();
         let dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
 

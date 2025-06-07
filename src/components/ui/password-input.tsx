@@ -12,7 +12,7 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
 
 		return (
 			<Input
-				className={cn("hide-***REMOVED***-toggle pr-10", className)}
+				className={cn("hide-password-toggle pr-10", className)}
 				ref={ref}
 				{...props}
 			/>

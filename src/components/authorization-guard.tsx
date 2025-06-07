@@ -1,7 +1,7 @@
 import { DatabaseContext } from '@/contexts/db-context';
 import { DatabaseAuthStatus } from '@/data/client/models';
 import React, { PropsWithChildren, useContext, useState } from 'react';
-import { AuthorizePopup } from './***REMOVED***orize-popup';
+import { AuthorizePopup } from './authorize-popup';
 import { useEffectOnce } from 'react-use';
 import { KeepLoggedinLoader } from './keep-loggedin-loader';
 
@@ -13,11 +13,11 @@ const AuthorizationGuard: React.FC<PropsWithChildren> = ({ children }) => {
     useEffectOnce(() => {
         if(keepLoggedIn) {
             const databaseId = localStorage.getItem("databaseId") as string;
-            const ***REMOVED*** = localStorage.getItem("***REMOVED***") as string;
+            const key = localStorage.getItem("key") as string;
             setAutoLoginInProgress(true);
             const result = dbContext?.keepLoggedIn({
                 encryptedDatabaseId: databaseId,
-                encryptedKey: ***REMOVED***,
+                encryptedKey: key,
                 keepLoggedIn: keepLoggedIn                
             }).then((result) => {
                     if(!result?.success) {
@@ -28,7 +28,7 @@ const AuthorizationGuard: React.FC<PropsWithChildren> = ({ children }) => {
             }
         });
 
-    return (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized) ? (
+    return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
         <>{children}</>) : (<AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 

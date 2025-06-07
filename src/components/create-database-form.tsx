@@ -5,14 +5,14 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
 import { databaseIdValidator, userKeyValidator } from "@/data/client/models";
-import { PasswordInput } from "./ui/***REMOVED***-input";
+import { PasswordInput } from "./ui/password-input";
 import { ReactElement, use, useContext, useEffect, useState } from "react"
 import { Checkbox } from "./ui/checkbox";
 import NoSSR  from "react-no-ssr"
 import { CreateDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { generateEncryptionKey } from "@/lib/crypto";
 import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { KeyPrint } from "./***REMOVED***-print";
+import { KeyPrint } from "./key-print";
 import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
@@ -30,7 +30,7 @@ export function CreateDatabaseForm({
   const { register, setValue, getValues, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       databaseId: '',
-      ***REMOVED***: generateEncryptionKey(),
+      key: generateEncryptionKey(),
       acceptTerms: false
     }
   });
@@ -49,12 +49,12 @@ export function CreateDatabaseForm({
     // Handle form submission
     const result = await dbContext?.create({
       databaseId: data.databaseId,
-      ***REMOVED***: data.***REMOVED***
+      key: data.key
     });
 
     if (keepLoggedIn){
       localStorage.setItem("databaseId", data.databaseId);
-      localStorage.setItem("***REMOVED***", data.***REMOVED***);
+      localStorage.setItem("key", data.key);
     }
     setOperationResult(result ?? null);
     if(result?.success) {
@@ -80,8 +80,8 @@ export function CreateDatabaseForm({
         <div className="flex gap-2 mt-5">
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
-            const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: dbContext?.encryptionKey ?? '', databaseId: dbContext?.databaseId ?? '' }));
-            window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
+            const keyPrinterPdf = pdf(KeyPrint({ key: dbContext?.encryptionKey ?? '', databaseId: dbContext?.databaseId ?? '' }));
+            window.open(URL.createObjectURL(await keyPrinterPdf.toBlob()));
           }}><PrinterIcon className="w-4 h-4" /> Print</Button>
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
@@ -98,9 +98,9 @@ export function CreateDatabaseForm({
 
       <Button onClick={() => {
         setOperationResult(null);
-        dbContext?.***REMOVED***orize({ // this will ***REMOVED***orize the database and in a side effect close this popup
+        dbContext?.authorize({ // this will authorize the database and in a side effect close this popup
           databaseId: dbContext?.databaseId,
-          ***REMOVED***: dbContext?.encryptionKey,
+          key: dbContext?.encryptionKey,
           keepLoggedIn: keepLoggedIn
         });
       }}>Go to application</Button>
@@ -114,7 +114,7 @@ export function CreateDatabaseForm({
               <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
               <ul>
                 {operationResult.issues.map((issue, index) => (
-                  <li ***REMOVED***={index}>{issue.message}</li>
+                  <li key={index}>{issue.message}</li>
                 ))}
               </ul>
             </div>
@@ -136,14 +136,14 @@ export function CreateDatabaseForm({
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
-              <Label htmlFor="***REMOVED***">User Key</Label>
+              <Label htmlFor="key">User Key</Label>
               <div className="flex gap-2">
                 <div className="relative">
-                  <PasswordInput autoComplete="new-***REMOVED***" id="***REMOVED***"
-                      type={showPassword ? 'text' : '***REMOVED***'}
-                      {...register("***REMOVED***", { required: true,
+                  <PasswordInput autoComplete="new-password" id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      {...register("key", { required: true,
                           validate: {
-                              ***REMOVED***: userKeyValidator
+                              key: userKeyValidator
                           }            
                           })}                        />
                       <Button
@@ -165,14 +165,14 @@ export function CreateDatabaseForm({
                           />
                           )}
                           <span className="sr-only">
-                          {showPassword ? "Hide ***REMOVED***" : "Show ***REMOVED***"}
+                          {showPassword ? "Hide password" : "Show password"}
                           </span>
                       </Button>
 
-                      {/* hides browsers ***REMOVED*** toggles */}
+                      {/* hides browsers password toggles */}
                       <style>{`
-                          .hide-***REMOVED***-toggle::-ms-reveal,
-                          .hide-***REMOVED***-toggle::-ms-clear {
+                          .hide-password-toggle::-ms-reveal,
+                          .hide-password-toggle::-ms-clear {
                           visibility: hidden;
                           pointer-events: none;
                           display: none;
@@ -181,17 +181,17 @@ export function CreateDatabaseForm({
                 </div>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={(e) => {
                   e.preventDefault();
-                  setValue('***REMOVED***', generateEncryptionKey());
+                  setValue('key', generateEncryptionKey());
                   setShowPassword(true);
                 }}><WandIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: getValues().databaseId }));
-                  window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
+                  const keyPrinterPdf = pdf(KeyPrint({ key: getValues().key, databaseId: getValues().databaseId }));
+                  window.open(URL.createObjectURL(await keyPrinterPdf.toBlob()));
                 }}><PrinterIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const textToCopy = 'Database Id: '+ getValues().databaseId + "\nKey Id: " + getValues().***REMOVED***;
+                  const textToCopy = 'Database Id: '+ getValues().databaseId + "\nKey Id: " + getValues().key;
                   if ('clipboard' in navigator) {
                     navigator.clipboard.writeText(textToCopy);
                   } else {
@@ -202,9 +202,9 @@ export function CreateDatabaseForm({
               <div>
                 {printKey}
               </div>
-              {errors.***REMOVED*** && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+              {errors.key && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Please save or print this master ***REMOVED***. <strong>It&apos;s like crypto wallet.</strong> After losing it your medical records <strong className="text-red-500">WILL BE LOST FOREVER</strong>.
+              Please save or print this master key. <strong>It&apos;s like crypto wallet.</strong> After losing it your medical records <strong className="text-red-500">WILL BE LOST FOREVER</strong>.
               We&apos;re using strong AES256 end-to-end encryption.
           </p>        
         </div>

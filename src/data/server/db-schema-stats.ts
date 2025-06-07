@@ -1,8 +1,8 @@
-import { pgTable, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, serial } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const stats = pgTable('stats', {
-    id: integer('id').primaryKey(),
+    id: serial('id').primaryKey(),
     eventName: text('eventName'),
     promptTokens: integer('promptTokens'),
     completionTokens: integer('completionTokens'),
@@ -17,7 +17,9 @@ export const stats = pgTable('stats', {
     return {
         // Add indexes for the commonly queried date fields
         dateIdx: sql`CREATE INDEX IF NOT EXISTS stats_date_idx ON ${table} (createdYear, createdMonth, createdDay, createdHour)`,
-        eventIdx: sql`CREATE INDEX IF NOT EXISTS stats_event_idx ON ${table} (eventName)`
+        eventIdx: sql`CREATE INDEX IF NOT EXISTS stats_event_idx ON ${table} (eventName)`,
+        // Add unique constraint for upsert
+        uniqueStats: sql`CREATE UNIQUE INDEX IF NOT EXISTS stats_unique_idx ON ${table} (createdHour, createdDay, createdMonth, createdYear, eventName)`
     };
 });
 

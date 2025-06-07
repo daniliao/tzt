@@ -10,8 +10,8 @@ import { Edit3Icon, FoldersIcon, KeyIcon, LogOutIcon, MenuIcon, MenuSquareIcon, 
 import { DatabaseContext } from "@/contexts/db-context";
 import { toast } from "sonner";
 import { useTheme } from 'next-themes';
-import SharedKeysPopup from "./shared-***REMOVED***s-popup";
-import { ChangeKeyPopup } from "./change-***REMOVED***-popup";
+import SharedKeysPopup from "./shared-keys-popup";
+import { ChangeKeyPopup } from "./change-key-popup";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
 import StatsPopup from "./stats-popup";
 import Link from 'next/link';

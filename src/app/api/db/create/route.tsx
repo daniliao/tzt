@@ -1,8 +1,8 @@
 import { KeyDTO, DatabaseCreateRequestDTO, databaseCreateRequestSchema } from "@/data/dto";
 import { maintenance } from "@/data/server/db-provider";
 import ServerFolderRepository from "@/data/server/server-folder-repository";
-import ServerKeyRepository from "@/data/server/server-***REMOVED***-repository";
-import { ***REMOVED***orizeSaasContext } from "@/lib/generic-***REMOVED***";
+import ServerKeyRepository from "@/data/server/server-key-repository";
+import { authorizeSaasContext } from "@/lib/generic-api";
 import { getCurrentTS, getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, userAgent } from "next/server";
 import { features } from "process";
@@ -13,7 +13,7 @@ import { features } from "process";
 export async function POST(request: NextRequest) {
     try {
         const jsonRequest = await request.json();
-        const saasContext = await ***REMOVED***orizeSaasContext(request); // ***REMOVED***orize SaaS context
+        const saasContext = await authorizeSaasContext(request); // authorize SaaS context
         if (!saasContext.hasAccess) {
             return Response.json({
                 message: saasContext.error,
@@ -35,21 +35,21 @@ export async function POST(request: NextRequest) {
 
         const validationResult = databaseCreateRequestSchema.safeParse(jsonRequest); // validation
         if (validationResult.success === true) {
-            const ***REMOVED***CreateRequest = validationResult.data;
+            const authCreateRequest = validationResult.data;
 
-            if (await maintenance.checkIfDatabaseExists(***REMOVED***CreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
+            if (await maintenance.checkIfDatabaseExists(authCreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
                 return Response.json({
                     message: 'Database already exists. Please select different Id.',
                     data: { 
-                        databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash
+                        databaseIdHash: authCreateRequest.databaseIdHash
                     },
                     status: 409
                 });            
             } else {
                 const now = new Date();
                 const nowISO = now.toISOString();
-                await maintenance.createDatabaseManifest(***REMOVED***CreateRequest.databaseIdHash, {
-                    databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
+                await maintenance.createDatabaseManifest(authCreateRequest.databaseIdHash, {
+                    databaseIdHash: authCreateRequest.databaseIdHash,
                     createdAt: nowISO,
                     creator: {
                         ip: request.ip,
@@ -57,26 +57,26 @@ export async function POST(request: NextRequest) {
                         geo: request.geo
                     }                
                 });
-                const folderRepo = new ServerFolderRepository(***REMOVED***CreateRequest.databaseIdHash); // creating a first User Key                     
-                const ***REMOVED***Repo = new ServerKeyRepository(***REMOVED***CreateRequest.databaseIdHash); // creating a first User Key
-                const existingKeys = await ***REMOVED***Repo.findAll({  filter: { databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash } }); // check if ***REMOVED*** already exists
+                const folderRepo = new ServerFolderRepository(authCreateRequest.databaseIdHash); // creating a first User Key                     
+                const keyRepo = new ServerKeyRepository(authCreateRequest.databaseIdHash); // creating a first User Key
+                const existingKeys = await keyRepo.findAll({  filter: { databaseIdHash: authCreateRequest.databaseIdHash } }); // check if key already exists
 
                 if(existingKeys.length > 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                     return Response.json({
-                        message: 'User ***REMOVED*** already exists. Please select different Id.',
+                        message: 'User key already exists. Please select different Id.',
                         data: { 
-                            databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash
+                            databaseIdHash: authCreateRequest.databaseIdHash
                         },
                         status: 409               
                     });                    
                 } else {
-                    const firstUserKey = ***REMOVED***Repo.create({
+                    const firstUserKey = keyRepo.create({
                         displayName: '',
-                        ***REMOVED***LocatorHash: ***REMOVED***CreateRequest.***REMOVED***LocatorHash,
-                        ***REMOVED***Hash: ***REMOVED***CreateRequest.***REMOVED***Hash,
-                        ***REMOVED***HashParams: ***REMOVED***CreateRequest.***REMOVED***HashParams,
-                        encryptedMasterKey: ***REMOVED***CreateRequest.encryptedMasterKey,
-                        databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,                
+                        keyLocatorHash: authCreateRequest.keyLocatorHash,
+                        keyHash: authCreateRequest.keyHash,
+                        keyHashParams: authCreateRequest.keyHashParams,
+                        encryptedMasterKey: authCreateRequest.encryptedMasterKey,
+                        databaseIdHash: authCreateRequest.databaseIdHash,                
                         acl: JSON.stringify({
                             role: 'owner',
                             features: ['*']
@@ -98,8 +98,8 @@ export async function POST(request: NextRequest) {
 
                     if (saasContext.isSaasMode) {
                         try {
-                            saasContext.***REMOVED***Client?.newDatabase({
-                                databaseIdHash: ***REMOVED***CreateRequest.databaseIdHash,
+                            saasContext.apiClient?.newDatabase({
+                                databaseIdHash: authCreateRequest.databaseIdHash,
                                 createdAt: nowISO
                             })
                         } catch (e) {

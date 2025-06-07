@@ -39,7 +39,7 @@ export function OnboardingChat() {
       <h2 className="text-2xl font-bold mb-6 text-center">How can I assist you today?</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {tiles.map((tile, index) => (
-          <Card ***REMOVED***={index} className="hover:shadow-lg transition-shadow duration-300">
+          <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
             <CardContent className="p-6">
               <Button
                 onClick={() => {

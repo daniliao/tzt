@@ -2,12 +2,12 @@ import { BaseRepository, IFilter, IQuery } from "./base-repository"
 import { KeyDTO } from "../dto";
 import { pool } from '@/data/server/db-provider'
 import { getCurrentTS } from "@/lib/utils";
-import { ***REMOVED***s } from "./db-schema";
+import { keys } from "./db-schema";
 import { eq, and, sql } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export type KeysQuery = IQuery & { 
-    filter: { ***REMOVED***Hash?: string, databaseIdHash?: string }
+    filter: { keyHash?: string, databaseIdHash?: string }
 }
 
 export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
@@ -15,7 +15,7 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
         return val instanceof Date ? val.toISOString() : (val as string);
     }
 
-    // create a new ***REMOVED***
+    // create a new key
     async create(item: KeyDTO): Promise<KeyDTO> {
         const db = (await this.db());
         // Convert string timestamps to Date objects for Drizzle
@@ -24,7 +24,7 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
             updatedAt: new Date(item.updatedAt),
             expiryDate: item.expiryDate ? new Date(item.expiryDate) : null
         };
-        const result = await create(drizzleItem, ***REMOVED***s, db);
+        const result = await create(drizzleItem, keys, db);
         // Convert back to string for DTO
         return {
             ...result,
@@ -33,40 +33,40 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
         };
     }
 
-    // update ***REMOVED***
+    // update key
     async upsert(query: Record<string, any>, item: KeyDTO): Promise<KeyDTO> {        
         const db = (await this.db());
         const existingKey = await db.select({
-            ***REMOVED***LocatorHash: ***REMOVED***s.***REMOVED***LocatorHash,
-            ***REMOVED***Hash: ***REMOVED***s.***REMOVED***Hash,
-            databaseIdHash: ***REMOVED***s.databaseIdHash,
-            updatedAt: ***REMOVED***s.updatedAt,
-            extra: ***REMOVED***s.extra,
-            acl: ***REMOVED***s.acl,
-            expiryDate: ***REMOVED***s.expiryDate,
-            displayName: ***REMOVED***s.displayName,
-            ***REMOVED***HashParams: ***REMOVED***s.***REMOVED***HashParams,
-            encryptedMasterKey: ***REMOVED***s.encryptedMasterKey
+            keyLocatorHash: keys.keyLocatorHash,
+            keyHash: keys.keyHash,
+            databaseIdHash: keys.databaseIdHash,
+            updatedAt: keys.updatedAt,
+            extra: keys.extra,
+            acl: keys.acl,
+            expiryDate: keys.expiryDate,
+            displayName: keys.displayName,
+            keyHashParams: keys.keyHashParams,
+            encryptedMasterKey: keys.encryptedMasterKey
         })
-        .from(***REMOVED***s)
-        .where(eq(***REMOVED***s.***REMOVED***LocatorHash, query['***REMOVED***LocatorHash']))
+        .from(keys)
+        .where(eq(keys.keyLocatorHash, query['keyLocatorHash']))
         .then(rows => rows[0]);
 
         if (!existingKey) {
             return this.create(item);
         }
 
-        // Update the ***REMOVED*** with new values
+        // Update the key with new values
         const updatedKey: KeyDTO = {
             ...item,
             updatedAt: new Date().toISOString()
         };
 
-        await db.update(***REMOVED***s)
+        await db.update(keys)
             .set({
                 displayName: updatedKey.displayName,
-                ***REMOVED***Hash: updatedKey.***REMOVED***Hash,
-                ***REMOVED***HashParams: updatedKey.***REMOVED***HashParams,
+                keyHash: updatedKey.keyHash,
+                keyHashParams: updatedKey.keyHashParams,
                 databaseIdHash: updatedKey.databaseIdHash,
                 encryptedMasterKey: updatedKey.encryptedMasterKey,
                 acl: updatedKey.acl,
@@ -74,16 +74,16 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
                 expiryDate: updatedKey.expiryDate ? new Date(updatedKey.expiryDate) : null,
                 updatedAt: new Date(updatedKey.updatedAt)
             })
-            .where(eq(***REMOVED***s.***REMOVED***LocatorHash, query['***REMOVED***LocatorHash']));
+            .where(eq(keys.keyLocatorHash, query['keyLocatorHash']));
 
-        // Return the updated ***REMOVED***
+        // Return the updated key
         return updatedKey;
     }
 
     async delete(query: IFilter): Promise<boolean> {
         const db = (await this.db());
-        const result = await db.delete(***REMOVED***s)
-            .where(eq(***REMOVED***s.***REMOVED***LocatorHash, query['***REMOVED***LocatorHash']))
+        const result = await db.delete(keys)
+            .where(eq(keys.keyLocatorHash, query['keyLocatorHash']))
             .returning();
         return result.length > 0;
     }
@@ -94,37 +94,37 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
 
         if (query?.filter) {
             if (query.filter.databaseIdHash) {
-                conditions.push(eq(***REMOVED***s.databaseIdHash, query.filter.databaseIdHash));
+                conditions.push(eq(keys.databaseIdHash, query.filter.databaseIdHash));
             }
-            if (query.filter.***REMOVED***Hash) {
-                conditions.push(eq(***REMOVED***s.***REMOVED***Hash, query.filter.***REMOVED***Hash));
+            if (query.filter.keyHash) {
+                conditions.push(eq(keys.keyHash, query.filter.keyHash));
             }
-            if (query.filter.***REMOVED***LocatorHash) {
-                conditions.push(eq(***REMOVED***s.***REMOVED***LocatorHash, query.filter.***REMOVED***LocatorHash));
+            if (query.filter.keyLocatorHash) {
+                conditions.push(eq(keys.keyLocatorHash, query.filter.keyLocatorHash));
             }
         }
 
         try {
             const rows = await db.select({
-                ***REMOVED***LocatorHash: ***REMOVED***s.***REMOVED***LocatorHash,
-                ***REMOVED***Hash: ***REMOVED***s.***REMOVED***Hash,
-                databaseIdHash: ***REMOVED***s.databaseIdHash,
-                updatedAt: ***REMOVED***s.updatedAt,
-                extra: ***REMOVED***s.extra,
-                acl: ***REMOVED***s.acl,
-                expiryDate: ***REMOVED***s.expiryDate,
-                displayName: ***REMOVED***s.displayName,
-                ***REMOVED***HashParams: ***REMOVED***s.***REMOVED***HashParams,
-                encryptedMasterKey: ***REMOVED***s.encryptedMasterKey
+                keyLocatorHash: keys.keyLocatorHash,
+                keyHash: keys.keyHash,
+                databaseIdHash: keys.databaseIdHash,
+                updatedAt: keys.updatedAt,
+                extra: keys.extra,
+                acl: keys.acl,
+                expiryDate: keys.expiryDate,
+                displayName: keys.displayName,
+                keyHashParams: keys.keyHashParams,
+                encryptedMasterKey: keys.encryptedMasterKey
             })
-            .from(***REMOVED***s)
+            .from(keys)
             .where(conditions.length > 0 ? and(...conditions) : undefined);
 
             return rows.map(row => ({
                 displayName: row.displayName || '',
-                ***REMOVED***LocatorHash: row.***REMOVED***LocatorHash,
-                ***REMOVED***Hash: row.***REMOVED***Hash,
-                ***REMOVED***HashParams: row.***REMOVED***HashParams,
+                keyLocatorHash: row.keyLocatorHash,
+                keyHash: row.keyHash,
+                keyHashParams: row.keyHashParams,
                 databaseIdHash: row.databaseIdHash,
                 encryptedMasterKey: row.encryptedMasterKey,
                 expiryDate: row.expiryDate ? row.expiryDate.toISOString() : null,

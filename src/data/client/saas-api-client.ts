@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSDTO, TermDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { ZodIssue } from "zod";
 
 export type GetSaaSResponseSuccess = {
@@ -23,6 +23,6 @@ export class SaasApiClient extends ApiClient {
     }
   
     async get(saasToken: string, useCache:boolean = true): Promise<GetSaasResponse> { // under the hood the request passes databaseIdHash from dbContext as soon as it gets it
-      return this.request<GetSaasResponse>('/***REMOVED***/saas?saasToken=' + encodeURIComponent(saasToken) + '&useCache=' + (useCache ? 'true' : 'false'), 'GET', { ecnryptedFields: [] }) as Promise<GetSaasResponse>;
+      return this.request<GetSaasResponse>('/api/saas?saasToken=' + encodeURIComponent(saasToken) + '&useCache=' + (useCache ? 'true' : 'false'), 'GET', { ecnryptedFields: [] }) as Promise<GetSaasResponse>;
     }
   }

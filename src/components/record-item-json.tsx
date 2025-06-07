@@ -25,7 +25,7 @@ const RecordItemJson: React.FC<Props> = ({ record }) => {
             <div className="w-full">
                 <Accordion type="single" collapsible className="w-full">
                     {(record.json as any[]).map((item, index) => (
-                        <AccordionItem ***REMOVED***={index} value={'item-' + index}>
+                        <AccordionItem key={index} value={'item-' + index}>
                             <AccordionTrigger>{formatString('{0} [{1}]', labels.recordItemLabel(item.type, { record }), item.subtype)}</AccordionTrigger>
                             <AccordionContent>
                                 <JsonViewEditor value={item} style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } />

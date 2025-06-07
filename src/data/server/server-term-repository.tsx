@@ -34,7 +34,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
             id: terms.id,
             content: terms.content,
             code: terms.code,
-            ***REMOVED***: terms.***REMOVED***,
+            key: terms.key,
             signature: terms.signature,
             ip: terms.ip,
             ua: terms.ua,
@@ -43,7 +43,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
             signedAt: terms.signedAt
         })
         .from(terms)
-        .where(eq(terms.***REMOVED***, query['***REMOVED***']))
+        .where(eq(terms.key, query['key']))
         .then(rows => rows[0]);
 
         if (!existingTerm) {
@@ -66,7 +66,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
                 email: updatedTerm.email,
                 signedAt: new Date(updatedTerm.signedAt)
             })
-            .where(eq(terms.***REMOVED***, query['***REMOVED***']));
+            .where(eq(terms.key, query['key']));
 
         return updatedTerm;
     }
@@ -74,7 +74,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
     async delete(query: IFilter): Promise<boolean> {
         const db = (await this.db());
         const result = await db.delete(terms)
-            .where(eq(terms.***REMOVED***, query['***REMOVED***']))
+            .where(eq(terms.key, query['key']))
             .returning();
         return result.length > 0;
     }
@@ -85,7 +85,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
             id: terms.id,
             content: terms.content,
             code: terms.code,
-            ***REMOVED***: terms.***REMOVED***,
+            key: terms.key,
             signature: terms.signature,
             ip: terms.ip,
             ua: terms.ua,
@@ -99,7 +99,7 @@ export default class ServerTermRepository extends BaseRepository<TermDTO> {
             id: row.id,
             content: row.content || '',
             code: row.code || '',
-            ***REMOVED***: row.***REMOVED*** || '',
+            key: row.key || '',
             signature: row.signature || '',
             ip: row.ip || null,
             ua: row.ua || null,

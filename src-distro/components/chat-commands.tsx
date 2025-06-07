@@ -34,7 +34,7 @@ const ChatCommands: React.FC<Props> = ({ open, setOpen }) => {
         <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
-                <CommandItem ***REMOVED***="cmd-custom" className="text-xs" onSelect={(v) => {
+                <CommandItem key="cmd-custom" className="text-xs" onSelect={(v) => {
                     chatContext.setAgentContext(null);
                     chatContext.setTemplatePromptVisible(false);
                     chatContext.setChatCustomPromptVisible(true);
@@ -42,7 +42,7 @@ const ChatCommands: React.FC<Props> = ({ open, setOpen }) => {
                     chatContext.setChatOpen(true);
                   }}><TerminalIcon /> Enter your own question</CommandItem>
                 {Object.entries(promptTemplates).map(promptTpl => (
-                    <CommandItem ***REMOVED***={promptTpl[0]} className="text-xs" onSelect={(v) => {
+                    <CommandItem key={promptTpl[0]} className="text-xs" onSelect={(v) => {
                         chatContext.setAgentContext(null);
                         chatContext.setPromptTemplate(promptTpl[1].template({ config }));
                         chatContext.setChatCustomPromptVisible(false);
@@ -52,7 +52,7 @@ const ChatCommands: React.FC<Props> = ({ open, setOpen }) => {
                     }}><QuestionMarkIcon /> {promptTpl[1].label}</CommandItem>        
                  ))       
                 }
-                <CommandItem ***REMOVED***="cmd-commands" className="text-xs" onSelect={(v) => {
+                <CommandItem key="cmd-commands" className="text-xs" onSelect={(v) => {
                         chatContext.startAgent({
                             displayName: 'Pre visit inquiry',
                             type: 'pre-visit-inquiry',

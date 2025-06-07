@@ -1,8 +1,8 @@
 ### REST API Documentation for ConfigApiClient
 
-This documentation is based on the `ConfigApiClient` class defined in `src/data/client/config-***REMOVED***-client.ts`.
+This documentation is based on the `ConfigApiClient` class defined in `src/data/client/config-api-client.ts`.
 
-#### GET `/***REMOVED***/config`
+#### GET `/api/config`
 
 Fetches all configurations.
 
@@ -13,11 +13,11 @@ Fetches all configurations.
 
 ```typescript
 async get(): Promise<ConfigDTO[]> {
-  return this.request<ConfigDTO[]>('/***REMOVED***/config', 'GET', ConfigDTOEncSettings) as Promise<ConfigDTO[]>;
+  return this.request<ConfigDTO[]>('/api/config', 'GET', ConfigDTOEncSettings) as Promise<ConfigDTO[]>;
 }
 ```
 
-#### PUT `/***REMOVED***/config`
+#### PUT `/api/config`
 
 Updates a configuration.
 
@@ -31,7 +31,7 @@ Updates a configuration.
 
 ```typescript
 async put(config: PutConfigRequest): Promise<PutConfigResponse> {
-  return this.request<PutConfigResponse>('/***REMOVED***/config', 'PUT', ConfigDTOEncSettings, config) as Promise<PutConfigResponse>;
+  return this.request<PutConfigResponse>('/api/config', 'PUT', ConfigDTOEncSettings, config) as Promise<PutConfigResponse>;
 }
 ```
 
@@ -44,7 +44,7 @@ Represents a configuration in the system.
 ```typescript
 export interface ConfigDTO {
   id: number;
-  ***REMOVED***: string;
+  key: string;
   value: string;
   createdAt: string;
   updatedAt: string;
@@ -91,4 +91,4 @@ A union type of `PutConfigResponseSuccess` and `PutConfigResponseError`.
 export type PutConfigResponse = PutConfigResponseSuccess | PutConfigResponseError;
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/config-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/config-api-client.ts).

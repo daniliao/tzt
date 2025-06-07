@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { StatDTO, AggregatedStatsDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 
 export type AggregateStatRequest = StatDTO;
@@ -40,11 +40,11 @@ export class StatApiClient extends ApiClient {
     }
   
     async aggregated(): Promise<AggregatedStatsResponse> {
-      return this.request<AggregatedStatsResponse>('/***REMOVED***/stats/aggregated', 'GET', { ecnryptedFields: [] }) as Promise<AggregatedStatsResponse>;
+      return this.request<AggregatedStatsResponse>('/api/stats/aggregated', 'GET', { ecnryptedFields: [] }) as Promise<AggregatedStatsResponse>;
     }
   
     async aggregate(newItem: StatDTO): Promise<AggregateStatResponse> {
-      return this.request<AggregateStatResponse>('/***REMOVED***/stats', 'PUT', { ecnryptedFields: [] }, newItem) as Promise<AggregateStatResponse>;
+      return this.request<AggregateStatResponse>('/api/stats', 'PUT', { ecnryptedFields: [] }, newItem) as Promise<AggregateStatResponse>;
     }
    
   }

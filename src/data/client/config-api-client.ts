@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { ConfigDTO, ConfigDTOEncSettings } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 
 export type PutConfigRequest = ConfigDTO;
@@ -25,10 +25,10 @@ export class ConfigApiClient extends ApiClient {
     }
   
     async get(): Promise<ConfigDTO[]> {
-      return this.request<ConfigDTO[]>('/***REMOVED***/config', 'GET', ConfigDTOEncSettings) as Promise<ConfigDTO[]>;
+      return this.request<ConfigDTO[]>('/api/config', 'GET', ConfigDTOEncSettings) as Promise<ConfigDTO[]>;
     }
   
     async put(config: PutConfigRequest): Promise<PutConfigResponse> {
-      return this.request<PutConfigResponse>('/***REMOVED***/config', 'PUT', ConfigDTOEncSettings, config) as Promise<PutConfigResponse>;
+      return this.request<PutConfigResponse>('/api/config', 'PUT', ConfigDTOEncSettings, config) as Promise<PutConfigResponse>;
     }
   }

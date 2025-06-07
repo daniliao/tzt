@@ -1,13 +1,13 @@
 import { TermDTO, termsDTOSchema } from "@/data/dto";
 import ServerTermRepository from "@/data/server/server-term-repository";
 import { EncryptionUtils } from "@/lib/crypto";
-import { ***REMOVED***orizeRequestContext, ***REMOVED***orizeSaasContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { getCurrentTS } from "@/lib/utils";
 import { NextRequest, NextResponse, userAgent } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     // TODO: Send the terms to SAAS management app
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const requestContext = await authorizeRequestContext(request, response);
 
     const inputObj = (await request.json())
     const valRes = termsDTOSchema.safeParse(inputObj);
@@ -15,7 +15,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         return Response.json({ message: 'Invalid input', issues: valRes.error.issues }, { status: 400 });
     }
 
-    const saasContext = await ***REMOVED***orizeSaasContext(request); // ***REMOVED***orize SaaS context
+    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
     if (!saasContext.hasAccess) {
         return Response.json({
             message: saasContext.error,
@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     }
 
     if (saasContext.isSaasMode) {
-        saasContext.***REMOVED***Client?.storeTerm(requestContext.databaseIdHash, {
+        saasContext.apiClient?.storeTerm(requestContext.databaseIdHash, {
             content: valRes.data.content,
             signedAt: getCurrentTS(),
             email: valRes.data.email ?? '',
@@ -44,18 +44,18 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     termObj.email = await encUtils.encrypt(termObj.email ?? '');
     termObj.name = await encUtils.encrypt(termObj.name ?? '');
 
-    const ***REMOVED***Result = await genericPUT<TermDTO>(termObj, termsDTOSchema, new ServerTermRepository(requestContext.databaseIdHash), '***REMOVED***');
-    return Response.json(***REMOVED***Result, { status: ***REMOVED***Result.status });
+    const apiResult = await genericPUT<TermDTO>(termObj, termsDTOSchema, new ServerTermRepository(requestContext.databaseIdHash), 'key');
+    return Response.json(apiResult, { status: apiResult.status });
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const requestContext = await authorizeRequestContext(request, response);
     const encUtils = new EncryptionUtils(process.env.TERMS_ENCRYPTION_KEY ?? 'qAyn0sLFmqxvJYj7X2vJeJzS');
 
-    const ***REMOVED***Result = (await genericGET<TermDTO>(request, new ServerTermRepository(requestContext.databaseIdHash)));
-    for (const term of ***REMOVED***Result) {
+    const apiResult = (await genericGET<TermDTO>(request, new ServerTermRepository(requestContext.databaseIdHash)));
+    for (const term of apiResult) {
         term.email = await encUtils.decrypt(term.email ?? ''),
         term.name = await encUtils.decrypt(term.name ?? '')
     };
-    return Response.json(***REMOVED***Result);
+    return Response.json(apiResult);
 }

@@ -18,27 +18,27 @@ export default function TermsPopup() {
   const [email, setEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [requiredTermsAccepted, setRequiredTermsAccepted] = useState<{[***REMOVED***: string]: boolean}>({});
+  const [requiredTermsAccepted, setRequiredTermsAccepted] = useState<{[key: string]: boolean}>({});
   const checkTerms = () => {
     termsContext.setTermsRequired(false);
 
-    Object.entries(requiredTerms).map(([***REMOVED***, term]) => {  
-      const isAccepted = termsContext.terms.find((t) => t.code === ***REMOVED*** && t.***REMOVED***?.endsWith(dbContext?.***REMOVED***LocatorHash ?? '')) ? true : false
+    Object.entries(requiredTerms).map(([key, term]) => {  
+      const isAccepted = termsContext.terms.find((t) => t.code === key && t.key?.endsWith(dbContext?.keyLocatorHash ?? '')) ? true : false
 
       if(!isAccepted) {
         termsContext.setTermsRequired(true);
       } 
-      setRequiredTermsAccepted(prev => ({...prev, [***REMOVED***]: isAccepted}));
+      setRequiredTermsAccepted(prev => ({...prev, [key]: isAccepted}));
     });
   }
   useEffect(() => {
     if(termsContext.loaderStatus === DataLoadingStatus.Success) checkTerms();      
-  }, [termsContext.terms]); // we re not loading the records and ***REMOVED***s each time new recod is added due to performance reasons
+  }, [termsContext.terms]); // we re not loading the records and keys each time new recod is added due to performance reasons
 
 
   useEffect(() => {
     termsContext.loadTerms();
-  }, []); // we re not loading the records and ***REMOVED***s each time new recod is added due to performance reasons
+  }, []); // we re not loading the records and keys each time new recod is added due to performance reasons
 
   return (
     <Credenza open={termsContext.termsRequired || termsContext.termsOpen} onOpenChange={(e) => { if (!e) termsContext.setTermsDialogOpen(false); }}>
@@ -81,19 +81,19 @@ export default function TermsPopup() {
               </div>
             </div>
             
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <div className="p-4 space-y-4">
                 {termsContext?.loaderStatus === DataLoadingStatus.Loading ? (
                   <div className="flex justify-center">
                     <DataLoader />
                   </div>
                 ) : (
-                  Object.entries(requiredTerms).map(([***REMOVED***, term]) => (
-                  <div ***REMOVED***={***REMOVED***} className="w-full flex grid-cols-2">
+                  Object.entries(requiredTerms).map(([key, term]) => (
+                  <div key={key} className="w-full flex grid-cols-2">
                       <div className="w-[85%]"><strong>{term.title}</strong><br />{term.content}</div>
                       <div>
-                        {termsContext?.terms.find((t) => t.code === ***REMOVED*** && t.***REMOVED***?.endsWith(dbContext.***REMOVED***LocatorHash)) ? (
-                          <div className="text-green-500">Accepted<br/><span className="text-xs">{termsContext?.terms.find((t) => t.code === ***REMOVED*** && t.***REMOVED***?.endsWith(dbContext.***REMOVED***LocatorHash))?.signedAt}</span></div>
+                        {termsContext?.terms.find((t) => t.code === key && t.key?.endsWith(dbContext.keyLocatorHash)) ? (
+                          <div className="text-green-500">Accepted<br/><span className="text-xs">{termsContext?.terms.find((t) => t.code === key && t.key?.endsWith(dbContext.keyLocatorHash))?.signedAt}</span></div>
                         ) : (
                           <Button onClick={(e) => {
                             if (!name || !email) {
@@ -102,14 +102,14 @@ export default function TermsPopup() {
                             } else {
                               setErrorMessage('');                             
                               termsContext?.sign({
-                                code: ***REMOVED***,
+                                code: key,
                                 name: name,
                                 email: email,
                                 content: term.contentPlain? term.contentPlain : term.content.toString(),
-                                ***REMOVED***: ***REMOVED*** + dbContext?.***REMOVED***LocatorHash,
+                                key: key + dbContext?.keyLocatorHash,
                                 signedAt: getCurrentTS(),
                               }).then(() => {
-                                setRequiredTermsAccepted(prev => ({...prev, [***REMOVED***]: true}));
+                                setRequiredTermsAccepted(prev => ({...prev, [key]: true}));
                               });
                             }
                           }}>Accept</Button>

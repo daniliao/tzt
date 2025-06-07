@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { TermDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { ZodIssue } from "zod";
 
 export type PutTermRequest = TermDTO;
@@ -26,14 +26,14 @@ export class TermApiClient extends ApiClient {
     }
   
     async get(): Promise<TermDTO[]> {
-      return this.request<TermDTO[]>('/***REMOVED***/terms', 'GET', { ecnryptedFields: [] }) as Promise<TermDTO[]>;
+      return this.request<TermDTO[]>('/api/terms', 'GET', { ecnryptedFields: [] }) as Promise<TermDTO[]>;
     }
   
     async put(Term: PutTermRequest): Promise<PutTermResponse> {
-      return this.request<PutTermResponse>('/***REMOVED***/terms', 'PUT', { ecnryptedFields: [] }, Term) as Promise<PutTermResponse>;
+      return this.request<PutTermResponse>('/api/terms', 'PUT', { ecnryptedFields: [] }, Term) as Promise<PutTermResponse>;
     }
     
-    async delete(***REMOVED***: string): Promise<PutTermResponse> {
-      return this.request<PutTermResponse>('/***REMOVED***/terms/' + ***REMOVED***, 'DELETE', { ecnryptedFields: [] }) as Promise<PutTermResponse>;
+    async delete(key: string): Promise<PutTermResponse> {
+      return this.request<PutTermResponse>('/api/terms/' + key, 'DELETE', { ecnryptedFields: [] }) as Promise<PutTermResponse>;
     }    
   }

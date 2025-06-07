@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 const Br = () => "\n";
 
 // Create Document Component
-export function KeyPrint ({ ***REMOVED***, databaseId }: { ***REMOVED***: string, databaseId: string }) {
+export function KeyPrint ({ key, databaseId }: { key: string, databaseId: string }) {
     return (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -39,7 +39,7 @@ export function KeyPrint ({ ***REMOVED***, databaseId }: { ***REMOVED***: string
                     <View style={{maxWidth : 400}}>
                         <Text style={styles.title}>Key Id:</Text>
                         <Text style={styles.value}>
-                            {***REMOVED***}
+                            {key}
                         </Text>
                     </View>
                 </View>

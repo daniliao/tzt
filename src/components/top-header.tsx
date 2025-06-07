@@ -9,9 +9,9 @@ import { Edit3Icon, FileIcon, FolderIcon, FolderOpen, FoldersIcon, FormInputIcon
 import { DatabaseContext } from "@/contexts/db-context";
 import { toast } from "sonner";
 import { useTheme } from 'next-themes';
-import SharedKeysPopup from "./shared-***REMOVED***s-popup";
-import { KeyContext } from "@/contexts/***REMOVED***-context";
-import { ChangeKeyPopup } from "./change-***REMOVED***-popup";
+import SharedKeysPopup from "./shared-keys-popup";
+import { KeyContext } from "@/contexts/key-context";
+import { ChangeKeyPopup } from "./change-key-popup";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { ConfigContext } from "@/contexts/config-context";
 import { ChatContext } from "@/contexts/chat-context";
@@ -32,7 +32,7 @@ import { SaaSContextLoader } from "./saas-context-loader";
 export default function TopHeader() {
     const folderContext = useContext(FolderContext);
     const dbContext = useContext(DatabaseContext);
-    const ***REMOVED***Context = useContext(KeyContext);
+    const keyContext = useContext(KeyContext);
     const chatContext = useContext(ChatContext);
     const recordContext = useContext(RecordContext);
     const termsContext = useContext(TermsContext);
@@ -99,30 +99,30 @@ export default function TopHeader() {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup heading="Suggestions">
-                  <CommandItem ***REMOVED***="cmd-edit-folder" className="cursor-pointer text-xs"  onSelect={(e) => { recordContext?.setRecordEditMode(true); }}><PlusIcon /> Add record</CommandItem>
-                  {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-audit" className="cursor-pointer text-xs" onSelect={(v) => { auditContext?.setAuditLogDialogOpen(true);  }}><LogsIcon className="w-6 h-6" />  Data Audit Log</CommandItem>) : null}
-                  {!process.env.NEXT_PUBLIC_SAAS && (!dbContext?.acl || dbContext.acl.role === 'owner') ? (<CommandItem ***REMOVED***="cmd-settings" className="cursor-pointer text-xs" onSelect={(v) => { config?.setConfigDialogOpen(true);  }}><Settings2Icon className="w-6 h-6" />  Settings</CommandItem>) : null}
-                    <CommandItem ***REMOVED***="cmd-list-folders" className="cursor-pointer text-xs"  onSelect={(e) => { folderContext?.setFolderListPopup(true); folderContext?.setFolderEditOpen(false); }}><FoldersIcon /> List folders</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-edit-current-folder" className="cursor-pointer text-xs"  onSelect={(e) => { folderContext?.setFolderListPopup(true); folderContext?.setFolderEditOpen(true); }}><Edit3Icon /> Edit currrent folder</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-open-chat" className="cursor-pointer text-xs"  onSelect={(e) => { chatContext?.setChatOpen(true); }}><MessageCircleIcon /> Open AI Chat</CommandItem>
+                  <CommandItem key="cmd-edit-folder" className="cursor-pointer text-xs"  onSelect={(e) => { recordContext?.setRecordEditMode(true); }}><PlusIcon /> Add record</CommandItem>
+                  {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem key="cmd-audit" className="cursor-pointer text-xs" onSelect={(v) => { auditContext?.setAuditLogDialogOpen(true);  }}><LogsIcon className="w-6 h-6" />  Data Audit Log</CommandItem>) : null}
+                  {!process.env.NEXT_PUBLIC_SAAS && (!dbContext?.acl || dbContext.acl.role === 'owner') ? (<CommandItem key="cmd-settings" className="cursor-pointer text-xs" onSelect={(v) => { config?.setConfigDialogOpen(true);  }}><Settings2Icon className="w-6 h-6" />  Settings</CommandItem>) : null}
+                    <CommandItem key="cmd-list-folders" className="cursor-pointer text-xs"  onSelect={(e) => { folderContext?.setFolderListPopup(true); folderContext?.setFolderEditOpen(false); }}><FoldersIcon /> List folders</CommandItem>
+                    <CommandItem key="cmd-edit-current-folder" className="cursor-pointer text-xs"  onSelect={(e) => { folderContext?.setFolderListPopup(true); folderContext?.setFolderEditOpen(true); }}><Edit3Icon /> Edit currrent folder</CommandItem>
+                    <CommandItem key="cmd-open-chat" className="cursor-pointer text-xs"  onSelect={(e) => { chatContext?.setChatOpen(true); }}><MessageCircleIcon /> Open AI Chat</CommandItem>
 
-                    {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem ***REMOVED***="cmd-share" className="cursor-pointer text-xs" onSelect={(v) => { ***REMOVED***Context.setSharedKeysDialogOpen(true);  }}><Share2Icon className="w-6 h-6" />  Shared Keys</CommandItem>) : null}
+                    {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<CommandItem key="cmd-share" className="cursor-pointer text-xs" onSelect={(v) => { keyContext.setSharedKeysDialogOpen(true);  }}><Share2Icon className="w-6 h-6" />  Shared Keys</CommandItem>) : null}
                   </CommandGroup>
                   <CommandGroup heading="Export & import">
-                    <CommandItem ***REMOVED***="cmd-export" className="cursor-pointer text-xs" onSelect={(v) => { recordContext?.exportRecords(); }}><SaveAllIcon className="w-6 h-6" /> Export filtered records</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-import" className="cursor-pointer text-xs" onSelect={(v) => { 
+                    <CommandItem key="cmd-export" className="cursor-pointer text-xs" onSelect={(v) => { recordContext?.exportRecords(); }}><SaveAllIcon className="w-6 h-6" /> Export filtered records</CommandItem>
+                    <CommandItem key="cmd-import" className="cursor-pointer text-xs" onSelect={(v) => { 
                         openFilePicker();
                       }}><ImportIcon className="w-6 h-6" /> Import records</CommandItem>
                   </CommandGroup>                  
                   <CommandGroup heading="Security">
-                    <CommandItem ***REMOVED***="cmd-security-report" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Security incident report for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Report incident</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-security-close-account" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Close account request for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Close account</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-change-***REMOVED***" className="cursor-pointer text-xs" onSelect={(v) => { ***REMOVED***Context.setChangeEncryptionKeyDialogOpen(true);  }}><KeyIcon className="w-6 h-6" /> Change encryption ***REMOVED***</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-logout" className="cursor-pointer text-xs" onSelect={(v) => { dbContext?.logout(); }}><LogOutIcon className="w-6 h-6" /> Logout</CommandItem>
+                    <CommandItem key="cmd-security-report" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Security incident report for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Report incident</CommandItem>
+                    <CommandItem key="cmd-security-close-account" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Close account request for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Close account</CommandItem>
+                    <CommandItem key="cmd-change-key" className="cursor-pointer text-xs" onSelect={(v) => { keyContext.setChangeEncryptionKeyDialogOpen(true);  }}><KeyIcon className="w-6 h-6" /> Change encryption key</CommandItem>
+                    <CommandItem key="cmd-logout" className="cursor-pointer text-xs" onSelect={(v) => { dbContext?.logout(); }}><LogOutIcon className="w-6 h-6" /> Logout</CommandItem>
                   </CommandGroup>
                   <CommandGroup heading="Help">
-                    <CommandItem ***REMOVED***="cmd-contact-us" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Contact us for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Contact us</CommandItem>
-                    <CommandItem ***REMOVED***="cmd-terms" className="cursor-pointer text-xs" onSelect={(v) => { termsContext.setTermsDialogOpen(true); }}><FileIcon className="w-6 h-6" /> Accepted terms</CommandItem>
+                    <CommandItem key="cmd-contact-us" className="cursor-pointer text-xs" onSelect={(v) => { window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Contact us for ' + dbContext?.databaseHashId)) }}><FormInputIcon className="w-6 h-6" /> Contact us</CommandItem>
+                    <CommandItem key="cmd-terms" className="cursor-pointer text-xs" onSelect={(v) => { termsContext.setTermsDialogOpen(true); }}><FileIcon className="w-6 h-6" /> Accepted terms</CommandItem>
                   </CommandGroup>
               </CommandList>
             </CommandDialog>

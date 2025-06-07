@@ -1,8 +1,8 @@
 ### REST API Documentation for FolderApiClient
 
-This documentation is based on the `FolderApiClient` class defined in `src/data/client/folder-***REMOVED***-client.ts`.
+This documentation is based on the `FolderApiClient` class defined in `src/data/client/folder-api-client.ts`.
 
-#### GET `/***REMOVED***/folder`
+#### GET `/api/folder`
 
 Fetches all folders.
 
@@ -13,11 +13,11 @@ Fetches all folders.
 
 ```typescript
 async get(): Promise<GetFoldersResponse> {
-  return this.request<GetFoldersResponse>('/***REMOVED***/folder', 'GET', FolderDTOEncSettings) as Promise<GetFoldersResponse>;
+  return this.request<GetFoldersResponse>('/api/folder', 'GET', FolderDTOEncSettings) as Promise<GetFoldersResponse>;
 }
 ```
 
-#### PUT `/***REMOVED***/folder`
+#### PUT `/api/folder`
 
 Updates a folder.
 
@@ -31,11 +31,11 @@ Updates a folder.
 
 ```typescript
 async put(folder: PutFolderRequest): Promise<PutFolderResponse> {
-  return this.request<PutFolderResponse>('/***REMOVED***/folder', 'PUT', FolderDTOEncSettings, folder) as Promise<PutFolderResponse>;
+  return this.request<PutFolderResponse>('/api/folder', 'PUT', FolderDTOEncSettings, folder) as Promise<PutFolderResponse>;
 }
 ```
 
-#### DELETE `/***REMOVED***/folder/{id}`
+#### DELETE `/api/folder/{id}`
 
 Deletes a folder.
 
@@ -47,7 +47,7 @@ Deletes a folder.
 
 ```typescript
 async delete(folder: FolderDTO): Promise<DeleteFolderResponse> {
-  return this.request<DeleteFolderResponse>('/***REMOVED***/folder/' + folder.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteFolderResponse>;
+  return this.request<DeleteFolderResponse>('/api/folder/' + folder.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteFolderResponse>;
 }
 ```
 
@@ -126,4 +126,4 @@ export type DeleteFolderResponse = {
 };
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/folder-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/folder-api-client.ts).

@@ -1,6 +1,6 @@
 import { databaseAuthorizeRequestSchema, defaultKeyACL, KeyDTO } from "@/data/dto";
-import { ***REMOVED***orizeKey } from "@/data/server/server-***REMOVED***-helpers";
-import { ***REMOVED***orizeSaasContext } from "@/lib/generic-***REMOVED***";
+import { authorizeKey } from "@/data/server/server-key-helpers";
+import { authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
 import { NextRequest } from "next/server";
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
         const jsonRequest = await request.json();
         const validationResult = databaseAuthorizeRequestSchema.safeParse(jsonRequest); // validation
 
-        const saasContext = await ***REMOVED***orizeSaasContext(request, true); // ***REMOVED***orize SaaS context
+        const saasContext = await authorizeSaasContext(request, true); // authorize SaaS context
         if (!saasContext.hasAccess) {
             return Response.json({
                 message: saasContext.error,
@@ -20,10 +20,10 @@ export async function POST(request: NextRequest) {
         }
 
         if (validationResult.success === true) {
-            const ***REMOVED***Request = validationResult.data;
-            const ***REMOVED***Details = await ***REMOVED***orizeKey(***REMOVED***Request);
+            const authRequest = validationResult.data;
+            const keyDetails = await authorizeKey(authRequest);
 
-            if (!***REMOVED***Details) { // this situation theoretically should not happen bc. if database file exists we return out of the function
+            if (!keyDetails) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                 return Response.json({
                     message: 'Invalid Database Id or Key. Key not found.',
                     status: 401               
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
             } else {
 
                 const alg = 'HS256'
-                const ***REMOVED***Payload = { databaseIdHash: ***REMOVED***Request.databaseIdHash, ***REMOVED***Hash: ***REMOVED***Request.***REMOVED***Hash, ***REMOVED***LocatorHash: ***REMOVED***Request.***REMOVED***LocatorHash }
-                const accessToken = await new SignJWT(***REMOVED***Payload)
+                const tokenPayload = { databaseIdHash: authRequest.databaseIdHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
+                const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()
                 .setIssuer('urn:ctt:doctor-dok')
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
                 .setExpirationTime('15m')
                 .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
 
-                const refreshToken = await new SignJWT(***REMOVED***Payload)
+                const refreshToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()
                 .setIssuer('urn:ctt:doctor-dok')
@@ -48,14 +48,14 @@ export async function POST(request: NextRequest) {
                 .setExpirationTime('8h')
                 .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
 
-                const ***REMOVED***ACL = (***REMOVED***Details as KeyDTO).acl ?? null;
+                const keyACL = (keyDetails as KeyDTO).acl ?? null;
                 return Response.json({
                     message: 'Succesfully Authorized!',
                     data: {
-                        encryptedMasterKey: (***REMOVED***Details as KeyDTO).encryptedMasterKey,
+                        encryptedMasterKey: (keyDetails as KeyDTO).encryptedMasterKey,
                         accessToken:  accessToken,
                         refreshToken: refreshToken,
-                        acl: ***REMOVED***ACL ? JSON.parse(***REMOVED***ACL) : defaultKeyACL,
+                        acl: keyACL ? JSON.parse(keyACL) : defaultKeyACL,
                         saasContext: saasContext ? saasContext.saasContex : null
                     },
                     status: 200

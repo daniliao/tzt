@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { ConfigDTO, ConfigDTOEncSettings, KeyDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { ZodIssue } from "zod";
 
 export type PutKeyRequest = KeyDTO;
@@ -26,14 +26,14 @@ export class KeyApiClient extends ApiClient {
     }
   
     async get(): Promise<KeyDTO[]> {
-      return this.request<KeyDTO[]>('/***REMOVED***/***REMOVED***s', 'GET', { ecnryptedFields: [] }) as Promise<KeyDTO[]>;
+      return this.request<KeyDTO[]>('/api/keys', 'GET', { ecnryptedFields: [] }) as Promise<KeyDTO[]>;
     }
   
-    async put(***REMOVED***: PutKeyRequest): Promise<PutKeyResponse> {
-      return this.request<PutKeyResponse>('/***REMOVED***/***REMOVED***s', 'PUT', { ecnryptedFields: [] }, ***REMOVED***) as Promise<PutKeyResponse>;
+    async put(key: PutKeyRequest): Promise<PutKeyResponse> {
+      return this.request<PutKeyResponse>('/api/keys', 'PUT', { ecnryptedFields: [] }, key) as Promise<PutKeyResponse>;
     }
     
-    async delete(***REMOVED***LocatorHash: string): Promise<PutKeyResponse> {
-      return this.request<PutKeyResponse>('/***REMOVED***/***REMOVED***s/' + ***REMOVED***LocatorHash, 'DELETE', { ecnryptedFields: [] }) as Promise<PutKeyResponse>;
+    async delete(keyLocatorHash: string): Promise<PutKeyResponse> {
+      return this.request<PutKeyResponse>('/api/keys/' + keyLocatorHash, 'DELETE', { ecnryptedFields: [] }) as Promise<PutKeyResponse>;
     }    
   }

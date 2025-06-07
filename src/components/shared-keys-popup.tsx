@@ -12,25 +12,25 @@ import DatabaseLinkAlert from "./shared/database-link-alert";
 import { FolderEditPopup } from "./folder-edit-popup";
 import { NoRecordsAlert } from "./shared/no-records-alert";
 import { DatabaseContext } from "@/contexts/db-context";
-import { KeyContext, KeyContextProvider } from "@/contexts/***REMOVED***-context";
-import SharedKeyItem from "./shared-***REMOVED***-item";
-import { SharedKeyEditPopup } from "./shared-***REMOVED***-edit-popup";
+import { KeyContext, KeyContextProvider } from "@/contexts/key-context";
+import SharedKeyItem from "./shared-key-item";
+import { SharedKeyEditPopup } from "./shared-key-edit-popup";
 
 export default function SharedKeysPopup() {
   const configContext = useContext(ConfigContext);
   const dbContext = useContext(DatabaseContext);
-  const ***REMOVED***sContext = useContext(KeyContext);
+  const keysContext = useContext(KeyContext);
 
   useEffect(() => {
-    ***REMOVED***sContext?.loadKeys();
+    keysContext?.loadKeys();
   }, []);
 
   return (
-    <Credenza open={***REMOVED***sContext.sharedKeysDialogOpen} onOpenChange={***REMOVED***sContext.setSharedKeysDialogOpen}>
+    <Credenza open={keysContext.sharedKeysDialogOpen} onOpenChange={keysContext.setSharedKeysDialogOpen}>
       <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
         <CredenzaHeader>
-          <CredenzaTitle>Shared ***REMOVED***s
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+          <CredenzaTitle>Shared keys
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <SharedKeyEditPopup />
             ) : (null)}
           </CredenzaTitle>
@@ -40,16 +40,16 @@ export default function SharedKeysPopup() {
         </CredenzaHeader>
         <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-auto">
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <div className="p-4 space-y-4">
-                {***REMOVED***sContext?.loaderStatus === DataLoadingStatus.Loading ? (
+                {keysContext?.loaderStatus === DataLoadingStatus.Loading ? (
                   <div className="flex justify-center">
                     <DataLoader />
                   </div>
                 ) : (
-                  (***REMOVED***sContext?.***REMOVED***s.length > 0) ?
-                    ***REMOVED***sContext?.***REMOVED***s.map((***REMOVED***, index) => (
-                      <SharedKeyItem onClick={(e) => {}} ***REMOVED***={index} sharedKey={***REMOVED***} selected={***REMOVED***sContext?.currentKey?.***REMOVED***LocatorHash === ***REMOVED***.***REMOVED***LocatorHash} />
+                  (keysContext?.keys.length > 0) ?
+                    keysContext?.keys.map((key, index) => (
+                      <SharedKeyItem onClick={(e) => {}} key={index} sharedKey={key} selected={keysContext?.currentKey?.keyLocatorHash === key.keyLocatorHash} />
                     ))
                     : (
                       <NoRecordsAlert title="Data is not shared">

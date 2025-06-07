@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { AuditDTO, ConfigDTO, ConfigDTOEncSettings, KeyDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { ZodIssue } from "zod";
 import { SaaSContextType } from "@/contexts/saas-context";
 
@@ -28,10 +28,10 @@ export class AuditApiClient extends ApiClient {
     async get(limit: number, offset: number): Promise<AuditDTO[]> {
       if (limit <= 0) limit = 10;
       if (offset < 0) offset = 0;
-      return this.request<AuditDTO[]>('/***REMOVED***/audit?limit=' + limit + '&offset=' + offset, 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
+      return this.request<AuditDTO[]>('/api/audit?limit=' + limit + '&offset=' + offset, 'GET', { ecnryptedFields: ['encryptedDiff'] }) as Promise<AuditDTO[]>;
     }
   
-    async put(***REMOVED***: PutAuditRequest): Promise<PutAuditResponse> {
-      return this.request<PutAuditResponse>('/***REMOVED***/audit', 'PUT', { ecnryptedFields: ['encryptedDiff'] }, ***REMOVED***) as Promise<PutAuditResponse>;
+    async put(key: PutAuditRequest): Promise<PutAuditResponse> {
+      return this.request<PutAuditResponse>('/api/audit', 'PUT', { ecnryptedFields: ['encryptedDiff'] }, key) as Promise<PutAuditResponse>;
     }
 }

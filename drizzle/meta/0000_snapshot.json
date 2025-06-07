@@ -1,15 +1,83 @@
 {
-  "id": "c4220f05-ade7-4dba-9a74-653dfe153a1e",
+  "id": "957cb003-0a4a-4107-99fa-381714138f4a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.audit": {
+      "name": "audit",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ua": {
+          "name": "ua",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "keyLocatorHash": {
+          "name": "keyLocatorHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "databaseIdHash": {
+          "name": "databaseIdHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recordLocator": {
+          "name": "recordLocator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "diff": {
+          "name": "diff",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eventName": {
+          "name": "eventName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.config": {
       "name": "config",
       "schema": "",
       "columns": {
-        "***REMOVED***": {
-          "name": "***REMOVED***",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -22,7 +90,7 @@
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
@@ -108,14 +176,14 @@
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
@@ -153,7 +221,7 @@
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
@@ -167,12 +235,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.***REMOVED***s": {
-      "name": "***REMOVED***s",
+    "public.keys": {
+      "name": "keys",
       "schema": "",
       "columns": {
-        "***REMOVED***LocatorHash": {
-          "name": "***REMOVED***LocatorHash",
+        "keyLocatorHash": {
+          "name": "keyLocatorHash",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -189,14 +257,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "***REMOVED***Hash": {
-          "name": "***REMOVED***Hash",
+        "keyHash": {
+          "name": "keyHash",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "***REMOVED***HashParams": {
-          "name": "***REMOVED***HashParams",
+        "keyHashParams": {
+          "name": "keyHashParams",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -221,14 +289,14 @@
         },
         "expiryDate": {
           "name": "expiryDate",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
@@ -333,35 +401,105 @@
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "records_folderId_folders_id_fk": {
-          "name": "records_folderId_folders_id_fk",
-          "tableFrom": "records",
-          "tableTo": "folders",
-          "columnsFrom": [
-            "folderId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.stats": {
+      "name": "stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "eventName": {
+          "name": "eventName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "promptTokens": {
+          "name": "promptTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "completionTokens": {
+          "name": "completionTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "finishReasons": {
+          "name": "finishReasons",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "createdMonth": {
+          "name": "createdMonth",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdDay": {
+          "name": "createdDay",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdYear": {
+          "name": "createdYear",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdHour": {
+          "name": "createdHour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "counter": {
+          "name": "counter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         }
       },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -390,8 +528,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "***REMOVED***": {
-          "name": "***REMOVED***",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -428,7 +566,7 @@
         },
         "signedAt": {
           "name": "signedAt",
-          "type": "timestamp with time zone",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "CURRENT_TIMESTAMP"

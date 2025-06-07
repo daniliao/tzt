@@ -1,9 +1,9 @@
 import ServerFolderRepository from "@/data/server/server-folder-repository";
 import ServerRecordRepository from "@/data/server/server-record-repository";
-import { ***REMOVED***orizeRequestContext, genericDELETE } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
 
 export async function DELETE(request: Request, { params }: { params: { id: number }} ) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request);
+    const requestContext = await authorizeRequestContext(request);
     const recordLocator = params.id;
     const prRepo = new ServerRecordRepository(requestContext.databaseIdHash);
     const records = await prRepo.findAll( { filter: { folderId: recordLocator } });

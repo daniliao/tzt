@@ -2,7 +2,7 @@
 
 Last Updated: 17.09.2024
 
-1. **Data Controller**: We are CT Tornado sp. z o.o., with its registered office in Wrocław, Poland (address: ul. Wyspa Słodowa 7, 50-266 Wrocław; registration: District Court Wrocław-Fabryczna, KRS number: 783910; tax ID no.: 8982262377; share c***REMOVED***tal: PLN 5 000,00; email address).
+1. **Data Controller**: We are CT Tornado sp. z o.o., with its registered office in Wrocław, Poland (address: ul. Wyspa Słodowa 7, 50-266 Wrocław; registration: District Court Wrocław-Fabryczna, KRS number: 783910; tax ID no.: 8982262377; share capital: PLN 5 000,00; email address).
 2. **Scope of Processing**: We process personal data of users of the Doctor Dok application (the “**App**”) and the access management site (each, a “**User**”).
 3. **Consent**: By using our services, you consent to the processing of your personal data in accordance with this Privacy Policy.
 4. **Contact Information**: Queries about personal data can be directed to us via: (i) email: info@catchthetornado.com; (ii) [contact form](https://www.catchthetornado.com/contact-us); or (iii) postal address: our registered office.
@@ -18,4 +18,4 @@ Last Updated: 17.09.2024
 14. **California Consumer Privacy Act (CCPA) Rights**: (a) Right to Know and Access: You can request information about the collection, use, and sharing of your personal data over the past 12 months, including specific pieces of personal data collected. (b) Right to Deletion: You can request deletion of your personal data, subject to legal exceptions. (c) Right to Non-Discrimination: You will not face discriminatory treatment for exercising your privacy rights under the CCPA. (d) Right to Opt-Out of Sale: While we do not sell personal data as defined by the CCPA, you have the right to opt-out if we were to engage in such sales. (e) Contact for More Information: For inquiries or to exercise any of these CCPA rights, please contact us at info@catchthetornado.com.
 15. **Withdrawal of Consent**: Where the processing of your personal data is based on your consent, you have the right to withdraw that consent at any time. Withdrawal of consent does not affect the lawfulness of processing based on consent before its withdrawal. Please note that withdrawing consent may result in the termination of your account or limit your ability to use certain features of our services.
 16. **Mandatory Data Provision**: Providing personal data is necessary for account management and related services.
-17. **Complaints**: You have the right to lodge a complaint with a supervisory ***REMOVED***ority if you believe our processing of your data violates GDPR provisions or CCPA rights.
+17. **Complaints**: You have the right to lodge a complaint with a supervisory authority if you believe our processing of your data violates GDPR provisions or CCPA rights.

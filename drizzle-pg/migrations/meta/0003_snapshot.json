@@ -8,8 +8,8 @@
       "name": "config",
       "schema": "",
       "columns": {
-        "***REMOVED***": {
-          "name": "***REMOVED***",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -167,12 +167,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.***REMOVED***s": {
-      "name": "***REMOVED***s",
+    "public.keys": {
+      "name": "keys",
       "schema": "",
       "columns": {
-        "***REMOVED***LocatorHash": {
-          "name": "***REMOVED***LocatorHash",
+        "keyLocatorHash": {
+          "name": "keyLocatorHash",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -189,14 +189,14 @@
           "primaryKey": false,
           "notNull": true
         },
-        "***REMOVED***Hash": {
-          "name": "***REMOVED***Hash",
+        "keyHash": {
+          "name": "keyHash",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "***REMOVED***HashParams": {
-          "name": "***REMOVED***HashParams",
+        "keyHashParams": {
+          "name": "keyHashParams",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -452,8 +452,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "***REMOVED***": {
-          "name": "***REMOVED***",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": false,
           "notNull": false

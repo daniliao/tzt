@@ -15,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { set } from "react-hook-form";
 import { Textarea } from "./ui/textarea";
 import { DatabaseContext } from "@/contexts/db-context";
-import { KeyContext } from "@/contexts/***REMOVED***-context";
-import { ChangeKeyPopup } from "./change-***REMOVED***-popup";
+import { KeyContext } from "@/contexts/key-context";
+import { ChangeKeyPopup } from "./change-key-popup";
 
 const ocrLlanguages = [
   { name: "English", code: "eng" },
@@ -122,7 +122,7 @@ const ocrLlanguages = [
 
 export function SettingsPopup() {
   const config = useContext(ConfigContext);
-  const ***REMOVED***sContext = useContext(KeyContext);
+  const keysContext = useContext(KeyContext);
   const [ocrProvider, setOcrProvider] = useState("chatgpt");
   const [ocrLanguage, setOcrLanguage] = useState("eng");
   const [llmProviderChat, setLlmProviderChat] = useState("chatgpt")
@@ -244,10 +244,10 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: None" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="skip" value="skip">Don&apos;t remove personal data</SelectItem>
-                            <SelectItem ***REMOVED***="ollama" value="ollama">Local: Ollama</SelectItem>
-                            <SelectItem ***REMOVED***="replace" value="replace">Basic: Replace strings</SelectItem>
-                            <SelectItem ***REMOVED***="both" value="both">Both: Replace strings + Ollama</SelectItem>
+                            <SelectItem key="skip" value="skip">Don&apos;t remove personal data</SelectItem>
+                            <SelectItem key="ollama" value="ollama">Local: Ollama</SelectItem>
+                            <SelectItem key="replace" value="replace">Basic: Replace strings</SelectItem>
+                            <SelectItem key="both" value="both">Both: Replace strings + Ollama</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>                     
@@ -255,7 +255,7 @@ export function SettingsPopup() {
                         Personaly Identifable Information (PII) removal works only when OCR (eg. Tesseract) is enabled. It removes personal data from attachments before sending it to Cloud AI providers.
                       </div>
                       <div className="grid grid-cols-1 items-center gap-2">
-                        <Label htmlFor="piiGeneralData">PII data to be removed (1 line = 1 ***REMOVED***)</Label>
+                        <Label htmlFor="piiGeneralData">PII data to be removed (1 line = 1 token)</Label>
                         <Textarea id="piiGeneralData" {...register("piiGeneralData", { required: false, validate: {
                             piiGeneralData: (value) => true
                           }} )}></Textarea>
@@ -276,9 +276,9 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: Chat GPT" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
-                            <SelectItem ***REMOVED***="tesseract" value="tesseract">Browser: Tesseract</SelectItem>
-                            <SelectItem ***REMOVED***="gemini" value="gemini">Cloud: Gemini</SelectItem>
+                            <SelectItem key="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
+                            <SelectItem key="tesseract" value="tesseract">Browser: Tesseract</SelectItem>
+                            <SelectItem key="gemini" value="gemini">Cloud: Gemini</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -290,7 +290,7 @@ export function SettingsPopup() {
                           </SelectTrigger>
                           <SelectContent>
                           {ocrLlanguages.map((lang) => (
-                              <SelectItem ***REMOVED***={lang.code} value={lang.code}>{lang.name}</SelectItem>
+                              <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>
                             ))}                          
                           </SelectContent>
                         </Select>
@@ -302,9 +302,9 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: Chat GPT" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
-                            <SelectItem ***REMOVED***="gemini" value="gemini">Cloud: Gemini</SelectItem>
-                            <SelectItem ***REMOVED***="ollama" value="ollama">Local: Ollama</SelectItem>
+                            <SelectItem key="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
+                            <SelectItem key="gemini" value="gemini">Cloud: Gemini</SelectItem>
+                            <SelectItem key="ollama" value="ollama">Local: Ollama</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -315,9 +315,9 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: Chat GPT" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
-                            <SelectItem ***REMOVED***="gemini" value="gemini">Cloud: Gemini</SelectItem>
-                            <SelectItem ***REMOVED***="ollama" value="ollama">Local: Ollama</SelectItem>
+                            <SelectItem key="chatgpt" value="chatgpt">Cloud: Chat GPT</SelectItem>
+                            <SelectItem key="gemini" value="gemini">Cloud: Gemini</SelectItem>
+                            <SelectItem key="ollama" value="ollama">Local: Ollama</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>}
@@ -338,7 +338,7 @@ export function SettingsPopup() {
                             <SelectValue placeholder="Default: Llama 3.1" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem ***REMOVED***="llama3.1" value="llama3.1">LLama 3.1</SelectItem>
+                            <SelectItem key="llama3.1" value="llama3.1">LLama 3.1</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>                      
@@ -360,20 +360,20 @@ export function SettingsPopup() {
                       autoFocus
                       type="text"
                       id="chatGptApiKey"
-                      {...register("chatGptApiKey", { required: 'Chat GPT API ***REMOVED*** is required' , validate: {
-                        ***REMOVED***FormatValidation: (value) => (value as string).startsWith('sk')
+                      {...register("chatGptApiKey", { required: 'Chat GPT API key is required' , validate: {
+                        keyFormatValidation: (value) => (value as string).startsWith('sk')
                       }} )}
                     />
-                    {(errors.chatGptApiKey?.type === "***REMOVED***FormatValidation") && <div><span className="text-red-500  text-sm">ChatGPT API ***REMOVED*** should start with &apos;sk&apos;</span></div>}
+                    {(errors.chatGptApiKey?.type === "keyFormatValidation") && <div><span className="text-red-500  text-sm">ChatGPT API key should start with &apos;sk&apos;</span></div>}
                     {errors.chatGptApiKey && <div><span className="text-red-500  text-sm">{errors.chatGptApiKey.message}</span></div>}
                     <div>
-                      <Link href="https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-***REMOVED***-***REMOVED***" target="_blank" className="text-sm text-blue-500 hover:underline" prefetch={false}>
+                      <Link href="https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key" target="_blank" className="text-sm text-blue-500 hover:underline" prefetch={false}>
                         How to obtain ChatGPT API Key
                       </Link>
                     </div>
                     <div className="grid grid-cols-2 items-center gap-2">
                       <Label htmlFor="geminiApiKey">Gemini API Key</Label>
-                      <Input id="geminiApiKey" type="***REMOVED***" {...register("geminiApiKey", { required: false })} />
+                      <Input id="geminiApiKey" type="password" {...register("geminiApiKey", { required: false })} />
                     </div>
                   </CardContent>
                 </Card>

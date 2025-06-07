@@ -3,11 +3,11 @@ import React, { createContext, PropsWithChildren, useContext, useEffect, useStat
 import { DatabaseContext } from './db-context';
 import { toast } from 'sonner';
 import { ConfigContextType } from '@/contexts/config-context';
-import { TermApiClient } from '@/data/client/term-***REMOVED***-client';
+import { TermApiClient } from '@/data/client/term-api-client';
 import { TermDTO } from '@/data/dto';
 import { sha256 } from '@/lib/crypto';
 import { useSearchParams } from 'next/navigation';
-import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-***REMOVED***-client';
+import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-api-client';
 
 
 export interface SaaSContextType {
@@ -24,7 +24,7 @@ export interface SaaSContextType {
     email: string | null;
     userId: string | null;
     saasToken: string | null;
-    setSaasToken: (***REMOVED***: string) => void;
+    setSaasToken: (token: string) => void;
     loadSaaSContext: (saasToken: string) => Promise<void>;
 }
 
@@ -43,7 +43,7 @@ export const SaaSContext = createContext<SaaSContextType>({
     email: null,
     userId: null,
     saasToken: null,
-    setSaasToken: (***REMOVED***: string) => {},
+    setSaasToken: (token: string) => {},
     loadSaaSContext: async (saasToken: string) => {}
 });
 
@@ -85,7 +85,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         const saasAccount = await client.get(saasToken && saasToken !== null ? saasToken : '', false) as GetSaaSResponseSuccess;
 
         if(saasAccount.status !== 200) {
-//            toast.error('Failed to load SaaS account. Your account may be disabled or the ***REMOVED*** is invalid.');
+//            toast.error('Failed to load SaaS account. Your account may be disabled or the token is invalid.');
         } else {
             setCurrentQuota(saasAccount.data.currentQuota);
             setCurrentUsage(saasAccount.data.currentUsage);

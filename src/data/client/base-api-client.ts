@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 
 export type ApiEncryptionConfig = {
-  ***REMOVED***Key?: string;
+  secretKey?: string;
   useEncryption: boolean;
 };
 
@@ -38,14 +38,14 @@ export class ApiClient {
     this.saasContext = saasContext;
     if (this.saasContext) this.setSaasToken(this.saasContext.saasToken ?? '');
     if (encryptionConfig?.useEncryption) {
-      this.encryptionFilter = new DTOEncryptionFilter(encryptionConfig.***REMOVED***Key as string);
+      this.encryptionFilter = new DTOEncryptionFilter(encryptionConfig.secretKey as string);
     }
-    this.encryptionUtils = new EncryptionUtils(encryptionConfig?.***REMOVED***Key as string);
+    this.encryptionUtils = new EncryptionUtils(encryptionConfig?.secretKey as string);
     this.encryptionConfig = encryptionConfig;
   }
 
-  public setSaasToken(***REMOVED***: string) {
-    this.saasToken = ***REMOVED***;
+  public setSaasToken(token: string) {
+    this.saasToken = token;
   }
 
   public async getArrayBuffer(
@@ -78,24 +78,24 @@ export class ApiClient {
       const response: AxiosResponse<ArrayBuffer> = await axios(config);
 
       if(response.status === 401) {
-        console.error('Un***REMOVED***orized, first and only refresh attempt');
-        // Refresh ***REMOVED***
+        console.error('Unauthorized, first and only refresh attempt');
+        // Refresh token
         if (!repeatedRequestAccessToken) {
           const refreshResult = await this.dbContext?.refresh({
             refreshToken: this.dbContext.refreshToken
           })
           if((refreshResult)?.success) {
-            console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
+            console.log('Refresh token success', this.dbContext?.accessToken);
             return this.getArrayBuffer(endpoint, refreshResult.accessToken);
           } else {
             this.dbContext?.logout();
-            toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
-            throw new Error('Request failed. Refresh ***REMOVED*** failed. Try log-in again.');
+            toast.error('Refresh token failed. Please try to log-in again.');
+            throw new Error('Request failed. Refresh token failed. Try log-in again.');
           }
         } else {
           this.dbContext?.logout();
-          toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
-          throw new Error('Request failed. Refresh ***REMOVED*** failed. Try log-in again.');
+          toast.error('Refresh token failed. Please try to log-in again.');
+          throw new Error('Request failed. Refresh token failed. Try log-in again.');
         }
       }
 
@@ -131,7 +131,7 @@ export class ApiClient {
       headers['SaaS-Token'] = this.saasToken;
     }
 
-    if (!repeatedRequestAccessToken) { //  if this is just a repeated request - in case of ***REMOVED*** refresh we're not encrypting data second time
+    if (!repeatedRequestAccessToken) { //  if this is just a repeated request - in case of token refresh we're not encrypting data second time
       if (formData) {
           if (this.encryptionFilter) {
             throw new Error('Encryption is not supported for FormData');
@@ -163,24 +163,24 @@ export class ApiClient {
       const response: AxiosResponse = await axios(config);
 
       if(response.status === 401) {
-        console.error('Un***REMOVED***orized, first and only refresh attempt');
-        // Refresh ***REMOVED***
+        console.error('Unauthorized, first and only refresh attempt');
+        // Refresh token
         if (!repeatedRequestAccessToken) {
           const refreshResult = await this.dbContext?.refresh({
             refreshToken: this.dbContext.refreshToken
           })
           if((refreshResult)?.success) {
-            console.log('Refresh ***REMOVED*** success', this.dbContext?.accessToken);
+            console.log('Refresh token success', this.dbContext?.accessToken);
             return this.request(endpoint, method, encryptionSettings, body, formData, refreshResult.accessToken);
           } else {
             this.dbContext?.logout();
-            toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
-            throw new ApiError('Request failed. Refresh ***REMOVED*** failed. Try log-in again.', 401, refreshResult);
+            toast.error('Refresh token failed. Please try to log-in again.');
+            throw new ApiError('Request failed. Refresh token failed. Try log-in again.', 401, refreshResult);
           }
         } else {
           this.dbContext?.logout();
-          toast.error('Refresh ***REMOVED*** failed. Please try to log-in again.');
-          throw new ApiError('Request failed. Refresh ***REMOVED*** failed. Try log-in again.', 401, null);
+          toast.error('Refresh token failed. Please try to log-in again.');
+          throw new ApiError('Request failed. Refresh token failed. Try log-in again.', 401, null);
         }
       }
 

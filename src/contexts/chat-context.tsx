@@ -9,7 +9,7 @@ import { ConfigContext } from '@/contexts/config-context';
 import { toast } from 'sonner';
 import { Record } from '@/data/client/models';
 import { StatDTO, AggregatedStatsDTO } from '@/data/dto';
-import { AggregatedStatsResponse, AggregateStatResponse, StatApiClient } from '@/data/client/stat-***REMOVED***-client';
+import { AggregatedStatsResponse, AggregateStatResponse, StatApiClient } from '@/data/client/stat-api-client';
 import { DatabaseContext } from './db-context';
 import { findCodeBlocks, getErrorMessage } from '@/lib/utils';
 import { SaaSContext } from './saas-context';
@@ -238,8 +238,8 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     const saasContext = useContext(SaaSContext);
     const config = useContext(ConfigContext);
     const checkApiConfig = async (): Promise<boolean> => {
-        const ***REMOVED***Key = await config?.getServerConfig('chatGptApiKey') as string;
-        if (!***REMOVED***Key) {
+        const apiKey = await config?.getServerConfig('chatGptApiKey') as string;
+        if (!apiKey) {
             config?.setConfigDialogOpen(true);
             toast.info('Please enter Chat GPT API Key first');
             return false;
@@ -322,12 +322,12 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         } else if (providerName === 'chatgpt'){
             const aiProvider = createOpenAI({
                 compatibility: 'strict',
-                ***REMOVED***Key: await config?.getServerConfig('chatGptApiKey') as string
+                apiKey: await config?.getServerConfig('chatGptApiKey') as string
             })
             return aiProvider.chat(modelName ? modelName : 'chatgpt-4o-latest')   //gpt-4o-2024-05-13
         } else if (providerName === 'gemini') {
             const aiProvider = createGoogleGenerativeAI({                
-                ***REMOVED***Key: await config?.getServerConfig('geminiApiKey') as string
+                apiKey: await config?.getServerConfig('geminiApiKey') as string
             })
             return aiProvider.chat(modelName ? modelName : 'gemini-2.5-pro-preview-05-06')
         } else {
@@ -611,8 +611,8 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     }
 
     const aggregatedStats = async (): Promise<AggregatedStatsDTO> => {
-        const ***REMOVED***Client = new StatApiClient('', dbContext, saasContext, { useEncryption: false });
-        const aggregatedStats = await ***REMOVED***Client.aggregated() as AggregatedStatsResponse;
+        const apiClient = new StatApiClient('', dbContext, saasContext, { useEncryption: false });
+        const aggregatedStats = await apiClient.aggregated() as AggregatedStatsResponse;
         if (aggregatedStats.status === 200) {
             console.log('Stats this and last month: ', aggregatedStats);
             return aggregatedStats.data;
@@ -622,8 +622,8 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     }
 
     const aggregateStats = async (newItem: StatDTO): Promise<StatDTO> => {
-        const ***REMOVED***Client = new StatApiClient('', dbContext, saasContext, { useEncryption: false });
-        const aggregatedStats = await ***REMOVED***Client.aggregate(newItem) as AggregateStatResponse;
+        const apiClient = new StatApiClient('', dbContext, saasContext, { useEncryption: false });
+        const aggregatedStats = await apiClient.aggregate(newItem) as AggregateStatResponse;
         if (aggregatedStats.status === 200) {
             console.log('Stats aggregated', aggregatedStats);
             setLastRequestStat(aggregatedStats.data);

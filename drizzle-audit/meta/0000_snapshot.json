@@ -28,8 +28,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "***REMOVED***HashId": {
-          "name": "***REMOVED***HashId",
+        "keyHashId": {
+          "name": "keyHashId",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

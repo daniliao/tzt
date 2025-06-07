@@ -38,8 +38,8 @@ export default function RecordsWrapper({}) {
           <div>
             <div className="flex-1 overflow-auto">
               <div className="grid gap-4">
-                { (dbContext?.***REMOVED***Status === DatabaseAuthStatus.Authorized && folderContext?.currentFolder) ? (
-                  <RecordList ***REMOVED***={0} folder={folderContext?.currentFolder} />
+                { (dbContext?.authStatus === DatabaseAuthStatus.Authorized && folderContext?.currentFolder) ? (
+                  <RecordList key={0} folder={folderContext?.currentFolder} />
                 ) : (
                   <DatabaseLinkAlert />
                 ) }

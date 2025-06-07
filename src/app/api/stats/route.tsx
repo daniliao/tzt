@@ -1,11 +1,11 @@
 import { statsSchema } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
-import { ***REMOVED***orizeRequestContext, ***REMOVED***orizeSaasContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const requestContext = await authorizeRequestContext(request, response);
 
     const statsRepo = new ServerStatRepository(requestContext.databaseIdHash, 'stats');
     const validationResult = statsSchema.safeParse(await request.json());
@@ -18,9 +18,9 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     } else {
         const result = await statsRepo.aggregate(validationResult.data)
 
-        const saasContext = await ***REMOVED***orizeSaasContext(request);
-        if (saasContext.***REMOVED***Client) {
-            saasContext.***REMOVED***Client.saveStats(requestContext.databaseIdHash, {
+        const saasContext = await authorizeSaasContext(request);
+        if (saasContext.apiClient) {
+            saasContext.apiClient.saveStats(requestContext.databaseIdHash, {
                 ...result,
                 databaseIdHash: requestContext.databaseIdHash
             });

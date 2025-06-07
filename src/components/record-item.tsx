@@ -131,7 +131,7 @@ export default function RecordItem({ record, displayAttachmentPreviews }: { reco
 
           <div className="mt-2 flex flex-wrap items-center gap-2 w-full">
             {record.attachments.map((attachment, index) => (
-              <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button variant="outline" onClick={() => recordContext?.downloadAttachment(attachment.toDTO(), false)}><PaperclipIcon className="w-4 h-4 mr-2" /> {shorten(attachment.displayName)}</Button></div>
+              <div key={index} className="text-sm inline-flex w-auto"><Button variant="outline" onClick={() => recordContext?.downloadAttachment(attachment.toDTO(), false)}><PaperclipIcon className="w-4 h-4 mr-2" /> {shorten(attachment.displayName)}</Button></div>
             ))}
           </div>
           {displayAttachmentPreviews && record.attachments.length > 0 ? (
@@ -142,7 +142,7 @@ export default function RecordItem({ record, displayAttachmentPreviews }: { reco
                     className='w-100 pr-2 pb-2'
                     width={100}
                     height={100}
-                    ***REMOVED***={`attachment-prv-${index}`}
+                    key={`attachment-prv-${index}`}
                     src={attachment.url}
                     alt={attachment.name}
                   />
@@ -201,7 +201,7 @@ export default function RecordItem({ record, displayAttachmentPreviews }: { reco
                 {record.tags && record.tags.length > 0 ? (
                 <div className="mt-2 flex flex-wrap items-center gap-2 w-full">
                   {record.tags.sort((a, b) => a.localeCompare(b)).map((tag, index) => (
-                    <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button variant={recordContext?.filterSelectedTags.includes(tag) ? 'default' : 'outline' }  onClick={() => {
+                    <div key={index} className="text-sm inline-flex w-auto"><Button variant={recordContext?.filterSelectedTags.includes(tag) ? 'default' : 'outline' }  onClick={() => {
                       if (folderContext?.currentFolder) {
                         recordContext?.filterToggleTag(tag);
                       }      
@@ -213,7 +213,7 @@ export default function RecordItem({ record, displayAttachmentPreviews }: { reco
 
                 <div className="mt-2 flex flex-wrap items-center gap-2 w-full">
                   {record.attachments.map((attachment, index) => (
-                    <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button variant="outline" onClick={() => recordContext?.downloadAttachment(attachment.toDTO(), false)}><PaperclipIcon className="w-4 h-4 mr-2" /> {shorten(attachment.displayName)}</Button></div>
+                    <div key={index} className="text-sm inline-flex w-auto"><Button variant="outline" onClick={() => recordContext?.downloadAttachment(attachment.toDTO(), false)}><PaperclipIcon className="w-4 h-4 mr-2" /> {shorten(attachment.displayName)}</Button></div>
                   ))}
                 </div>
                 {displayAttachmentPreviews && record.attachments.length > 0 ? (
@@ -224,7 +224,7 @@ export default function RecordItem({ record, displayAttachmentPreviews }: { reco
                           className='w-100 pr-2 pb-2'
                           width={100}
                           height={100}
-                          ***REMOVED***={`attachment-prv-${index}`}
+                          key={`attachment-prv-${index}`}
                           src={attachment.url}
                           alt={attachment.name}
                         />

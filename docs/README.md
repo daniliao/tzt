@@ -4,10 +4,10 @@ Hello! This is Doctor Dok's Web API documentation. Doctor Dok might be used as a
 
 ## Table of contents
 
-- [API Documentation Index](#***REMOVED***-documentation-index)
+- [API Documentation Index](#api-documentation-index)
   - [Table of contents](#table-of-contents)
   - [Available Documentation](#available-documentation)
-    - [Example of Authorizing Database Using fetch() Method](#example-of-***REMOVED***orizing-database-using-fetch-method)
+    - [Example of Authorizing Database Using fetch() Method](#example-of-authorizing-database-using-fetch-method)
     - [Example of fetching folders list](#example-of-fetching-folders-list)
   - [Note on encryption](#note-on-encryption)
     - [Example of creating new record with encryption](#example-of-creating-new-record-with-encryption)
@@ -15,19 +15,19 @@ Hello! This is Doctor Dok's Web API documentation. Doctor Dok might be used as a
 
 ## Available Documentation
 
-- [Database API](./***REMOVED***/db.md)
-- [Configuration API](./***REMOVED***/config.md)
-- [Folders API](./***REMOVED***/folder.md)
-- [Records API](./***REMOVED***/record.md)
-- [Authorization Keys API](./***REMOVED***/***REMOVED***s.md)
-- [Audit Log API](./***REMOVED***/audit.md)
-- [Encrypted Attachments API](./***REMOVED***/attachment.md)
-- [Stats API](./***REMOVED***/stats.md)
-- [Usage terms API](./***REMOVED***/terms.md)
+- [Database API](./api/db.md)
+- [Configuration API](./api/config.md)
+- [Folders API](./api/folder.md)
+- [Records API](./api/record.md)
+- [Authorization Keys API](./api/keys.md)
+- [Audit Log API](./api/audit.md)
+- [Encrypted Attachments API](./api/attachment.md)
+- [Stats API](./api/stats.md)
+- [Usage terms API](./api/terms.md)
 
 ### Example of Authorizing Database Using fetch() Method
 
-Here is an example of how to ***REMOVED***orize a database using the `fetch()` method. Please note that the code above requires the [argon2-browser](https://www.npmjs.com/package/argon2-browser) package to be installed.
+Here is an example of how to authorize a database using the `fetch()` method. Please note that the code above requires the [argon2-browser](https://www.npmjs.com/package/argon2-browser) package to be installed.
 
 ```javascript
 const argon2 = require("argon2-browser");
@@ -42,50 +42,50 @@ export async function sha256(message: string, salt: string) {
   return hashHex;
 }
 
-// returns `access ***REMOVED***` which should be used with the subsequent ***REMOVED*** calls
-async function ***REMOVED***orizeDatabase(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt) {
-    const databaseIdHash = await sha256(***REMOVED***orizeRequest.databaseId, defaultDatabaseIdHashSalt);
-    const ***REMOVED***LocatorHash = await sha256(***REMOVED***orizeRequest.***REMOVED*** + ***REMOVED***orizeRequest.databaseId, defaultKeyLocatorHashSalt);
+// returns `access key` which should be used with the subsequent api calls
+async function authorizeDatabase(authorizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt) {
+    const databaseIdHash = await sha256(authorizeRequest.databaseId, defaultDatabaseIdHashSalt);
+    const keyLocatorHash = await sha256(authorizeRequest.key + authorizeRequest.databaseId, defaultKeyLocatorHashSalt);
 
     // Authorize Challenge
-    const ***REMOVED***ChallengeResponse = await fetch('/***REMOVED***/***REMOVED***orize-challenge', {
+    const authChallengeResponse = await fetch('/api/authorize-challenge', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             databaseIdHash,
-            ***REMOVED***LocatorHash
+            keyLocatorHash
         })
     });
 
-    if (***REMOVED***ChallengeResponse.status === 200) { // ***REMOVED***orization challenge success
-        const ***REMOVED***HashParams = await ***REMOVED***ChallengeResponse.json();
+    if (authChallengeResponse.status === 200) { // authorization challenge success
+        const keyHashParams = await authChallengeResponse.json();
 
-        const ***REMOVED***Hash = await argon2.hash({
-            pass: ***REMOVED***orizeRequest.***REMOVED***,
-            salt: ***REMOVED***HashParams.salt,
-            time: ***REMOVED***HashParams.time,
-            mem: ***REMOVED***HashParams.mem,
-            hashLen: ***REMOVED***HashParams.hashLen,
-            parallelism: ***REMOVED***HashParams.parallelism
+        const keyHash = await argon2.hash({
+            pass: authorizeRequest.key,
+            salt: keyHashParams.salt,
+            time: keyHashParams.time,
+            mem: keyHashParams.mem,
+            hashLen: keyHashParams.hashLen,
+            parallelism: keyHashParams.parallelism
         });
 
         // Authorization
-        const ***REMOVED***Response = await fetch('/***REMOVED***/***REMOVED***orize', {
+        const authResponse = await fetch('/api/authorize', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 databaseIdHash,
-                ***REMOVED***Hash: ***REMOVED***Hash.encoded,
-                ***REMOVED***LocatorHash
+                keyHash: keyHash.encoded,
+                keyLocatorHash
             })
         });
 
-        if (***REMOVED***Response.status === 200) { // user is virtually logged in
-            /** more: ./***REMOVED***/db.md
+        if (authResponse.status === 200) { // user is virtually logged in
+            /** more: ./api/db.md
              * ```typescript
             export type AuthorizeDbResponse = {
             message: string;
@@ -100,10 +100,10 @@ async function ***REMOVED***orizeDatabase(***REMOVED***orizeRequest, defaultData
             issues?: any[];
             }; */
       
-            const ***REMOVED***Data = await ***REMOVED***Response.json();
-            const accessKey = ***REMOVED***Data.data.accessKey
-            const encryptionKey = ***REMOVED***Data.data.encryptedMasterKey;
-            const acl = ***REMOVED***Data.data.acl
+            const authData = await authResponse.json();
+            const accessKey = authData.data.accessKey
+            const encryptionKey = authData.data.encryptedMasterKey;
+            const acl = authData.data.acl
 
             return { accessKey, encryptionKey, acl, databaseIdHash }
 
@@ -117,24 +117,24 @@ async function ***REMOVED***orizeDatabase(***REMOVED***orizeRequest, defaultData
 }
 ```
 
-The `fetch()` method is used to make HTTP requests to the ***REMOVED***orization endpoints.
+The `fetch()` method is used to make HTTP requests to the authorization endpoints.
 
 
 ### Example of fetching folders list
 
 ```javascript
-// Function to ***REMOVED***orize and fetch folders
-async function fetchFolders(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt) {
+// Function to authorize and fetch folders
+async function fetchFolders(authorizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt) {
   try {
     // Authorize the database
-    const { accessKey, encryptionKey, acl, databaseIdHash } = await ***REMOVED***orizeDatabase(
-      ***REMOVED***orizeRequest,
+    const { accessKey, encryptionKey, acl, databaseIdHash } = await authorizeDatabase(
+      authorizeRequest,
       defaultDatabaseIdHashSalt,
       defaultKeyLocatorHashSalt
     );
 
     // Fetch the folders list
-    const response = await fetch('/***REMOVED***/folder', {
+    const response = await fetch('/api/folder', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -156,14 +156,14 @@ async function fetchFolders(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt
 
 // Example usage
 (async () => {
-  const ***REMOVED***orizeRequest = {
+  const authorizeRequest = {
     databaseId: 'your-database-id',
-    ***REMOVED***: 'your-***REMOVED***'
+    key: 'your-key'
   };
   const defaultDatabaseIdHashSalt = 'your-database-id-hash-salt';
-  const defaultKeyLocatorHashSalt = 'your-***REMOVED***-locator-hash-salt';
+  const defaultKeyLocatorHashSalt = 'your-key-locator-hash-salt';
 
-  const folders = await fetchFolders(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt);
+  const folders = await fetchFolders(authorizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt);
   console.log('Folders:', folders);
 })();
 ```
@@ -171,48 +171,48 @@ async function fetchFolders(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt
 ## Note on encryption
 
 **WARNING**
-The Doctor Dok data access is end 2 end encrypted. All the data passed to the API should be encrypted with `encryptionKey` returned by the `***REMOVED***orizeDatabase` function above, otherwise the data is stored 100% unecnrypted
+The Doctor Dok data access is end 2 end encrypted. All the data passed to the API should be encrypted with `encryptionKey` returned by the `authorizeDatabase` function above, otherwise the data is stored 100% unecnrypted
 
 Exmaple data encryption functions (used by [lib/crypto](../src/lib/crypto.ts)) that might be helpfull:
 
 ```typescript
 export class EncryptionUtils {
-  private ***REMOVED***: CryptoKey = {} as CryptoKey;
-  private ***REMOVED***Key: string;
-  private ***REMOVED***Generated:boolean = false;
+  private key: CryptoKey = {} as CryptoKey;
+  private secretKey: string;
+  private keyGenerated:boolean = false;
   
-  constructor(***REMOVED***Key: string) {
-    this.***REMOVED***Key = ***REMOVED***Key;
+  constructor(secretKey: string) {
+    this.secretKey = secretKey;
   }
 
-  async generateKey(***REMOVED***Key: string): Promise<void> {
-    if (this.***REMOVED***Generated && this.***REMOVED***Key !== ***REMOVED***Key) {
-      this.***REMOVED***Generated = false; // ***REMOVED*** changed
+  async generateKey(secretKey: string): Promise<void> {
+    if (this.keyGenerated && this.secretKey !== secretKey) {
+      this.keyGenerated = false; // key changed
     }
 
-    if (this.***REMOVED***Generated) {
+    if (this.keyGenerated) {
       return;
     }
-    this.***REMOVED***Key = ***REMOVED***Key
-    const ***REMOVED***Data = await this.deriveKey(***REMOVED***Key);
-    this.***REMOVED*** = await crypto.subtle.importKey(
+    this.secretKey = secretKey
+    const keyData = await this.deriveKey(secretKey);
+    this.key = await crypto.subtle.importKey(
       'raw',
-      ***REMOVED***Data,
+      keyData,
       { name: 'AES-GCM' },
       false,
       ['encrypt', 'decrypt']
     );
-    this.***REMOVED***Generated = true;
+    this.keyGenerated = true;
   }
 
-  private async deriveKey(***REMOVED***Key: string): Promise<ArrayBuffer> {
+  private async deriveKey(secretKey: string): Promise<ArrayBuffer> {
     const encoder = new TextEncoder();
     const salt = encoder.encode('someSalt'); // Replace 'someSalt' with a suitable salt value
     const iterations = 100000; // Adjust the number of iterations as needed
-    const ***REMOVED***Length = 256; // 256 bits (32 bytes)
+    const keyLength = 256; // 256 bits (32 bytes)
     const derivedKey = await crypto.subtle.importKey(
       'raw',
-      encoder.encode(***REMOVED***Key),
+      encoder.encode(secretKey),
       { name: 'PBKDF2' },
       false,
       ['deriveBits']
@@ -225,11 +225,11 @@ export class EncryptionUtils {
         hash: 'SHA-256'
       },
       derivedKey,
-      ***REMOVED***Length
+      keyLength
     );
   }
   async encryptArrayBuffer(data: ArrayBuffer): Promise<ArrayBuffer> {
-    await this.generateKey(this.***REMOVED***Key);
+    await this.generateKey(this.secretKey);
 
     const iv = crypto.getRandomValues(new Uint8Array(16)); // Initialization vector
     const encryptedData = await crypto.subtle.encrypt(
@@ -237,7 +237,7 @@ export class EncryptionUtils {
             name: 'AES-GCM',
             iv: iv,
         },
-        this.***REMOVED***,
+        this.key,
         data
     );
     return new Blob([iv, new Uint8Array(encryptedData)]).arrayBuffer(); // Prepend IV to the ciphertext
@@ -254,7 +254,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
  async decryptArrayBuffer(encryptedData: ArrayBuffer | Blob): Promise<ArrayBuffer> {
     try {
-      await this.generateKey(this.***REMOVED***Key);
+      await this.generateKey(this.secretKey);
 
       let encryptedArrayBuffer: ArrayBuffer;
       if (encryptedData instanceof Blob) {
@@ -271,7 +271,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
               name: 'AES-GCM',
               iv: iv,
           },
-          this.***REMOVED***,
+          this.key,
           cipherText
       );
     } catch (e) {
@@ -280,14 +280,14 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
     }
   }
   async encrypt(text: string): Promise<string> {
-    await this.generateKey(this.***REMOVED***Key);
+    await this.generateKey(this.secretKey);
 
     const encoder = new TextEncoder();
     const data = encoder.encode(text);
     const iv = crypto.getRandomValues(new Uint8Array(16));
     const encryptedData = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
-      this.***REMOVED***,
+      this.key,
       data
     );
     const encryptedArray = Array.from(new Uint8Array(encryptedData));
@@ -299,7 +299,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
   async decrypt(cipherText: string): Promise<string> {
     try {
       if (cipherText) {
-        await this.generateKey(this.***REMOVED***Key);
+        await this.generateKey(this.secretKey);
 
         const ivHex = cipherText.slice(0, 32);
         const encryptedHex = cipherText.slice(32);
@@ -308,7 +308,7 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
         const decryptedData = await crypto.subtle.decrypt(
           { name: 'AES-GCM', iv },
-          this.***REMOVED***,
+          this.key,
           encryptedArray
         );
         const decoder = new TextDecoder();
@@ -325,20 +325,20 @@ async blobToArrayBuffer (blob: Blob): Promise<ArrayBuffer> {
 
 
 export function generateEncryptionKey() {
-  const ***REMOVED*** = crypto.getRandomValues(new Uint8Array(32))
-  return btoa(String.fromCharCode(...***REMOVED***))
+  const key = crypto.getRandomValues(new Uint8Array(32))
+  return btoa(String.fromCharCode(...key))
 }
 ```
 
 ### Example of creating new record with encryption
 
 ```typescript
-// Function to ***REMOVED***orize and create a new record
-async function createRecord(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt, recordData) {
+// Function to authorize and create a new record
+async function createRecord(authorizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt, recordData) {
   try {
     // Authorize the database
-    const { accessKey, encryptionKey, acl, databaseIdHash } = await ***REMOVED***orizeDatabase(
-      ***REMOVED***orizeRequest,
+    const { accessKey, encryptionKey, acl, databaseIdHash } = await authorizeDatabase(
+      authorizeRequest,
       defaultDatabaseIdHashSalt,
       defaultKeyLocatorHashSalt
     );
@@ -348,12 +348,12 @@ async function createRecord(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt
 
     // Encrypt the record data
     const encryptedRecordData = {};
-    for (const [***REMOVED***, value] of Object.entries(recordData)) {
-      encryptedRecordData[***REMOVED***] = await encryptionUtils.encrypt(value.toString());
+    for (const [key, value] of Object.entries(recordData)) {
+      encryptedRecordData[key] = await encryptionUtils.encrypt(value.toString());
     }
 
     // Send the encrypted data to the API
-    const response = await fetch('/***REMOVED***/record', {
+    const response = await fetch('/api/record', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -376,12 +376,12 @@ async function createRecord(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt
 
 // Example usage
 (async () => {
-  const ***REMOVED***orizeRequest = {
+  const authorizeRequest = {
     databaseId: 'your-database-id',
-    ***REMOVED***: 'your-***REMOVED***'
+    key: 'your-key'
   };
   const defaultDatabaseIdHashSalt = 'your-database-id-hash-salt';
-  const defaultKeyLocatorHashSalt = 'your-***REMOVED***-locator-hash-salt';
+  const defaultKeyLocatorHashSalt = 'your-key-locator-hash-salt';
 
   const recordData = {
     id: 1,
@@ -402,7 +402,7 @@ async function createRecord(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt
     attachments: 'attachments'
   };
 
-  const result = await createRecord(***REMOVED***orizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt, recordData);
+  const result = await createRecord(authorizeRequest, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt, recordData);
   console.log('Record created:', result);
 })();
 ```

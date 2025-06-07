@@ -1,6 +1,6 @@
 import { EncryptedAttachmentDTO, EncryptedAttachmentDTOSchema } from "@/data/dto";
 import ServerEncryptedAttachmentRepository from "@/data/server/server-encryptedattachment-repository";
-import { ***REMOVED***orizeRequestContext, genericGET, genericPUT } from "@/lib/generic-***REMOVED***";
+import { authorizeRequestContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,19 +16,19 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 }
 
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const requestContext = await authorizeRequestContext(request, response);
 
     const storageService = new StorageService(requestContext.databaseIdHash);
-    let ***REMOVED***Result = await genericPUT<EncryptedAttachmentDTO>(
+    let apiResult = await genericPUT<EncryptedAttachmentDTO>(
         inputJson,
         EncryptedAttachmentDTOSchema,
         new ServerEncryptedAttachmentRepository(requestContext.databaseIdHash),
         'id'
     );
 
-    if (***REMOVED***Result.status === 200 && file) { // validation went OK, now we can store the file
+    if (apiResult.status === 200 && file) { // validation went OK, now we can store the file
         try {
-            const savedAttachment: EncryptedAttachmentDTO = ***REMOVED***Result.data as EncryptedAttachmentDTO;
+            const savedAttachment: EncryptedAttachmentDTO = apiResult.data as EncryptedAttachmentDTO;
             
             // Validate file size and type
             if (file.size > 100 * 1024 * 1024) { // 100MB limit
@@ -48,15 +48,15 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 
         } catch (e) {
             console.error("Error saving attachment to Azure Blob storage:", e);
-            ***REMOVED***Result.status = 500;
-            ***REMOVED***Result.message = getErrorMessage(e);
-            ***REMOVED***Result.error = e;
+            apiResult.status = 500;
+            apiResult.message = getErrorMessage(e);
+            apiResult.error = e;
         }
     }
-    return Response.json(***REMOVED***Result, { status: ***REMOVED***Result.status });
+    return Response.json(apiResult, { status: apiResult.status });
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
-    const requestContext = await ***REMOVED***orizeRequestContext(request, response);
+    const requestContext = await authorizeRequestContext(request, response);
     return Response.json(await genericGET<EncryptedAttachmentDTO>(request, new ServerEncryptedAttachmentRepository(requestContext.databaseIdHash)));
 }

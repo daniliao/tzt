@@ -42,9 +42,9 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
     protected buildWhereClause(filter: IFilter): SQL {
         const conditions: SQL[] = [];
-        for (const [***REMOVED***, value] of Object.entries(filter)) {
+        for (const [key, value] of Object.entries(filter)) {
             if (value !== undefined && value !== null) {
-                conditions.push(sql`${***REMOVED***} = ${value}`);
+                conditions.push(sql`${key} = ${value}`);
             }
         }
         return conditions.length > 0 ? sql`WHERE ${sql.join(conditions, sql` AND `)}` : sql``;
@@ -53,8 +53,8 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     protected buildOrderByClause(sort?: Record<string, any>): SQL {
         if (!sort) return sql``;
         const orders: SQL[] = [];
-        for (const [***REMOVED***, value] of Object.entries(sort)) {
-            orders.push(sql`${***REMOVED***} ${value === 'desc' ? sql`DESC` : sql`ASC`}`);
+        for (const [key, value] of Object.entries(sort)) {
+            orders.push(sql`${key} ${value === 'desc' ? sql`DESC` : sql`ASC`}`);
         }
         return orders.length > 0 ? sql`ORDER BY ${sql.join(orders, sql`, `)}` : sql``;
     }

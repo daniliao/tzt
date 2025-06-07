@@ -1,15 +1,15 @@
 import { DatabaseAuthorizeRequestDTO, KeyDTO } from "../dto";
-import ServerKeyRepository from "./server-***REMOVED***-repository";
+import ServerKeyRepository from "./server-key-repository";
 
-export async function ***REMOVED***orizeKey(***REMOVED***Request: DatabaseAuthorizeRequestDTO): Promise<KeyDTO | boolean> {
-    const ***REMOVED***Repo = new ServerKeyRepository(***REMOVED***Request.databaseIdHash); // get the user ***REMOVED***
-    const existingKeys:KeyDTO[] = await ***REMOVED***Repo.findAll({  filter: { ***REMOVED***LocatorHash: ***REMOVED***Request.***REMOVED***LocatorHash } }); // check if ***REMOVED*** already exists
+export async function authorizeKey(authRequest: DatabaseAuthorizeRequestDTO): Promise<KeyDTO | boolean> {
+    const keyRepo = new ServerKeyRepository(authRequest.databaseIdHash); // get the user key
+    const existingKeys:KeyDTO[] = await keyRepo.findAll({  filter: { keyLocatorHash: authRequest.keyLocatorHash } }); // check if key already exists
 
     if(existingKeys.length === 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function
         return false;      
     } else {
         const isExpired = existingKeys[0].expiryDate ? (new Date(existingKeys[0].expiryDate)).getTime() < Date.now() : false;
-        if (existingKeys[0].***REMOVED***Hash !== ***REMOVED***Request.***REMOVED***Hash || isExpired) {    
+        if (existingKeys[0].keyHash !== authRequest.keyHash || isExpired) {    
             return false;
         } else {
             return existingKeys[0];

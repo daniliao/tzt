@@ -10,12 +10,12 @@ import { Folder } from "@/data/client/models"
 import { Credenza, CredenzaClose, CredenzaContent, CredenzaDescription, CredenzaFooter, CredenzaHeader, CredenzaTitle, CredenzaTrigger } from "./credenza"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { KeyContext } from "@/contexts/***REMOVED***-context";
+import { KeyContext } from "@/contexts/key-context";
 import { DatabaseContext } from "@/contexts/db-context";
-import { PutKeyResponse } from "@/data/client/***REMOVED***-***REMOVED***-client";
+import { PutKeyResponse } from "@/data/client/key-api-client";
 import { Textarea } from "./ui/textarea";
 import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { KeyPrint } from "./***REMOVED***-print";
+import { KeyPrint } from "./key-print";
 import { pdf, Document, Page } from '@react-pdf/renderer';
 import assert from "assert";
 
@@ -23,11 +23,11 @@ function getRandomSixDigit() {
   return Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 }
 export function SharedKeyEditPopup() {
-  const ***REMOVED***sContext = useContext(KeyContext);
+  const keysContext = useContext(KeyContext);
   const dbContext = useContext(DatabaseContext);
   const [open, setOpen] = useState(false)
   let randomKey = useRef<number>(getRandomSixDigit());
-  const [***REMOVED***Result, setApiResult] = useState<PutKeyResponse | null>(null);
+  const [apiResult, setApiResult] = useState<PutKeyResponse | null>(null);
   const [sharedKey, setSharedKey] = useState(randomKey.current.toString());
   const [validFor, setValidFor] = useState("0");
 
@@ -55,7 +55,7 @@ export function SharedKeyEditPopup() {
     randomKey.current = getRandomSixDigit();
     setValue('sharedKey', randomKey.current);
     setValue('displayName', randomKey.current.toString().slice(0,2) + '****');
-  }, [***REMOVED***Result])
+  }, [apiResult])
 
 
   const onSubmit = async (data) => {
@@ -63,10 +63,10 @@ export function SharedKeyEditPopup() {
     setSharedKey(data.sharedKey);
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
     assert(dbContext?.databaseId, "Database Id is required");
-    setApiResult(await ***REMOVED***sContext.addKey(dbContext?.databaseId, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
-    ***REMOVED***sContext.loadKeys();
+    setApiResult(await keysContext.addKey(dbContext?.databaseId, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
+    keysContext.loadKeys();
 
-    if(***REMOVED***Result && ***REMOVED***Result.status === 200) {
+    if(apiResult && apiResult.status === 200) {
       setOpen(false);
       reset();
     }
@@ -82,11 +82,11 @@ export function SharedKeyEditPopup() {
           <CredenzaHeader>
             <CredenzaTitle>Add Shared Key</CredenzaTitle>
             <CredenzaDescription>
-              Add Shared ***REMOVED*** so other users can access your database. <br />You can revoke access at any time.
+              Add Shared key so other users can access your database. <br />You can revoke access at any time.
             </CredenzaDescription>
           </CredenzaHeader>
           <div className="p-4">
-            {(***REMOVED***Result && ***REMOVED***Result.status === 200) ? (
+            {(apiResult && apiResult.status === 200) ? (
               <div className="grid grid-cols-1 gap-4">
                 <h2 className="text-green-500 text-bold">Congratulations!</h2>
                 <p className="text-sm">Shared Keys has been successfully created. Share the Database Id and Shared Key with a person you like to share data with. Please store the credentials in safe place as they are <strong>NEVER send to server</strong> and thus <strong>CAN NOT be recovered</strong></p>
@@ -103,8 +103,8 @@ export function SharedKeyEditPopup() {
                 <div className="flex gap-2 mt-5">
                   <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
                     e.preventDefault();
-                    const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: sharedKey, databaseId: dbContext?.databaseId ?? '' }));
-                    window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
+                    const keyPrinterPdf = pdf(KeyPrint({ key: sharedKey, databaseId: dbContext?.databaseId ?? '' }));
+                    window.open(URL.createObjectURL(await keyPrinterPdf.toBlob()));
                   }}><PrinterIcon className="w-4 h-4" /> Print</Button>
                   <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
                     e.preventDefault();

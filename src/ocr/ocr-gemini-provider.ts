@@ -13,8 +13,8 @@ export async function parse(record: Record, chatContext: ChatContextType, config
     const parseModelName = await configContext?.getServerConfig('llmModelParse') as string;
 
     if (!geminiApiKey) {
-        toast.error('Please configure Gemini API ***REMOVED*** in settings');
-        return Promise.reject('Gemini API ***REMOVED*** not configured');
+        toast.error('Please configure Gemini API key in settings');
+        return Promise.reject('Gemini API key not configured');
     }
 
     return new Promise(async (resolve, reject) => {

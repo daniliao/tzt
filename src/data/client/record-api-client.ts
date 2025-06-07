@@ -1,4 +1,4 @@
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { FolderDTO, RecordDTO, RecordDTOEncSettings } from "../dto";
 import { DatabaseContextType } from "@/contexts/db-context";
@@ -32,14 +32,14 @@ export class RecordApiClient extends ApiClient {
     }
   
     async get(folder: FolderDTO): Promise<GetRecordsResponse> {
-      return this.request<GetRecordsResponse>('/***REMOVED***/record?folderId=' + folder?.id, 'GET', RecordDTOEncSettings) as Promise<GetRecordsResponse>;
+      return this.request<GetRecordsResponse>('/api/record?folderId=' + folder?.id, 'GET', RecordDTOEncSettings) as Promise<GetRecordsResponse>;
     }
   
     async put(record: PutRecordRequest): Promise<PutRecordResponse> {
-      return this.request<PutRecordResponse>('/***REMOVED***/record', 'PUT', RecordDTOEncSettings, record) as Promise<PutRecordResponse>;
+      return this.request<PutRecordResponse>('/api/record', 'PUT', RecordDTOEncSettings, record) as Promise<PutRecordResponse>;
     }
 
     async delete(record: RecordDTO): Promise<DeleteRecordResponse> {
-      return this.request<DeleteRecordResponse>('/***REMOVED***/record/' + record.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteRecordResponse>;
+      return this.request<DeleteRecordResponse>('/api/record/' + record.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteRecordResponse>;
     }    
 }

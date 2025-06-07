@@ -46,10 +46,10 @@ export default class ServerAuditRepository extends BaseRepository<AuditDTO> {
             id: row.id,
             ip: row.ip || undefined,
             ua: row.ua || undefined,
-            ***REMOVED***LocatorHash: row.***REMOVED***LocatorHash || undefined,
+            keyLocatorHash: row.keyLocatorHash || undefined,
             databaseIdHash: row.databaseIdHash || undefined,
             recordLocator: row.recordLocator || undefined,
-            encryptedDiff: row.encryptedDiff || undefined,
+            diff: row.diff || undefined,
             eventName: row.eventName || undefined,
             createdAt: this.toISOStringIfDate(row.createdAt)
         }));
@@ -75,10 +75,10 @@ export default class ServerAuditRepository extends BaseRepository<AuditDTO> {
             id: row.id,
             ip: row.ip || undefined,
             ua: row.ua || undefined,
-            ***REMOVED***LocatorHash: row.***REMOVED***LocatorHash || undefined,
+            keyLocatorHash: row.keyLocatorHash || undefined,
             databaseIdHash: row.databaseIdHash || undefined,
             recordLocator: row.recordLocator || undefined,
-            encryptedDiff: row.encryptedDiff || undefined,
+            diff: row.diff || undefined,
             eventName: row.eventName || undefined,
             createdAt: this.toISOStringIfDate(row.createdAt)
         }));

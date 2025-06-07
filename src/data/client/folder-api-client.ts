@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { FolderDTO, FolderDTOEncSettings } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 
 export type GetFoldersResponse = FolderDTO[];
 
@@ -32,14 +32,14 @@ export class FolderApiClient extends ApiClient {
     }
   
     async get(): Promise<GetFoldersResponse> {
-      return this.request<GetFoldersResponse>('/***REMOVED***/folder', 'GET', FolderDTOEncSettings) as Promise<GetFoldersResponse>;
+      return this.request<GetFoldersResponse>('/api/folder', 'GET', FolderDTOEncSettings) as Promise<GetFoldersResponse>;
     }
   
     async put(folder: PutFolderRequest): Promise<PutFolderResponse> {
-      return this.request<PutFolderResponse>('/***REMOVED***/folder', 'PUT', FolderDTOEncSettings, folder) as Promise<PutFolderResponse>;
+      return this.request<PutFolderResponse>('/api/folder', 'PUT', FolderDTOEncSettings, folder) as Promise<PutFolderResponse>;
     }
 
     async delete(folder: FolderDTO): Promise<DeleteFolderResponse> {
-      return this.request<DeleteFolderResponse>('/***REMOVED***/folder/' + folder.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteFolderResponse>;
+      return this.request<DeleteFolderResponse>('/api/folder/' + folder.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteFolderResponse>;
     }      
   }

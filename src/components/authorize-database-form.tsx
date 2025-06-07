@@ -8,7 +8,7 @@ import { DatabaseAuthStatus, databaseIdValidator, userKeyValidator } from "@/dat
 import { Checkbox } from "./ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { PasswordInput } from "./ui/***REMOVED***-input";
+import { PasswordInput } from "./ui/password-input";
 import NoSSR  from "react-no-ssr"
 import { AuthorizeDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { toast } from "sonner";
@@ -38,9 +38,9 @@ export function AuthorizeDatabaseForm({
   });
   
   const handleAuthorizeDatabase = handleSubmit(async (data) => {
-    const result = await dbContext?.***REMOVED***orize({
+    const result = await dbContext?.authorize({
       databaseId: data.databaseId,
-      ***REMOVED***: data.***REMOVED***,
+      key: data.key,
       keepLoggedIn: keepLoggedIn
     });
     
@@ -60,7 +60,7 @@ export function AuthorizeDatabaseForm({
             <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
             <ul>
               {operationResult.issues.map((issue, index) => (
-                <li ***REMOVED***={index}>{issue.message}</li>
+                <li key={index}>{issue.message}</li>
               ))}
             </ul>
           </div>
@@ -79,13 +79,13 @@ export function AuthorizeDatabaseForm({
         {errors.databaseId && <span className="text-red-500 text-sm">Database Id must be at least 6 letters and/or digits and unique</span>}
       </div>
       <div className="flex flex-col space-y-2 gap-2 mb-4">
-        <Label htmlFor="***REMOVED***">Key</Label>
+        <Label htmlFor="key">Key</Label>
             <div className="relative">
-            <PasswordInput autoComplete="current-***REMOVED*** web***REMOVED***n" id="***REMOVED***"
-                type={showPassword ? 'text' : '***REMOVED***'}
-                {...register("***REMOVED***", { required: true,
+            <PasswordInput autoComplete="current-password webauthn" id="password"
+                type={showPassword ? 'text' : 'password'}
+                {...register("key", { required: true,
                     validate: {
-                        ***REMOVED***: userKeyValidator
+                        key: userKeyValidator
                     }            
                     })}                        />
                 <Button
@@ -107,21 +107,21 @@ export function AuthorizeDatabaseForm({
                     />
                     )}
                     <span className="sr-only">
-                    {showPassword ? "Hide ***REMOVED***" : "Show ***REMOVED***"}
+                    {showPassword ? "Hide password" : "Show password"}
                     </span>
                 </Button>
 
-                {/* hides browsers ***REMOVED*** toggles */}
+                {/* hides browsers password toggles */}
                 <style>{`
-                    .hide-***REMOVED***-toggle::-ms-reveal,
-                    .hide-***REMOVED***-toggle::-ms-clear {
+                    .hide-password-toggle::-ms-reveal,
+                    .hide-password-toggle::-ms-clear {
                     visibility: hidden;
                     pointer-events: none;
                     display: none;
                     }
                 `}</style>
                 </div>
-        {errors.***REMOVED*** && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+        {errors.key && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
         </div>
         {termsUrl ? (
           <div className="items-center justify-between gap-4 mt-4 text-sm">

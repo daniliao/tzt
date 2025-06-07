@@ -27,7 +27,7 @@ export default function FolderListPopup() {
       <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
         <CredenzaHeader>
           <CredenzaTitle>List folders
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <FolderEditPopup />
             ) : (null)}
           </CredenzaTitle>
@@ -37,7 +37,7 @@ export default function FolderListPopup() {
         </CredenzaHeader>
         <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-y-scroll max-h-[500px]">
-            {(dbContext?.***REMOVED***Status == DatabaseAuthStatus.Authorized) ? (
+            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <div className="p-4 space-y-4">
                 {foldersContext?.loaderStatus === DataLoadingStatus.Loading ? (
                   <div className="flex justify-center">
@@ -46,7 +46,7 @@ export default function FolderListPopup() {
                 ) : (
                   (foldersContext?.folders.length > 0) ?
                     foldersContext?.folders.sort((a,b) => a.name.localeCompare(b.name)).map((folder, index) => (
-                      <FolderItem ***REMOVED***={index} folder={folder} selected={foldersContext?.currentFolder?.id === folder.id} />
+                      <FolderItem key={index} folder={folder} selected={foldersContext?.currentFolder?.id === folder.id} />
                     ))
                     : (
                       <NoRecordsAlert title="No folders found">

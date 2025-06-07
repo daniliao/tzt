@@ -1,5 +1,6 @@
 import { pgTable, text, integer, serial, timestamp, uuid, jsonb } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { stats } from "./db-schema-stats";
 
 export const folders = pgTable('folders', {
     id: serial('id').primaryKey(),
@@ -9,27 +10,27 @@ export const folders = pgTable('folders', {
 });
 
 export const config = pgTable('config', {
-    ***REMOVED***: text('***REMOVED***').primaryKey(),
+    key: text('key').primaryKey(),
     value: text('value'),
     updatedAt: timestamp('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
-export const ***REMOVED***s = pgTable('***REMOVED***s', {
-    ***REMOVED***LocatorHash: text('***REMOVED***LocatorHash').primaryKey(),
+export const keys = pgTable('keys', {
+    keyLocatorHash: text('keyLocatorHash').primaryKey(),
     displayName: text('displayName'),
     databaseIdHash: text('databaseIdHash').notNull(),
-    ***REMOVED***Hash: text('***REMOVED***Hash').notNull(),
-    ***REMOVED***HashParams: text('***REMOVED***HashParams').notNull(),
+    keyHash: text('keyHash').notNull(),
+    keyHashParams: text('keyHashParams').notNull(),
     encryptedMasterKey: text('encryptedMasterKey').notNull(),
     acl: text('acl'),
     extra: text('extra'),
     expiryDate: timestamp('expiryDate').default(sql`CURRENT_TIMESTAMP`),
     updatedAt: timestamp('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
-}); 
+});
 
 export const records = pgTable('records', {
     id: serial('id').primaryKey(),
-    folderId: integer('folderId').references(() => folders.id),
+    folderId: integer('folderId'),
     description: text('description'),
     type: text('type'),
     title: text('title'),
@@ -66,7 +67,7 @@ export const terms = pgTable('terms', {
     id: serial('id').primaryKey(),
     content: text('content'),
     code: text('code'),
-    ***REMOVED***: text('***REMOVED***'),
+    key: text('key'),
     signature: text('signature'),
     ip: text('ip'),
     ua: text('ua'),
@@ -74,3 +75,17 @@ export const terms = pgTable('terms', {
     email: text('email'),
     signedAt: timestamp('signedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
+
+export const audit = pgTable('audit', {
+    id: serial('id').primaryKey(),
+    ip: text('ip'),
+    ua: text('ua'),
+    keyLocatorHash: text('keyLocatorHash'),
+    databaseIdHash: text('databaseIdHash'),
+    recordLocator: text('recordLocator'),
+    diff: text('diff'),
+    eventName: text('eventName'),
+    createdAt: timestamp('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+});
+
+export { stats };

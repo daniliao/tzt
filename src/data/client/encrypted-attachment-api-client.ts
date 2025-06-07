@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { EncryptedAttachmentDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-***REMOVED***-client";
+import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 
 export type PutEncryptedAttachmentRequest = FormData | EncryptedAttachmentDTO;
 
@@ -32,18 +32,18 @@ export class EncryptedAttachmentApiClient extends ApiClient {
   
     async put(inputObject:PutEncryptedAttachmentRequest): Promise<PutEncryptedAttachmentResponse> {
       if (inputObject instanceof FormData) {
-        return this.request<PutEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData) as Promise<PutEncryptedAttachmentResponse>;
+        return this.request<PutEncryptedAttachmentResponse>('/api/encrypted-attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData) as Promise<PutEncryptedAttachmentResponse>;
       } else {
-        return this.request<PutEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as EncryptedAttachmentDTO) as Promise<PutEncryptedAttachmentResponse>;
+        return this.request<PutEncryptedAttachmentResponse>('/api/encrypted-attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as EncryptedAttachmentDTO) as Promise<PutEncryptedAttachmentResponse>;
       }
     }
 
     async get(attachment: EncryptedAttachmentDTO): Promise<ArrayBuffer | undefined | null> {
-      return this.getArrayBuffer('/***REMOVED***/encrypted-attachment/' + attachment.storageKey);
+      return this.getArrayBuffer('/api/encrypted-attachment/' + attachment.storageKey);
     }
 
     async delete(attachment: EncryptedAttachmentDTO): Promise<DeleteEncryptedAttachmentResponse> {
-      return this.request<DeleteEncryptedAttachmentResponse>('/***REMOVED***/encrypted-attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteEncryptedAttachmentResponse>;
+      return this.request<DeleteEncryptedAttachmentResponse>('/api/encrypted-attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteEncryptedAttachmentResponse>;
     }
     
   }

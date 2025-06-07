@@ -16,7 +16,7 @@ export const FolderDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: [
 export type FolderDTO = z.infer<typeof folderDTOSchema>;
 
 export const configDTOSchema = z.object({
-  ***REMOVED***: z.string().min(1),
+  key: z.string().min(1),
   value: z.string().nullable(),
   updatedAt: z.string().default(() => getCurrentTS()),
 });
@@ -24,11 +24,11 @@ export const configDTOSchema = z.object({
 export const ConfigDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: ['value'] }
 export type ConfigDTO = z.infer<typeof configDTOSchema>;
 
-export const ***REMOVED***DTOSchema = z.object({
+export const keyDTOSchema = z.object({
   displayName: z.string().min(1),
-  ***REMOVED***LocatorHash: z.string().min(64).max(64),
-  ***REMOVED***Hash: z.string().min(32),
-  ***REMOVED***HashParams: z.string().min(1),
+  keyLocatorHash: z.string().min(64).max(64),
+  keyHash: z.string().min(32),
+  keyHashParams: z.string().min(1),
   databaseIdHash: z.string().min(64).max(64),
   encryptedMasterKey: z.string().min(1),
   acl: z.string().nullable().optional(),
@@ -38,7 +38,7 @@ export const ***REMOVED***DTOSchema = z.object({
 });
 
 export const KeyDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: [] }
-export type KeyDTO = z.infer<typeof ***REMOVED***DTOSchema>;
+export type KeyDTO = z.infer<typeof keyDTOSchema>;
 
 
 export type AttachmentAssigmentDTO = {
@@ -99,9 +99,9 @@ export type RecordDTO = z.infer<typeof recordDTOSchema>;
 
 
 export const databaseCreateRequestSchema = z.object({
-  ***REMOVED***LocatorHash: z.string().min(64).max(64),
-  ***REMOVED***Hash: z.string().min(32),
-  ***REMOVED***HashParams: z.string().min(1),
+  keyLocatorHash: z.string().min(64).max(64),
+  keyHash: z.string().min(32),
+  keyHashParams: z.string().min(1),
   databaseIdHash: z.string().min(1).min(64).max(64),
   encryptedMasterKey: z.string().min(1),
 });
@@ -109,14 +109,14 @@ export type DatabaseCreateRequestDTO = z.infer<typeof databaseCreateRequestSchem
 
 
 export const databaseAuthorizeChallengeRequestSchema = z.object({
-  ***REMOVED***LocatorHash: z.string().min(64).max(64),
+  keyLocatorHash: z.string().min(64).max(64),
   databaseIdHash: z.string().min(1).min(64).max(64),
 });
 export type DatabaseAuthorizeChallengeRequestDTO = z.infer<typeof databaseAuthorizeChallengeRequestSchema>;
 
 export const databaseAuthorizeRequestSchema = z.object({
-  ***REMOVED***LocatorHash: z.string().min(64).max(64),
-  ***REMOVED***Hash: z.string().min(32),
+  keyLocatorHash: z.string().min(64).max(64),
+  keyHash: z.string().min(32),
   databaseIdHash: z.string().min(1).min(64).max(64),
 });
 export type DatabaseAuthorizeRequestDTO = z.infer<typeof databaseAuthorizeRequestSchema>;
@@ -127,25 +127,25 @@ export const databaseRefreshRequestSchema = z.object({
 
 export type DatabaseRefreshRequestDTO = z.infer<typeof databaseRefreshRequestSchema>;
 
-export const ***REMOVED***HashParamsDTOSchema = z.object({
+export const keyHashParamsDTOSchema = z.object({
   salt: z.string(),
   time: z.number().positive().int(),
   mem: z.number().positive().int(),
   hashLen: z.number().positive().int(),
   parallelism: z.number().positive().int(),
 });
-export type KeyHashParamsDTO = z.infer<typeof ***REMOVED***HashParamsDTOSchema>;
+export type KeyHashParamsDTO = z.infer<typeof keyHashParamsDTOSchema>;
 
-export const ***REMOVED***ACLSchema = z.object({
+export const keyACLSchema = z.object({
   role: z.string().min(1),
   features: z.array(z.string()).min(1),
 });
-export type KeyACLDTO = z.infer<typeof ***REMOVED***ACLSchema>;
+export type KeyACLDTO = z.infer<typeof keyACLSchema>;
 export const defaultKeyACL: KeyACLDTO = { role: 'guest', features: [] };
 
 export const termsDTOSchema = z.object({
   id: z.number().positive().optional(),
-  ***REMOVED***: z.string().min(1).optional(),
+  key: z.string().min(1).optional(),
   code: z.string().min(1),
   content: z.string().min(1),
   signature: z.string().optional(),
@@ -195,12 +195,12 @@ export const auditDTOSchema = z.object({
   id: z.number().positive().int().optional(),
   ip: z.string().optional(),
   ua: z.string().optional(),
-  ***REMOVED***LocatorHash: z.string().optional(),
+  keyLocatorHash: z.string().optional(),
   databaseIdHash: z.string().optional(),
   recordLocator: z.string().optional(),
-  encryptedDiff: z.string().optional(),
+  diff: z.string().optional(),
   eventName: z.string().optional(),
-  createdAt: z.string().default(() => getCurrentTS()).optional(),
+  createdAt: z.string().default(() => getCurrentTS()),
 });
 export type AuditDTO = z.infer<typeof auditDTOSchema>;
 

@@ -1,8 +1,8 @@
 ### REST API Documentation for RecordApiClient
 
-This documentation is based on the `RecordApiClient` class defined in `src/data/client/record-***REMOVED***-client.ts`.
+This documentation is based on the `RecordApiClient` class defined in `src/data/client/record-api-client.ts`.
 
-#### GET `/***REMOVED***/record`
+#### GET `/api/record`
 
 Fetches records for a specific folder.
 
@@ -14,11 +14,11 @@ Fetches records for a specific folder.
 
 ```typescript
 async get(folder: FolderDTO): Promise<GetRecordsResponse> {
-  return this.request<GetRecordsResponse>('/***REMOVED***/record?folderId=' + folder?.id, 'GET', RecordDTOEncSettings) as Promise<GetRecordsResponse>;
+  return this.request<GetRecordsResponse>('/api/record?folderId=' + folder?.id, 'GET', RecordDTOEncSettings) as Promise<GetRecordsResponse>;
 }
 ```
 
-#### PUT `/***REMOVED***/record`
+#### PUT `/api/record`
 
 Updates a record.
 
@@ -32,11 +32,11 @@ Updates a record.
 
 ```typescript
 async put(record: PutRecordRequest): Promise<PutRecordResponse> {
-  return this.request<PutRecordResponse>('/***REMOVED***/record', 'PUT', RecordDTOEncSettings, record) as Promise<PutRecordResponse>;
+  return this.request<PutRecordResponse>('/api/record', 'PUT', RecordDTOEncSettings, record) as Promise<PutRecordResponse>;
 }
 ```
 
-#### DELETE `/***REMOVED***/record/{id}`
+#### DELETE `/api/record/{id}`
 
 Deletes a record.
 
@@ -48,7 +48,7 @@ Deletes a record.
 
 ```typescript
 async delete(record: RecordDTO): Promise<DeleteRecordResponse> {
-  return this.request<DeleteRecordResponse>('/***REMOVED***/record/' + record.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteRecordResponse>;
+  return this.request<DeleteRecordResponse>('/api/record/' + record.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteRecordResponse>;
 }
 ```
 
@@ -138,4 +138,4 @@ export type DeleteRecordResponse = {
 };
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/record-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/record-api-client.ts).

@@ -1,9 +1,77 @@
 {
-  "id": "72c8cf98-7b55-47f6-bea0-2bae573af2e0",
-  "prevId": "aa1abb8b-bbcd-4369-a711-b33ad590a627",
+  "id": "4623d3b5-9fa6-426d-bf7f-aa714b830555",
+  "prevId": "957cb003-0a4a-4107-99fa-381714138f4a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.audit": {
+      "name": "audit",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ua": {
+          "name": "ua",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "keyLocatorHash": {
+          "name": "keyLocatorHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "databaseIdHash": {
+          "name": "databaseIdHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recordLocator": {
+          "name": "recordLocator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "diff": {
+          "name": "diff",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eventName": {
+          "name": "eventName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.config": {
       "name": "config",
       "schema": "",
@@ -242,74 +310,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.manifest": {
-      "name": "manifest",
-      "schema": "",
-      "columns": {
-        "database_id_hash": {
-          "name": "database_id_hash",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "creator_ip": {
-          "name": "creator_ip",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        },
-        "creator_ua": {
-          "name": "creator_ua",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        },
-        "creator_country": {
-          "name": "creator_country",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        },
-        "creator_city": {
-          "name": "creator_city",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        },
-        "creator_latitude": {
-          "name": "creator_latitude",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        },
-        "creator_longitude": {
-          "name": "creator_longitude",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.records": {
       "name": "records",
       "schema": "",
@@ -415,21 +415,87 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "records_folderId_folders_id_fk": {
-          "name": "records_folderId_folders_id_fk",
-          "tableFrom": "records",
-          "tableTo": "folders",
-          "columnsFrom": [
-            "folderId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.stats": {
+      "name": "stats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "eventName": {
+          "name": "eventName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "promptTokens": {
+          "name": "promptTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completionTokens": {
+          "name": "completionTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "finishReasons": {
+          "name": "finishReasons",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "createdMonth": {
+          "name": "createdMonth",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdDay": {
+          "name": "createdDay",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdYear": {
+          "name": "createdYear",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdHour": {
+          "name": "createdHour",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "counter": {
+          "name": "counter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -460,6 +526,36 @@
         },
         "key": {
           "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signature": {
+          "name": "signature",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ua": {
+          "name": "ua",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
           "type": "text",
           "primaryKey": false,
           "notNull": false

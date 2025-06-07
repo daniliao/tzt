@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, PropsWithChildren, use } from 'react';
 import { FolderDTO } from '@/data/dto';
-import { FolderApiClient } from '@/data/client/folder-***REMOVED***-client';
-import { ApiEncryptionConfig } from '@/data/client/base-***REMOVED***-client';
+import { FolderApiClient } from '@/data/client/folder-api-client';
+import { ApiEncryptionConfig } from '@/data/client/base-api-client';
 
 
 import { DataLoadingStatus, Folder } from '@/data/client/models';
@@ -53,7 +53,7 @@ export const FolderContextProvider: React.FC<PropsWithChildren> = ({ children })
     const setupApiClient = async (config: ConfigContextType | null) => {
         const masterKey = dbContext?.masterKey
         const encryptionConfig: ApiEncryptionConfig = {
-            ***REMOVED***Key: masterKey,
+            secretKey: masterKey,
             useEncryption: true
         };
         const client = new FolderApiClient('', dbContext, saasContext, encryptionConfig);
@@ -87,8 +87,8 @@ export const FolderContextProvider: React.FC<PropsWithChildren> = ({ children })
     };
 
     const deleteFolder = async (record: Folder): Promise <boolean> => {
-        const ***REMOVED***Client = await setupApiClient(config);
-        const result = await ***REMOVED***Client.delete(record.toDTO())
+        const apiClient = await setupApiClient(config);
+        const result = await apiClient.delete(record.toDTO())
         if(result.status !== 200) {
             toast.error('Error removing folder: ' + result.message)
             return Promise.resolve(false);
@@ -104,8 +104,8 @@ export const FolderContextProvider: React.FC<PropsWithChildren> = ({ children })
         const client = await setupApiClient(config);
         setLoaderStatus(DataLoadingStatus.Loading);
         try {
-            const ***REMOVED***Response = await client.get();
-            const fetchedFolders = ***REMOVED***Response.map((folderDTO: FolderDTO) => Folder.fromDTO(folderDTO));
+            const apiResponse = await client.get();
+            const fetchedFolders = apiResponse.map((folderDTO: FolderDTO) => Folder.fromDTO(folderDTO));
             setFolders(fetchedFolders);
             setLoaderStatus(DataLoadingStatus.Success);
             let defaultFolder:Folder|null = fetchedFolders.length > 0 ? fetchedFolders[0] : null;

@@ -21,7 +21,7 @@ import { FolderContext } from "@/contexts/folder-context";
 import { RecordContext } from "@/contexts/record-context";
 import { getCurrentTS } from "@/lib/utils";
 import { toast } from "sonner";
-import { EncryptedAttachmentApiClient } from "@/data/client/encrypted-attachment-***REMOVED***-client";
+import { EncryptedAttachmentApiClient } from "@/data/client/encrypted-attachment-api-client";
 import { ConfigContext } from "@/contexts/config-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { MicIcon } from "lucide-react"; // Add this import statement
@@ -162,7 +162,7 @@ export default function RecordForm({ folder, mode }: { folder?: Folder, mode?: R
       const savedRecords:Record[] = []
 
       const eaac = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
-        ***REMOVED***Key: dbContext?.masterKey,
+        secretKey: dbContext?.masterKey,
         useEncryption: true
       });
 
@@ -360,7 +360,7 @@ export default function RecordForm({ folder, mode }: { folder?: Folder, mode?: R
                   {files &&
                     files.length > 0 &&
                     files.map((file, i) => (
-                      <FileUploaderItem ***REMOVED***={i} index={i}>
+                      <FileUploaderItem key={i} index={i}>
                         <PaperclipIcon className="h-4 w-4 stroke-current" />
                         <div className="flex">{file.file.name.substring(0, 50) + (file.file.name.length > 50 ? '...' : '') } - {file.status}{file.status !== FileUploadStatus.SUCCESS  ? ( <div className="ml-2 h-4 w-4 animate-spin rounded-full border-4 border-primary border-t-transparent" />) : null}</div>
                       </FileUploaderItem>

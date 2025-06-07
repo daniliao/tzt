@@ -5,18 +5,18 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
 import { databaseIdValidator, userKeyValidator } from "@/data/client/models";
-import { PasswordInput } from "./ui/***REMOVED***-input";
+import { PasswordInput } from "./ui/password-input";
 import { ReactElement, use, useContext, useEffect, useState } from "react"
 import { Checkbox } from "./ui/checkbox";
 import NoSSR  from "react-no-ssr"
 import { CreateDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { generateEncryptionKey } from "@/lib/crypto";
 import { Check, CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { KeyPrint } from "./***REMOVED***-print";
+import { KeyPrint } from "./key-print";
 import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
-import { KeyContext } from "@/contexts/***REMOVED***-context";
+import { KeyContext } from "@/contexts/key-context";
 
 
 interface ChangeKeyFormProps {
@@ -27,7 +27,7 @@ export function ChangeKeyForm({
   const { register, setValue, getValues, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       currentKey: '',
-      ***REMOVED***: generateEncryptionKey()
+      key: generateEncryptionKey()
     }
   });
 
@@ -36,7 +36,7 @@ export function ChangeKeyForm({
   const [printKey, setPrintKey] = useState<ReactElement | null>(null);
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
   const dbContext = useContext(DatabaseContext);
-  const ***REMOVED***Context = useContext(KeyContext);
+  const keyContext = useContext(KeyContext);
 
   useEffect(() => { 
     setOperationResult(null);
@@ -46,22 +46,22 @@ export function ChangeKeyForm({
     // Handle form submission
 
     if (dbContext?.encryptionKey !== data.currentKey) {
-      setOperationResult({ success: false, message: "Current ***REMOVED*** is incorrect", issues: [] });
-      toast.error('Current ***REMOVED*** is incorrect');
+      setOperationResult({ success: false, message: "Current key is incorrect", issues: [] });
+      toast.error('Current key is incorrect');
     } else  {
 
-      const newKeyResult = await ***REMOVED***Context.addKey(dbContext?.databaseId, 'Owner Key', data.***REMOVED***, null, {
+      const newKeyResult = await keyContext.addKey(dbContext?.databaseId, 'Owner Key', data.key, null, {
         role: 'owner',
         features: ['*']
       });
       if (newKeyResult.status === 200) {
-        dbContext?.setEncryptionKey(data.***REMOVED***);
+        dbContext?.setEncryptionKey(data.key);
 
-        const deleteOldKeyResult = await ***REMOVED***Context.removeKey(dbContext.***REMOVED***LocatorHash)
+        const deleteOldKeyResult = await keyContext.removeKey(dbContext.keyLocatorHash)
 
         if(deleteOldKeyResult.status !== 200) {
-          setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: deleteOldKeyResult.issues ?? []});
-          toast.error('Error while changing ***REMOVED***');
+          setOperationResult({ success: false, message: "Error while changing key", issues: deleteOldKeyResult.issues ?? []});
+          toast.error('Error while changing key');
           return;
         } else {
           setOperationResult({ success: true, message: "Key has been successfully changed", issues: [] });
@@ -69,12 +69,12 @@ export function ChangeKeyForm({
 
           if (keepLoggedIn){
             localStorage.setItem("databaseId", dbContext?.databaseId);
-            localStorage.setItem("***REMOVED***", data.***REMOVED***);
+            localStorage.setItem("key", data.key);
           }
         }
       } else {
-        setOperationResult({ success: false, message: "Error while changing ***REMOVED***", issues: newKeyResult.issues ?? []});
-        toast.error('Error while changing ***REMOVED***');
+        setOperationResult({ success: false, message: "Error while changing key", issues: newKeyResult.issues ?? []});
+        toast.error('Error while changing key');
         return;
       }
     }
@@ -88,7 +88,7 @@ export function ChangeKeyForm({
       <div className="border-2 border-dashed border-green-400 p-5">
         <div className="text-sm mb-5">
           <Label htmlFor="current">Database Id:</Label>
-          <Input type="***REMOVED***" id="databaseId" readOnly value={dbContext?.databaseId} />
+          <Input type="password" id="databaseId" readOnly value={dbContext?.databaseId} />
         </div>
         <div className="text-sm">
           <Label htmlFor="encryptionKey">User Key:</Label>
@@ -97,8 +97,8 @@ export function ChangeKeyForm({
         <div className="flex gap-2 mt-5">
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
-            const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: dbContext?.encryptionKey ?? '', databaseId: dbContext?.databaseId ?? '' }));
-            window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
+            const keyPrinterPdf = pdf(KeyPrint({ key: dbContext?.encryptionKey ?? '', databaseId: dbContext?.databaseId ?? '' }));
+            window.open(URL.createObjectURL(await keyPrinterPdf.toBlob()));
           }}><PrinterIcon className="w-4 h-4" /> Print</Button>
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
@@ -115,9 +115,9 @@ export function ChangeKeyForm({
 
       <Button onClick={() => {
         setOperationResult(null);
-        dbContext?.***REMOVED***orize({ // this will ***REMOVED***orize the database and in a side effect close this popup
+        dbContext?.authorize({ // this will authorize the database and in a side effect close this popup
           databaseId: dbContext?.databaseId,
-          ***REMOVED***: dbContext?.encryptionKey,
+          key: dbContext?.encryptionKey,
           keepLoggedIn: keepLoggedIn
         });
       }}>Go to application</Button>
@@ -131,7 +131,7 @@ export function ChangeKeyForm({
               <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
               <ul>
                 {operationResult.issues.map((issue, index) => (
-                  <li ***REMOVED***={index}>{issue.message}</li>
+                  <li key={index}>{issue.message}</li>
                 ))}
               </ul>
             </div>
@@ -148,19 +148,19 @@ export function ChangeKeyForm({
           />
           {errors.currentKey && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Enter your current encryption ***REMOVED*** which is required to re-encrypt your data with new ***REMOVED***
+              Enter your current encryption key which is required to re-encrypt your data with new key
           </p>        
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
-              <Label htmlFor="***REMOVED***">New User Key</Label>
+              <Label htmlFor="key">New User Key</Label>
               <div className="flex gap-2">
                 <div className="relative">
-                  <PasswordInput autoComplete="new-***REMOVED***" id="***REMOVED***"
-                      type={showPassword ? 'text' : '***REMOVED***'}
-                      {...register("***REMOVED***", { required: true,
+                  <PasswordInput autoComplete="new-password" id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      {...register("key", { required: true,
                           validate: {
-                              ***REMOVED***: userKeyValidator
+                              key: userKeyValidator
                           }            
                           })}                        />
                       <Button
@@ -182,14 +182,14 @@ export function ChangeKeyForm({
                           />
                           )}
                           <span className="sr-only">
-                          {showPassword ? "Hide ***REMOVED***" : "Show ***REMOVED***"}
+                          {showPassword ? "Hide password" : "Show password"}
                           </span>
                       </Button>
 
-                      {/* hides browsers ***REMOVED*** toggles */}
+                      {/* hides browsers password toggles */}
                       <style>{`
-                          .hide-***REMOVED***-toggle::-ms-reveal,
-                          .hide-***REMOVED***-toggle::-ms-clear {
+                          .hide-password-toggle::-ms-reveal,
+                          .hide-password-toggle::-ms-clear {
                           visibility: hidden;
                           pointer-events: none;
                           display: none;
@@ -198,17 +198,17 @@ export function ChangeKeyForm({
                 </div>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={(e) => {
                   e.preventDefault();
-                  setValue('***REMOVED***', generateEncryptionKey());
+                  setValue('key', generateEncryptionKey());
                   setShowPassword(true);
                 }}><WandIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const ***REMOVED***PrinterPdf = pdf(KeyPrint({ ***REMOVED***: getValues().***REMOVED***, databaseId: dbContext?.databaseId ?? '' }));
-                  window.open(URL.createObjectURL(await ***REMOVED***PrinterPdf.toBlob()));
+                  const keyPrinterPdf = pdf(KeyPrint({ key: getValues().key, databaseId: dbContext?.databaseId ?? '' }));
+                  window.open(URL.createObjectURL(await keyPrinterPdf.toBlob()));
                 }}><PrinterIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const textToCopy = 'Database Id: '+ dbContext?.databaseId + "\nKey Id: " + getValues().***REMOVED***;
+                  const textToCopy = 'Database Id: '+ dbContext?.databaseId + "\nKey Id: " + getValues().key;
                   if ('clipboard' in navigator) {
                     navigator.clipboard.writeText(textToCopy);
                   } else {
@@ -219,9 +219,9 @@ export function ChangeKeyForm({
               <div>
                 {printKey}
               </div>
-              {errors.***REMOVED*** && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+              {errors.key && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Please save or print this master ***REMOVED***. <strong>It&apos;s like crypto wallet.</strong> After losing it your medical records <strong className="text-red-500">WILL BE LOST FOREVER</strong>.
+              Please save or print this master key. <strong>It&apos;s like crypto wallet.</strong> After losing it your medical records <strong className="text-red-500">WILL BE LOST FOREVER</strong>.
               We&apos;re using strong AES256 end-to-end encryption.
           </p>        
         </div>

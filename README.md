@@ -58,7 +58,7 @@ Therefore, we are super open to any person or company willing to develop their o
 
 ## Try it out
 
-You can host Doctor Dok on your own because it's <a href="LICENSE">MIT Licensed</a> Open Source. You might also want to give it a try in a hosted, fully secured, end2end encrypted environment by registering to beta tests on https://doctordok.com. You'll get AI ***REMOVED***s + free hosting for your health data.
+You can host Doctor Dok on your own because it's <a href="LICENSE">MIT Licensed</a> Open Source. You might also want to give it a try in a hosted, fully secured, end2end encrypted environment by registering to beta tests on https://doctordok.com. You'll get AI tokens + free hosting for your health data.
 
 <a href="https://doctordok.com"><img src="readme-assets/try-doctordok.png" alt="Try Doctor Dok for free" /></a>
 
@@ -87,7 +87,7 @@ You can host Doctor Dok on your own because it's <a href="LICENSE">MIT Licensed<
 - Safe sharing within your family, with your physician etc - using Sharing Key feature,
 - Access from Mobile or Desktop,
 - Dark and Light themes supported,
-- Full Rest API with JWT ***REMOVED***orization for managing `folders`, `patinet-records`, `encrypted-attachments`, ai integrations and so on.
+- Full Rest API with JWT authorization for managing `folders`, `patinet-records`, `encrypted-attachments`, ai integrations and so on.
 - 100% TypeScript, Next JS, React + Shadcn-ui tech stack.
 
 <img src="readme-assets/features.png" alt="Features ..." />
@@ -103,7 +103,7 @@ Doctor Dok includes a powerfull Web API for building health-related apps includi
 
 ## PDF Extract API
 
-If a document parsing and understanding is your thing, you might be also interested in a offspring project called [pdf-extract-***REMOVED***](https://github.com/CatchTheTornado/pdf-extract-***REMOVED***) which is just an OCR API based on local/open source models so it could be safely used for tasks like removing personal information and processing medical records.
+If a document parsing and understanding is your thing, you might be also interested in a offspring project called [pdf-extract-api](https://github.com/CatchTheTornado/pdf-extract-api) which is just an OCR API based on local/open source models so it could be safely used for tasks like removing personal information and processing medical records.
 
 ## Structured data
 
@@ -111,7 +111,7 @@ Doctor Dok uses standarized JSON format to which parses all input health records
 
 ## Encrypted storage
 
-All the health records (including file attachments) are **encrypted in the browser** before sending to the server. Your private ***REMOVED*** is never exchanged with the server. Therefore there's no way to access, take over or modify the data. The only exception is if you decide to use Chat GPT which is powering data-parsing, summary, context and conclusion making processes. Even if so, you're up to enter your own Chat GPT API ***REMOVED*** and the data is being sent directly from your browser to chatGPT subject to [OpenAI privacy policies](https://openai.com/pl-PL/policies/eu-privacy-policy/).
+All the health records (including file attachments) are **encrypted in the browser** before sending to the server. Your private key is never exchanged with the server. Therefore there's no way to access, take over or modify the data. The only exception is if you decide to use Chat GPT which is powering data-parsing, summary, context and conclusion making processes. Even if so, you're up to enter your own Chat GPT API key and the data is being sent directly from your browser to chatGPT subject to [OpenAI privacy policies](https://openai.com/pl-PL/policies/eu-privacy-policy/).
 
 ## Getting Started
 
@@ -145,7 +145,7 @@ export const ENV_PROVIDED_CONFIG = {
 ## Medical use cases
 
 ### Medical Records
-Extract ***REMOVED*** patient data points for comprehensive health timelines. Identify potential gaps in care or follow-up needs.
+Extract key patient data points for comprehensive health timelines. Identify potential gaps in care or follow-up needs.
 
 ### Clinical Findings
 Capture and categorize clinician observations. Correlate subjective findings with objective data points.
@@ -154,19 +154,19 @@ Capture and categorize clinician observations. Correlate subjective findings wit
 Standardize diverse hematology reporting formats. Flag unusual cell populations or counts for specialist review.
 
 ### Pathology Report
-Extract ***REMOVED*** findings from narrative reports. Organize biopsy results for easy review and comparison.
+Extract key findings from narrative reports. Organize biopsy results for easy review and comparison.
 
 ### Serology Results
 Standardize antibody test results across different assays. Monitor immune status changes over time.
 
 ### Electrolyte Panel
-Track electrolyte balance over multiple tests. Alert to r***REMOVED***d changes or consistent imbalances.
+Track electrolyte balance over multiple tests. Alert to rapid changes or consistent imbalances.
 
 ### Renal Function Tests
 Calculate and track kidney function metrics over time. Highlight trends that may indicate declining renal function
 
 ### Radiology Report
-Extract ***REMOVED*** findings from narrative radiology reports. Link report data with actual images for comprehensive review.
+Extract key findings from narrative radiology reports. Link report data with actual images for comprehensive review.
 
 ### Microbiology Results
 Organize culture results and antibiotic sensitivities. Track pathogen prevalence and antibiotic resistance patterns.

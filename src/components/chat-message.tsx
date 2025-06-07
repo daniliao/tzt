@@ -194,7 +194,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, ref }) => {
                                     className='w-100 p-2'
                                     width={100}
                                     height={100}
-                                    ***REMOVED***={`${message.id}-${index}`}
+                                    key={`${message.id}-${index}`}
                                     src={attachment.url}
                                     alt={attachment.name}
                                 />
@@ -208,7 +208,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, ref }) => {
                                     className='w-100 p-2'
                                     width={100}
                                     height={100}
-                                    ***REMOVED***={`${message.id}-${index}`}
+                                    key={`${message.id}-${index}`}
                                     src={attachment.url}
                                     alt={attachment.name}
                                 />

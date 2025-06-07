@@ -62,7 +62,7 @@ export default function RecordList({ folder }: {folder: Folder}) {
 
                   {recordContext?.filterAvailableTags && recordContext?.filterAvailableTags.length > 0 ? (
                     tagsTimeline.map((tag, index) => (
-                      <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag.year) ? 'default' : 'secondary' } onClick={() => { 
+                      <div key={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag.year) ? 'default' : 'secondary' } onClick={() => { 
                         if (folderContext?.currentFolder) {
                             recordContext?.setFilterSelectedTags(recordContext.filterSelectedTags.filter(t => !tagsTimeline.map(t => t.year).includes(t)));
                             recordContext?.filterToggleTag(tag.year);
@@ -73,7 +73,7 @@ export default function RecordList({ folder }: {folder: Folder}) {
                   ) : ''}
 
                   {recordContext?.filterSelectedTags.filter(tg => !tagsTimeline.find(t => parseInt(t.year) === parseInt(tg))).map((tag, index) => (
-                    <div ***REMOVED***={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag) ? 'default' : 'secondary' } onClick={() => { 
+                    <div key={index} className="text-sm inline-flex w-auto"><Button className="h-10" variant={recordContext.filterSelectedTags.includes(tag) ? 'default' : 'secondary' } onClick={() => { 
                       if (folderContext?.currentFolder) {
                         recordContext?.filterToggleTag(tag);
                       }
@@ -108,7 +108,7 @@ export default function RecordList({ folder }: {folder: Folder}) {
             ) : (null) }            
 
             {sort(recordContext?.filteredRecords ?? []).by(getSortBy(recordContext?.sortBy ?? 'eventDate desc')).map((record, index) => (
-              <RecordItem ***REMOVED***={index} record={record} displayAttachmentPreviews={displayAttachmentPreviews} />
+              <RecordItem key={index} record={record} displayAttachmentPreviews={displayAttachmentPreviews} />
             ))}
           </div>
 

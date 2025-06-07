@@ -25,7 +25,7 @@ import { buttonVariants } from "@/components/ui/button";
 import axios from "axios";
 import { EncryptedAttachmentDTO, EncryptedAttachmentDTOEncSettings } from "@/data/dto";
 import { v4 as uuidv4 } from 'uuid';
-import { EncryptedAttachmentApiClient } from "@/data/client/encrypted-attachment-***REMOVED***-client";
+import { EncryptedAttachmentApiClient } from "@/data/client/encrypted-attachment-api-client";
 import { ConfigContext } from "@/contexts/config-context";
 import { DTOEncryptionFilter, EncryptionUtils } from "@/lib/crypto";
 import { DatabaseContext } from "@/contexts/db-context";
@@ -178,15 +178,15 @@ export const EncryptedAttachmentUploader = forwardRef<
               : "ArrowLeft"
             : "ArrowDown";
 
-        if (e.***REMOVED*** === nextKey) {
+        if (e.key === nextKey) {
           moveNext();
-        } else if (e.***REMOVED*** === prevKey) {
+        } else if (e.key === prevKey) {
           movePrev();
-        } else if (e.***REMOVED*** === "Enter" || e.***REMOVED*** === "Space") {
+        } else if (e.key === "Enter" || e.key === "Space") {
           if (activeIndex === -1) {
             dropzoneState.inputRef.current?.click();
           }
-        } else if (e.***REMOVED*** === "Delete" || e.***REMOVED*** === "Backspace") {
+        } else if (e.key === "Delete" || e.key === "Backspace") {
           if (activeIndex !== -1) {
             removeFileFromSet(activeIndex);
             if (value.length - 1 === 0) {
@@ -195,7 +195,7 @@ export const EncryptedAttachmentUploader = forwardRef<
             }
             movePrev();
           }
-        } else if (e.***REMOVED*** === "Escape") {
+        } else if (e.key === "Escape") {
           setActiveIndex(-1);
         }
       },
@@ -246,10 +246,10 @@ export const EncryptedAttachmentUploader = forwardRef<
 
             formData.append("attachmentDTO", JSON.stringify(attachmentDTO));
             try {
-              const ***REMOVED***Client = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
+              const apiClient = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
                 useEncryption: false  // for FormData we're encrypting records by ourselves - above
               })
-              const result = await ***REMOVED***Client.put(formData);
+              const result = await apiClient.put(formData);
               if (result.status === 200) {
                 const decryptedAttachmentDTO: EncryptedAttachmentDTO = (encFilter ? await encFilter.decrypt(result.data, EncryptedAttachmentDTOEncSettings) : result.data) as EncryptedAttachmentDTO;
                 console.log('Attachment saved', decryptedAttachmentDTO);

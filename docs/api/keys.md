@@ -1,28 +1,28 @@
 ### REST API Documentation for KeyApiClient
 
-This documentation is based on the `KeyApiClient` class defined in `src/data/client/***REMOVED***-***REMOVED***-client.ts`.
+This documentation is based on the `KeyApiClient` class defined in `src/data/client/key-api-client.ts`.
 
-#### GET `/***REMOVED***/***REMOVED***s`
+#### GET `/api/keys`
 
-Fetches all ***REMOVED***s.
+Fetches all keys.
 
 - **Request Parameters**: None
 - **Response**:
   - **Success** (`200 OK`):
-    - Returns an array of `KeyDTO` objects representing the ***REMOVED***s.
+    - Returns an array of `KeyDTO` objects representing the keys.
 
 ```typescript
 async get(): Promise<KeyDTO[]> {
-  return this.request<KeyDTO[]>('/***REMOVED***/***REMOVED***s', 'GET', { ecnryptedFields: [] }) as Promise<KeyDTO[]>;
+  return this.request<KeyDTO[]>('/api/keys', 'GET', { ecnryptedFields: [] }) as Promise<KeyDTO[]>;
 }
 ```
 
-#### PUT `/***REMOVED***/***REMOVED***s`
+#### PUT `/api/keys`
 
-Updates a ***REMOVED***.
+Updates a key.
 
 - **Request Body**: 
-  - `PutKeyRequest`: A `KeyDTO` object representing the ***REMOVED*** to be updated.
+  - `PutKeyRequest`: A `KeyDTO` object representing the key to be updated.
 - **Response**:
   - **Success** (`200 OK`):
     - `PutKeyResponseSuccess`: Contains a message, the updated `KeyDTO` object, and a status code.
@@ -30,17 +30,17 @@ Updates a ***REMOVED***.
     - `PutKeyResponseError`: Contains an error message, status code, and optional issues.
 
 ```typescript
-async put(***REMOVED***: PutKeyRequest): Promise<PutKeyResponse> {
-  return this.request<PutKeyResponse>('/***REMOVED***/***REMOVED***s', 'PUT', { ecnryptedFields: [] }, ***REMOVED***) as Promise<PutKeyResponse>;
+async put(key: PutKeyRequest): Promise<PutKeyResponse> {
+  return this.request<PutKeyResponse>('/api/keys', 'PUT', { ecnryptedFields: [] }, key) as Promise<PutKeyResponse>;
 }
 ```
 
-#### DELETE `/***REMOVED***/***REMOVED***s/{***REMOVED***LocatorHash}`
+#### DELETE `/api/keys/{keyLocatorHash}`
 
-Deletes a ***REMOVED***.
+Deletes a key.
 
 - **Request Parameters**:
-  - `***REMOVED***LocatorHash` (Path): The locator hash of the ***REMOVED*** to be deleted.
+  - `keyLocatorHash` (Path): The locator hash of the key to be deleted.
 - **Response**:
   - **Success** (`200 OK`):
     - `PutKeyResponseSuccess`: Contains a message and a status code.
@@ -48,8 +48,8 @@ Deletes a ***REMOVED***.
     - `PutKeyResponseError`: Contains an error message, status code, and optional issues.
 
 ```typescript
-async delete(***REMOVED***LocatorHash: string): Promise<PutKeyResponse> {
-  return this.request<PutKeyResponse>('/***REMOVED***/***REMOVED***s/' + ***REMOVED***LocatorHash, 'DELETE', { ecnryptedFields: [] }) as Promise<PutKeyResponse>;
+async delete(keyLocatorHash: string): Promise<PutKeyResponse> {
+  return this.request<PutKeyResponse>('/api/keys/' + keyLocatorHash, 'DELETE', { ecnryptedFields: [] }) as Promise<PutKeyResponse>;
 }
 ```
 
@@ -57,7 +57,7 @@ async delete(***REMOVED***LocatorHash: string): Promise<PutKeyResponse> {
 
 #### KeyDTO
 
-Represents a ***REMOVED*** in the system.
+Represents a key in the system.
 
 ```typescript
 export interface KeyDTO {
@@ -71,7 +71,7 @@ export interface KeyDTO {
 
 #### PutKeyRequest
 
-A `KeyDTO` object representing the ***REMOVED*** to be updated.
+A `KeyDTO` object representing the key to be updated.
 
 ```typescript
 export type PutKeyRequest = KeyDTO;
@@ -79,7 +79,7 @@ export type PutKeyRequest = KeyDTO;
 
 #### PutKeyResponseSuccess
 
-Represents a successful response for updating a ***REMOVED***.
+Represents a successful response for updating a key.
 
 ```typescript
 export type PutKeyResponseSuccess = {
@@ -91,7 +91,7 @@ export type PutKeyResponseSuccess = {
 
 #### PutKeyResponseError
 
-Represents an error response for updating a ***REMOVED***.
+Represents an error response for updating a key.
 
 ```typescript
 export type PutKeyResponseError = {
@@ -109,4 +109,4 @@ A union type of `PutKeyResponseSuccess` and `PutKeyResponseError`.
 export type PutKeyResponse = PutKeyResponseSuccess | PutKeyResponseError;
 ```
 
-For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/***REMOVED***-***REMOVED***-client.ts).
+For more details, see the [source code](https://github.com/CatchTheTornado/doctor-dok/blob/main/src/data/client/key-api-client.ts).

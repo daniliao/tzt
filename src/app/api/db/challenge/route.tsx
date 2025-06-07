@@ -1,5 +1,5 @@
-import { databaseAuthorizeChallengeRequestSchema, ***REMOVED***HashParamsDTOSchema, KeyDTO } from "@/data/dto";
-import ServerKeyRepository from "@/data/server/server-***REMOVED***-repository";
+import { databaseAuthorizeChallengeRequestSchema, keyHashParamsDTOSchema, KeyDTO } from "@/data/dto";
+import ServerKeyRepository from "@/data/server/server-key-repository";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 
 
@@ -8,9 +8,9 @@ export async function POST(request: Request) {
         const jsonRequest = await request.json();
         const validationResult = databaseAuthorizeChallengeRequestSchema.safeParse(jsonRequest); // validation
         if (validationResult.success === true) {
-            const ***REMOVED***ChallengeRequest = validationResult.data;
-            const ***REMOVED***Repo = new ServerKeyRepository(***REMOVED***ChallengeRequest.databaseIdHash); // get the user ***REMOVED***
-            const existingKeys = await ***REMOVED***Repo.findAll({  filter: { ***REMOVED***LocatorHash: ***REMOVED***ChallengeRequest.***REMOVED***LocatorHash } }); // check if ***REMOVED*** already exists
+            const authChallengeRequest = validationResult.data;
+            const keyRepo = new ServerKeyRepository(authChallengeRequest.databaseIdHash); // get the user key
+            const existingKeys = await keyRepo.findAll({  filter: { keyLocatorHash: authChallengeRequest.keyLocatorHash } }); // check if key already exists
 
             if(existingKeys.length === 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                 return Response.json({
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
                     status: 401               
                 });                    
             } else {
-                const khpdValidation = ***REMOVED***HashParamsDTOSchema.safeParse(JSON.parse(existingKeys[0].***REMOVED***HashParams))
+                const khpdValidation = keyHashParamsDTOSchema.safeParse(JSON.parse(existingKeys[0].keyHashParams))
                 if (!khpdValidation.success) {
                     console.error(khpdValidation);
                     return Response.json({
@@ -27,10 +27,10 @@ export async function POST(request: Request) {
                         status: 400               
                     });  
                 } else {
-                    const ***REMOVED***HashParamsObject = khpdValidation.data
+                    const keyHashParamsObject = khpdValidation.data
                     return Response.json({
                         message: 'Key found. Challenge is ready.',
-                        data: ***REMOVED***HashParamsObject,
+                        data: keyHashParamsObject,
                         status: 200
                     });       
                 }             

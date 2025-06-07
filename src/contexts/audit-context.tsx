@@ -4,11 +4,11 @@ import React, { createContext, PropsWithChildren, useContext, useState } from 'r
 import { DatabaseContext, DatabaseContextType, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt } from './db-context';
 import { toast } from 'sonner';
 import { AuditDTO, KeyACLDTO, KeyDTO } from '@/data/dto';
-import { KeyApiClient, PutKeyResponse, PutKeyResponseError } from '@/data/client/***REMOVED***-***REMOVED***-client';
+import { KeyApiClient, PutKeyResponse, PutKeyResponseError } from '@/data/client/key-api-client';
 import { ConfigContextType } from '@/contexts/config-context';
 import { getCurrentTS } from '@/lib/utils';
 import assert from 'assert';
-import { AuditApiClient } from '@/data/client/audit-***REMOVED***-client';
+import { AuditApiClient } from '@/data/client/audit-api-client';
 import { SaaSContext } from './saas-context';
 const argon2 = require("argon2-browser");
 
@@ -59,14 +59,14 @@ export const AuditContextProvider: React.FC<PropsWithChildren> = ({ children }) 
     const saasContext = useContext(SaaSContext);
 
     const setupApiClient = async (config: ConfigContextType | null) => {
-        const client = new AuditApiClient('', dbContext, saasContext, { ***REMOVED***Key: dbContext?.masterKey, useEncryption: true });
+        const client = new AuditApiClient('', dbContext, saasContext, { secretKey: dbContext?.masterKey, useEncryption: true });
         return client;
     }
 
     const record = async (log: AuditDTO) => {
-        const ***REMOVED***Client = await setupApiClient(null);
+        const apiClient = await setupApiClient(null);
 
-        ***REMOVED***Client.put(log).then((response) => {
+        apiClient.put(log).then((response) => {
             if (response.status === 200) {
                 console.log('Audit log saved', log);
                 setLastAudit(log);
